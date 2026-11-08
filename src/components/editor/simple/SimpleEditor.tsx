@@ -699,7 +699,10 @@ function Sheet({ title, onClose, children, footer, keyboard = false }: { title: 
           </div>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-4 md:px-6">{children}</div>
-        {footer && <div className="shrink-0 border-t border-line px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 md:px-6 md:pb-5">{footer}</div>}
+        {footer && <div className={`shrink-0 border-t border-line px-5 pt-3 md:px-6 md:pb-5 ${lift ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]'}`}>{footer}</div>}
+        {/* With the keyboard up, the sheet continues behind it (and behind Safari's floating address bar),
+            so it reads as one surface resting on the keyboard instead of a card hovering over a gap. */}
+        {lift > 0 && <span aria-hidden className="pointer-events-none absolute inset-x-0 top-full bg-card" style={{ height: lift + 48 }} />}
       </div>
     </div>
   );
