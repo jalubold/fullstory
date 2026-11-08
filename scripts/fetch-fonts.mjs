@@ -2,6 +2,9 @@
 // converts them to WOFF2. The SAME font files are used by the browser renderer
 // (WOFF2) and the PDF renderer (TTF), so text metrics match between editor,
 // preview and exported PDF.
+//
+// After fetching, run `python3 scripts/subset-web-fonts.py` to rebuild the
+// browser WOFF2 files as Latin subsets (same metrics, ~40% smaller).
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import wawoff2 from 'wawoff2';

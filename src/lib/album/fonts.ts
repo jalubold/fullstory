@@ -185,7 +185,9 @@ export const FONTS: Record<FontId, FontDef> = {
   },
 };
 
-export const FONT_LIST: FontDef[] = Object.values(FONTS);
+/** Editor font menu order: book serifs first, then display, script and sans faces. */
+const ORDER: FontId[] = ['garamond', 'cormorant', 'bodoni', 'baskerville', 'playfair', 'dmserif', 'fraunces', 'pinyon', 'greatvibes', 'jost', 'inter', 'manrope', 'montserrat', 'josefin', 'caveat', 'specialelite', 'fredoka'];
+export const FONT_LIST: FontDef[] = [...ORDER.map((id) => FONTS[id]), ...Object.values(FONTS).filter((f) => !ORDER.includes(f.id))];
 
 /** Pick the closest available face for a requested weight/style. */
 export function resolveFace(fontId: FontId, weight: number, italic: boolean): FontFace {
