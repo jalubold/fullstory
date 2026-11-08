@@ -102,7 +102,7 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-lg">
-              Customize This Template <ArrowRight size={16} />
+              Use this design <ArrowRight size={16} />
             </Link>
             <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary btn-lg">
               <Eye size={16} /> Preview full album

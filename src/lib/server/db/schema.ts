@@ -170,4 +170,9 @@ alter table orders add column if not exists print_options jsonb
     sql: `alter table projects add column if not exists client_key text;
 create unique index if not exists projects_user_client_key on projects (user_id, client_key) where client_key is not null`,
   },
+  {
+    id: 5,
+    name: 'orders-project-index',
+    sql: `create index if not exists orders_project_idx on orders (project_id)`,
+  },
 ];

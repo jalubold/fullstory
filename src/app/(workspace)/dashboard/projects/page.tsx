@@ -17,7 +17,7 @@ async function List() {
 export default function Page() {
   return (
     <>
-      <PageHeader title="All albums" text="Every album you’ve started." action={<Link href="/create" className="btn btn-primary btn-sm"><Plus size={15} /> Create New Album</Link>} />
+      <PageHeader title="All albums" text="Every album you’ve started." action={<Link href="/create" className="btn btn-primary btn-sm"><Plus size={15} /> Begin a new book</Link>} />
       <Suspense fallback={<div className="h-80 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>

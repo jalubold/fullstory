@@ -29,7 +29,7 @@ export default function PricingPage() {
         <h2 className="font-serif text-3xl">Questions about your album?</h2>
         <p className="mt-2 text-ink-soft">Read our FAQ or start designing — you can change your mind at checkout.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/create" className="btn btn-primary">Create Your Album</Link>
+          <Link href="/create" className="btn btn-primary">Begin your book</Link>
           <Link href="/faq" className="btn btn-secondary">Read the FAQ</Link>
         </div>
       </div>

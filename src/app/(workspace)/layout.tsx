@@ -17,7 +17,7 @@ export default function WorkspaceLayout({ children }: LayoutProps<'/'>) {
           <div className="flex items-center gap-3">
             <span className="hidden text-xs text-muted sm:inline">Albums saved in this browser</span>
             <Link href="/create" className="btn btn-primary btn-sm">
-              <Plus size={15} /> <span className="hidden sm:inline">Create New Album</span>
+              <Plus size={15} /> <span className="hidden sm:inline">Begin a new book</span>
             </Link>
           </div>
         </div>

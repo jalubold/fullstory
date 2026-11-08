@@ -35,7 +35,7 @@ export default async function TemplatePreviewPage({ params }: PageProps<'/templa
       backLabel="Template details"
       actions={
         <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-sm">
-          <span className="hidden sm:inline">Customize this template</span>
+          <span className="hidden sm:inline">Use this design</span>
           <span className="sm:hidden">Use</span>
         </Link>
       }

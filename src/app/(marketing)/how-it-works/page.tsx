@@ -108,7 +108,7 @@ export default function HowItWorksPage() {
       <section className="container-page mt-20 text-center">
         <h2 className="font-serif text-4xl">Ready when you are.</h2>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/create" className="btn btn-primary btn-lg">Create Your Album</Link>
+          <Link href="/create" className="btn btn-primary btn-lg">Begin your book</Link>
           <Link href="/pricing" className="btn btn-secondary btn-lg">See pricing</Link>
         </div>
       </section>
