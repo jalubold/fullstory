@@ -68,7 +68,7 @@ async function Checkout({ params, searchParams }: { params: Promise<{ id: string
       </aside>
       <div>
         {typeof sp.cancelled === 'string' && <p className="mb-6 rounded-xl bg-paper-2 px-4 py-3 text-sm text-ink-soft">Payment was cancelled — nothing was charged. You can try again whenever you’re ready.</p>}
-        {catalog.isSample && <p className="mb-6 rounded-xl border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning">Sample catalog: prices are placeholders from src/config/catalog.json.</p>}
+        {catalog.isSample && process.env.NODE_ENV !== 'production' && <p className="mb-6 rounded-xl border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning">Sample catalog: prices are placeholders from src/config/catalog.json.</p>}
         <CheckoutForm
           projectId={project.id}
           catalog={catalog}

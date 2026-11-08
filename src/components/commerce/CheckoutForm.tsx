@@ -259,7 +259,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
               <Check size={12} /> Secure checkout with {provider.label}
             </p>
           ) : (
-            <p className="mt-3 text-center text-xs text-warning">Payments aren’t configured on this site yet.</p>
+            <p className="mt-3 text-center text-xs leading-relaxed text-muted">Ordering opens very soon. Your album is saved here — come back any time.</p>
           )}
           {provider?.isTest && <p className="mt-3 rounded-lg bg-warning-soft px-3 py-2 text-center text-xs text-warning">Test mode — no real payment will be taken.</p>}
         </div>

@@ -17,7 +17,7 @@ export default function PricingPage() {
         <h1 className="mt-3 font-serif text-5xl font-medium md:text-6xl">Design for free. Pay when it’s perfect.</h1>
         <p className="mt-4 text-lg text-ink-soft">{catalog.print.enabled !== false ? 'Choose a printed book, a digital PDF, a shareable online album — or all three.' : 'Choose a high-resolution PDF, a shareable page-turning album — or both.'}</p>
       </header>
-      {catalog.isSample && (
+      {catalog.isSample && process.env.NODE_ENV !== 'production' && (
         <p className="mx-auto mt-8 max-w-2xl rounded-xl border border-warning/30 bg-warning-soft px-4 py-3 text-center text-sm text-warning">
           Sample catalog: prices and product specifications are placeholders set in <code className="font-mono text-xs">src/config/catalog.json</code>.
         </p>
