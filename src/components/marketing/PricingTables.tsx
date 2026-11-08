@@ -27,6 +27,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
         </div>
       </div>
 
+      <h2 className="sr-only">Digital editions</h2>
       <div className="mt-8 grid gap-5 md:grid-cols-2">
         {[
           { icon: Download, item: catalog.digital.pdf },

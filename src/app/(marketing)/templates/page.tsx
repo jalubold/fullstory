@@ -28,6 +28,7 @@ export default function TemplatesPage() {
           .
         </p>
       </header>
+      <h2 className="sr-only">All designs</h2>
       <div className="mt-12">
         <TemplateBrowser items={items} {...browseOptions()} />
       </div>

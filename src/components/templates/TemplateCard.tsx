@@ -38,7 +38,7 @@ export function TemplateCard({ demo, eager }: { demo: TemplateDemo; eager?: bool
       <Link href={`/templates/${t.id}`} className="relative block aspect-[1/0.92] overflow-hidden bg-paper-2" aria-label={`${t.name} — view design`}>
         <TemplateVisual demo={demo} eager={eager} />
         {t.tier === 'premium' && <span className="smallcaps absolute left-4 top-4 !text-[0.625rem] !text-accent">Premium</span>}
-        <span className="folio absolute right-4 top-3.5">No. {String(no).padStart(2, '0')}</span>
+        <span className="folio absolute right-4 top-3.5 !text-muted">No. {String(no).padStart(2, '0')}</span>
       </Link>
       <div className="mt-4 flex items-baseline justify-between gap-3 border-b border-line pb-3">
         <h3 className="font-serif text-[1.75rem] leading-none text-ink">
