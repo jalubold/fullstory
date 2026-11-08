@@ -15,6 +15,8 @@ export interface UploadItem {
   progress: number;
   status: 'queued' | 'uploading' | 'done' | 'error';
   error?: string;
+  /** Set once the photo is registered and visible from its local copy. */
+  photoId?: string;
 }
 
 export interface Toast {
@@ -117,7 +119,13 @@ export const useEditor = create<EditorState>()((set, get) => ({
   dragPhotoId: null,
   sizes: [],
 
-  init: ({ projectId, title, status, doc, version, photos, sizes }) =>
+  init: ({ projectId, title, status, doc, version, photos: serverPhotos, sizes }) => {
+    // Opening the editor while photos are still uploading: keep them (shown from their local copies).
+    const s = get();
+    const same = s.projectId === projectId;
+    const known = new Set(serverPhotos.map((p) => p.id));
+    const inFlight = same ? s.photos.filter((p) => !known.has(p.id) && p.thumbUrl.startsWith('blob:')) : [];
+    const photos = inFlight.length ? [...serverPhotos, ...inFlight] : serverPhotos;
     set({
       sizes: sizes ?? [],
       projectId,
@@ -137,9 +145,10 @@ export const useEditor = create<EditorState>()((set, get) => ({
       saveState: 'saved',
       savedAt: Date.now(),
       changeCounter: 0,
-      uploads: [],
-      panel: photos.length ? 'photos' : 'photos',
-    }),
+      uploads: same ? s.uploads.filter((u) => u.status !== 'done') : [],
+      panel: 'photos',
+    });
+  },
 
   apply: (recipe, opts) => {
     const s = get();

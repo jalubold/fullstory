@@ -30,6 +30,7 @@ import type { BackgroundPattern, Page, PageSize, PhotoAsset, PhotoElement, TextR
 import { PHOTO_MIME } from './EditablePage';
 import { refLabel, useEditor, type PanelId } from './store';
 import { uploadFiles } from './uploads';
+import { UploadStatus, usePendingUploads } from './UploadStatus';
 import { MotionPanel } from './MotionPanel';
 
 const TABS: Array<{ id: PanelId; label: string; icon: typeof Files }> = [
@@ -201,7 +202,7 @@ const PageTile = memo(function PageTile({ label, page, size, photos, active, onC
 function PhotosPanel() {
   const photos = useEditor((s) => s.photos);
   const doc = useEditor((s) => s.doc);
-  const uploads = useEditor((s) => s.uploads);
+  const pending = usePendingUploads();
   const [filter, setFilter] = useState<'all' | 'unused'>('all');
   const [busy, setBusy] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -259,19 +260,7 @@ function PhotosPanel() {
         <span className="text-xs text-muted">or drag files anywhere · JPEG, PNG, WebP</span>
       </button>
 
-      {uploads.length > 0 && (
-        <ul className="space-y-2" aria-live="polite">
-          {uploads.map((u) => (
-            <li key={u.id} className="text-xs">
-              <div className="flex justify-between gap-2">
-                <span className="truncate">{u.name}</span>
-                <span className={u.status === 'error' ? 'text-danger' : 'text-muted'}>{u.status === 'error' ? 'Failed' : u.status === 'done' ? 'Done' : `${Math.round(u.progress * 100)}%`}</span>
-              </div>
-              {u.status === 'error' ? <p className="mt-0.5 text-danger">{u.error}</p> : <div className="mt-1 h-1 overflow-hidden rounded-full bg-paper-2"><div className="h-full bg-accent transition-all" style={{ width: `${u.progress * 100}%` }} /></div>}
-            </li>
-          ))}
-        </ul>
-      )}
+      <UploadStatus compact />
 
       {photos.length > 0 && (
         <>
@@ -306,8 +295,13 @@ function PhotosPanel() {
                   className="block aspect-square w-full overflow-hidden rounded-lg bg-paper-2"
                   title={p.alt}
                 >
-                  <img src={p.thumbUrl} alt={p.alt ?? ''} loading="lazy" className="h-full w-full object-cover" draggable={false} />
+                  <img src={p.thumbUrl} alt={p.alt ?? ''} loading="lazy" decoding="async" className="h-full w-full object-cover" draggable={false} />
                 </button>
+                {pending.has(p.id) && (
+                  <span aria-hidden className="pointer-events-none absolute inset-x-1 bottom-1 h-[3px] overflow-hidden rounded-full bg-black/25">
+                    <span className="block h-full bg-white transition-[width] duration-300" style={{ width: `${(pending.get(p.id) ?? 0) * 100}%` }} />
+                  </span>
+                )}
                 {used.has(p.id) && <span className="pointer-events-none absolute bottom-1 left-1 rounded-full bg-ink/75 px-1.5 text-[10px] text-paper">✓ {used.get(p.id)}</span>}
                 <button type="button" onClick={() => remove(p)} aria-label="Delete photo" className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white/90 text-ink opacity-0 shadow transition group-hover:opacity-100 focus:opacity-100">
                   {busy === p.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
@@ -317,7 +311,7 @@ function PhotosPanel() {
           </div>
         </>
       )}
-      {photos.length === 0 && uploads.length === 0 && <p className="text-center text-sm text-muted">No photos yet. Upload a few to start filling your album.</p>}
+      {photos.length === 0 && pending.size === 0 && <p className="text-center text-sm text-muted">No photos yet. Upload a few to start filling your album.</p>}
     </div>
   );
 }
