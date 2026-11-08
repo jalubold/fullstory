@@ -8,7 +8,7 @@ import { PageView } from '@/components/album/PageView';
 import { bookFinish, luminance } from '@/lib/album/color';
 import { cssFontStack } from '@/lib/album/fonts';
 import { buildSpreads, computeCrop, effectiveDpi, pageSizePt, panCrop } from '@/lib/album/geometry';
-import { allPages, autofill, findElement, pageAt } from '@/lib/album/ops';
+import { allPages, autofill, clearPhoto, findElement, pageAt } from '@/lib/album/ops';
 import type { AlbumDocument, AlbumElement, Crop, Page, PageRef, PageSize, PhotoAsset, PhotoElement, PhotoMap, TextElement } from '@/lib/album/types';
 import { MotionPanel } from '../MotionPanel';
 import { useEditor } from '../store';
@@ -553,37 +553,18 @@ function LibraryPanel({ refs }: { refs: Array<PageRef | null> }) {
           <>
             <p className="mb-3 text-xs leading-relaxed text-muted">Drag a photo onto any frame, or click to add it to the pages in view.</p>
             <div className="grid grid-cols-3 gap-1.5">
-              {ordered.map((p) => {
-                const progress = pending.get(p.id);
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData(PHOTO_MIME, p.id);
-                      e.dataTransfer.effectAllowed = 'copy';
-                    }}
-                    onClick={() => {
-                      if (!placeOnSpread(refs, p)) useEditor.getState().toast('These pages are full — drag the photo onto one to swap it');
-                    }}
-                    title={p.alt}
-                    className="relative aspect-square cursor-grab overflow-hidden rounded-[2px] bg-paper-2 transition hover:opacity-90 active:cursor-grabbing"
-                  >
-                    <img src={p.thumbUrl} alt={p.alt ?? ''} loading="lazy" decoding="async" draggable={false} className="h-full w-full object-cover" />
-                    {used.has(p.id) && (
-                      <span className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-ink/65 text-white" aria-label="Already in the album">
-                        <Check size={11} strokeWidth={3} />
-                      </span>
-                    )}
-                    {progress !== undefined && (
-                      <span aria-hidden className="absolute inset-x-1 bottom-1 h-[3px] overflow-hidden rounded-full bg-black/30">
-                        <span className="block h-full bg-white" style={{ width: `${progress * 100}%` }} />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+              {ordered.map((p) => (
+                <PhotoThumb
+                  key={p.id}
+                  photo={p}
+                  used={used.has(p.id)}
+                  progress={pending.get(p.id)}
+                  draggable
+                  onPick={() => {
+                    if (!placeOnSpread(refs, p)) useEditor.getState().toast('These pages are full — drag the photo onto one to swap it');
+                  }}
+                />
+              ))}
             </div>
           </>
         )}
@@ -815,30 +796,69 @@ function PhotoSheet({ target, refs, minDpi, onClose }: { target: Target | null; 
             </span>
           </p>
           <div className="grid grid-cols-4 gap-1.5 md:grid-cols-5">
-            {ordered.map((p) => {
-              const isCurrent = current?.id === p.id;
-              const progress = pending.get(p.id);
-              return (
-                <button key={p.id} type="button" onClick={() => choose(p)} disabled={isCurrent} className={`relative aspect-square overflow-hidden rounded-[2px] bg-paper-2 transition hover:opacity-90 active:opacity-80 ${isCurrent ? 'ring-2 ring-accent ring-offset-2 ring-offset-card' : ''}`}>
-                  <img src={p.thumbUrl} alt={p.alt ?? ''} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-                  {used.has(p.id) && !isCurrent && (
-                    <span className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-ink/65 text-white" aria-label="Already in the album">
-                      <Check size={11} strokeWidth={3} />
-                    </span>
-                  )}
-                  {isCurrent && <span className="absolute left-1 top-1 rounded-full bg-accent px-1.5 py-px text-[9px] font-medium uppercase tracking-wider text-white">Here</span>}
-                  {progress !== undefined && (
-                    <span aria-hidden className="absolute inset-x-1 bottom-1 h-[3px] overflow-hidden rounded-full bg-black/30">
-                      <span className="block h-full bg-white" style={{ width: `${progress * 100}%` }} />
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+            {ordered.map((p) => (
+              <PhotoThumb key={p.id} photo={p} used={used.has(p.id)} here={current?.id === p.id} progress={pending.get(p.id)} onPick={() => choose(p)} />
+            ))}
           </div>
         </>
       )}
     </Sheet>
+  );
+}
+
+/** Deletes a photo from the library (and from any frame using it). */
+async function deletePhoto(photo: PhotoAsset, inAlbum: boolean) {
+  if (inAlbum && !window.confirm('This photo is on a page of your album. Delete it? Its frame will be left empty.')) return;
+  const s = useEditor.getState();
+  if (inAlbum) s.apply((d) => void clearPhoto(d as AlbumDocument, photo.id));
+  s.removePhoto(photo.id);
+  const res = await fetch(`/api/photos/${photo.id}`, { method: 'DELETE' }).catch(() => null);
+  if (res && (res.ok || res.status === 404)) s.toast('Photo deleted', 'success');
+  else {
+    useEditor.getState().addPhotos([photo]);
+    s.toast('Couldn’t delete that photo — please try again', 'error');
+  }
+}
+
+/** A photo in the library: pick it, drag it (desktop), or delete it. */
+function PhotoThumb({ photo, used, here = false, progress, draggable = false, onPick }: { photo: PhotoAsset; used: boolean; here?: boolean; progress?: number; draggable?: boolean; onPick: () => void }) {
+  return (
+    <div className="group/thumb relative aspect-square">
+      <button
+        type="button"
+        onClick={onPick}
+        disabled={here}
+        draggable={draggable}
+        onDragStart={(e) => {
+          e.dataTransfer.setData(PHOTO_MIME, photo.id);
+          e.dataTransfer.effectAllowed = 'copy';
+        }}
+        title={photo.alt}
+        className={`block h-full w-full overflow-hidden rounded-[2px] bg-paper-2 transition hover:opacity-90 active:opacity-80 ${draggable ? 'cursor-grab active:cursor-grabbing' : ''} ${here ? 'ring-2 ring-accent ring-offset-2 ring-offset-card' : ''}`}
+      >
+        <img src={photo.thumbUrl} alt={photo.alt ?? ''} loading="lazy" decoding="async" draggable={false} className="h-full w-full object-cover" />
+      </button>
+      {used && !here && (
+        <span className="pointer-events-none absolute bottom-1 left-1 grid h-5 w-5 place-items-center rounded-full bg-ink/65 text-white" aria-label="Already in the album">
+          <Check size={11} strokeWidth={3} />
+        </span>
+      )}
+      {here && <span className="pointer-events-none absolute bottom-1 left-1 rounded-full bg-accent px-1.5 py-px text-[9px] font-medium uppercase tracking-wider text-white">Here</span>}
+      {progress !== undefined && (
+        <span aria-hidden className="pointer-events-none absolute inset-x-1 bottom-1 h-[3px] overflow-hidden rounded-full bg-black/30">
+          <span className="block h-full bg-white" style={{ width: `${progress * 100}%` }} />
+        </span>
+      )}
+      <button
+        type="button"
+        onClick={() => void deletePhoto(photo, used)}
+        aria-label="Delete photo"
+        title="Delete photo"
+        className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink-soft opacity-0 shadow-[0_2px_6px_rgb(0_0_0/.25)] transition hover:text-danger focus:opacity-100 group-hover/thumb:opacity-100 [@media(hover:none)]:opacity-100"
+      >
+        <X size={13} strokeWidth={2.4} />
+      </button>
+    </div>
   );
 }
 

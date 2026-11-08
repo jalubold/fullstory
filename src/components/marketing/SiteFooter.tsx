@@ -28,7 +28,7 @@ const COLUMNS = [
       { href: '/about', label: 'About' },
       { href: '/faq', label: 'FAQ' },
       { href: '/dashboard', label: 'My albums' },
-      ...(printEnabled() ? [{ href: '/dashboard/orders', label: 'Track an order' }] : []),
+      ...(printEnabled() ? [{ href: '/dashboard', label: 'Track an order' }] : []),
     ],
   },
 ];

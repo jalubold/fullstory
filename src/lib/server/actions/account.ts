@@ -19,7 +19,7 @@ export async function updateProfileAction(_: FormState, form: FormData): Promise
   const currency = String(form.get('currency') ?? '');
   if (email && !/^\S+@\S+\.\S+$/.test(email)) return { error: 'Please enter a valid email address.' };
   await updateProfile(user, { name: name || null, email: email || null, currency: currency || null });
-  revalidatePath('/dashboard/settings');
+  revalidatePath('/dashboard');
   return { ok: true, message: 'Saved.' };
 }
 

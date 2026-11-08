@@ -1,9 +1,6 @@
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { Plus } from 'lucide-react';
-import { WorkspaceNav } from '@/components/dashboard/WorkspaceNav';
 import { Logo } from '@/components/ui/Logo';
-import { printEnabled } from '@/lib/commerce/catalog';
 
 export default function WorkspaceLayout({ children }: LayoutProps<'/'>) {
   return (
@@ -12,22 +9,16 @@ export default function WorkspaceLayout({ children }: LayoutProps<'/'>) {
         <div className="container-page flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <Logo href="/" />
-            <Link href="/templates" className="hidden text-sm text-muted hover:text-ink md:inline">Templates</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-xs text-muted sm:inline">Albums saved in this browser</span>
-            <Link href="/create" className="btn btn-primary btn-sm">
-              <Plus size={15} /> <span className="hidden sm:inline">Begin a new book</span>
+            <Link href="/templates" className="hidden text-sm text-muted hover:text-ink md:inline">
+              Templates
             </Link>
           </div>
+          <Link href="/create" className="btn btn-primary btn-sm text-[0.6875rem] uppercase tracking-[0.16em]">
+            <Plus size={15} /> Begin a new book
+          </Link>
         </div>
       </header>
-      <div className="container-page flex flex-col gap-0 py-6 lg:flex-row lg:gap-10 lg:py-10">
-        <Suspense fallback={<div className="hidden w-60 shrink-0 lg:block" />}>
-          <WorkspaceNav printOn={printEnabled()} />
-        </Suspense>
-        <main className="min-w-0 flex-1">{children}</main>
-      </div>
+      <main className="container-page py-10 pb-24 lg:py-14">{children}</main>
     </div>
   );
 }

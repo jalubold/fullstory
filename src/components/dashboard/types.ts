@@ -10,3 +10,13 @@ export interface ProjectSummaryLite {
   size: PageSize;
   photos: PhotoMap;
 }
+
+/** What a bought album offers right from its card. */
+export interface AlbumExtras {
+  /** Latest paid order, for receipts and share settings. */
+  orderId?: string;
+  /** Paid order that includes the PDF. */
+  pdfOrderId?: string;
+  /** Path of a live share link, e.g. /share/abc. */
+  sharePath?: string;
+}

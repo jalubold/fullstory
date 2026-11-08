@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Copy, Eye, Loader2, MoreHorizontal, PenLine, Trash2, Type } from 'lucide-react';
+import { Check, Copy, Eye, Link2, Loader2, MoreHorizontal, PenLine, Receipt, Trash2, Type } from 'lucide-react';
 import { BookCover } from '@/components/album/Book';
-import type { ProjectSummaryLite } from './types';
+import { DownloadButton } from './OrderClient';
+import type { AlbumExtras, ProjectSummaryLite } from './types';
 
 function timeAgo(iso: string) {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -16,13 +17,24 @@ function timeAgo(iso: string) {
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso));
 }
 
-const STATUS: Record<string, { label: string; cls: string }> = {
-  draft: { label: 'Draft', cls: 'bg-paper-2 text-ink-soft' },
-  completed: { label: 'Completed', cls: 'bg-success-soft text-success' },
-  archived: { label: 'Archived', cls: 'bg-paper-2 text-muted' },
-};
+function CopyShare({ path }: { path: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        await navigator.clipboard.writeText(`${window.location.origin}${path}`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-soft hover:text-ink"
+    >
+      {copied ? <Check size={13} className="text-success" /> : <Link2 size={13} />} {copied ? 'Link copied' : 'Copy share link'}
+    </button>
+  );
+}
 
-export function ProjectCard({ p }: { p: ProjectSummaryLite }) {
+export function ProjectCard({ p, extras }: { p: ProjectSummaryLite; extras?: AlbumExtras }) {
   const router = useRouter();
   const [menu, setMenu] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -51,7 +63,7 @@ export function ProjectCard({ p }: { p: ProjectSummaryLite }) {
     } else alert('Something went wrong. Please try again.');
   };
 
-  const status = STATUS[p.status] ?? STATUS.draft;
+  const ordered = !!extras?.orderId;
   return (
     <article className="group relative">
       <Link href={`/projects/${p.id}/edit`} className="relative grid aspect-[4/3.2] place-items-center overflow-hidden rounded-[4px] bg-paper-2 transition-colors hover:bg-paper-3">
@@ -62,7 +74,7 @@ export function ProjectCard({ p }: { p: ProjectSummaryLite }) {
         <div className="min-w-0">
           <h3 className="truncate font-serif text-xl">{p.title}</h3>
           <p className="mt-0.5 text-xs text-muted">
-            <span className={`badge mr-1.5 ${status.cls}`}>{status.label}</span>
+            {ordered && <span className="badge mr-1.5 bg-success-soft text-success">Ordered</span>}
             {p.pageCount} pages · edited {edited || '…'}
           </p>
         </div>
@@ -71,7 +83,7 @@ export function ProjectCard({ p }: { p: ProjectSummaryLite }) {
             <MoreHorizontal size={18} />
           </button>
           {menu && (
-            <div className="absolute right-0 top-9 z-20 w-44 overflow-hidden rounded-xl border border-line bg-white py-1 shadow-pop">
+            <div className="absolute right-0 top-9 z-20 w-44 overflow-hidden rounded-[4px] border border-line bg-white py-1 shadow-pop">
               <button type="button" className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-paper" onClick={() => {
                 const title = window.prompt('Rename album', p.title)?.trim();
                 if (title) void act(() => fetch(`/api/projects/${p.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) }));
@@ -81,6 +93,11 @@ export function ProjectCard({ p }: { p: ProjectSummaryLite }) {
               <button type="button" className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-paper" onClick={() => act(() => fetch(`/api/projects/${p.id}/duplicate`, { method: 'POST' }))}>
                 <Copy size={14} /> Duplicate
               </button>
+              {extras?.orderId && (
+                <Link href={`/orders/${extras.orderId}`} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-paper">
+                  <Receipt size={14} /> Order &amp; receipt
+                </Link>
+              )}
               <button type="button" className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger hover:bg-danger-soft" onClick={() => {
                 if (window.confirm(`Delete “${p.title}”? This can’t be undone.`)) void act(() => fetch(`/api/projects/${p.id}`, { method: 'DELETE' }));
               }}>
@@ -91,9 +108,15 @@ export function ProjectCard({ p }: { p: ProjectSummaryLite }) {
         </div>
       </div>
       <div className="mt-3 flex gap-2">
-        <Link href={`/projects/${p.id}/edit`} className="btn btn-primary btn-sm"><PenLine size={14} /> Edit</Link>
+        <Link href={`/projects/${p.id}/edit`} className="btn btn-primary btn-sm"><PenLine size={14} /> Continue</Link>
         <Link href={`/projects/${p.id}/preview`} className="btn btn-secondary btn-sm"><Eye size={14} /> Preview</Link>
       </div>
+      {(extras?.pdfOrderId || extras?.sharePath) && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3">
+          {extras.pdfOrderId && <DownloadButton orderId={extras.pdfOrderId} label="Download PDF" className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-soft hover:text-ink [&>svg]:h-[13px] [&>svg]:w-[13px]" />}
+          {extras.sharePath && <CopyShare path={extras.sharePath} />}
+        </div>
+      )}
     </article>
   );
 }
