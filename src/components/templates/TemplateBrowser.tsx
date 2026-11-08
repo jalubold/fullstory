@@ -190,7 +190,7 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
               value={f.q}
               onChange={(e) => setF((p) => ({ ...p, q: e.target.value }))}
               placeholder="Search by name, occasion or style…"
-              className="input !rounded-full !pl-10"
+              className="input !pl-10"
             />
           </label>
           <div className="flex gap-2">
@@ -199,7 +199,7 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
             </button>
             <label className="flex items-center gap-2 text-sm text-muted">
               <span className="hidden sm:inline">Sort</span>
-              <select value={f.sort} onChange={(e) => setF((p) => ({ ...p, sort: e.target.value }))} className="input input-sm !w-auto !rounded-full !py-2 !pr-8">
+              <select value={f.sort} onChange={(e) => setF((p) => ({ ...p, sort: e.target.value }))} className="input input-sm !w-auto !py-2 !pr-8">
                 <option value="featured">Featured</option>
                 <option value="name">Name A–Z</option>
                 <option value="photos-asc">Fewest photos</option>
@@ -232,7 +232,7 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
             ))}
           </div>
         ) : (
-          <div className="mt-10 rounded-2xl border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
+          <div className="mt-10 border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
             <p className="font-serif text-2xl">No templates match those filters.</p>
             <p className="mt-2 text-sm text-muted">Try removing a filter or searching for something broader.</p>
             <button type="button" className="btn btn-secondary btn-sm mt-6" onClick={() => setF(EMPTY)}>
