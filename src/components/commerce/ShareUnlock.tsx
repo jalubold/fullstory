@@ -11,7 +11,7 @@ export function ShareUnlock({ token }: { token: string }) {
   const [busy, setBusy] = useState(false);
   return (
     <form
-      className="space-y-4"
+      className="mx-auto mt-10 max-w-xs space-y-3 text-left"
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
@@ -23,11 +23,11 @@ export function ShareUnlock({ token }: { token: string }) {
         router.refresh();
       }}
     >
-      <label className="label" htmlFor="pw">Password</label>
-      <input id="pw" type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus required />
-      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
-      <button type="submit" disabled={busy} className="btn btn-primary w-full">
-        {busy ? <Loader2 size={16} className="animate-spin" /> : <Lock size={15} />} View album
+      <label className="smallcaps block !text-white/60" htmlFor="pw">Password</label>
+      <input id="pw" type="password" className="input !border-white/20 text-center tracking-[0.2em]" autoComplete="off" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus required />
+      {error && <p role="alert" className="text-center text-sm text-[#ffd3d9]">{error}</p>}
+      <button type="submit" disabled={busy} className="btn btn-light btn-lg w-full text-[0.75rem] uppercase tracking-[0.2em]">
+        {busy ? <Loader2 size={16} className="animate-spin" /> : <Lock size={14} />} Open the album
       </button>
     </form>
   );

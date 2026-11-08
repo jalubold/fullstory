@@ -5,7 +5,7 @@ import { connection } from 'next/server';
 import { Download } from 'lucide-react';
 import { AlbumViewer } from '@/components/album/AlbumViewer';
 import { ShareUnlock } from '@/components/commerce/ShareUnlock';
-import { Logo } from '@/components/ui/Logo';
+import { ClothScreen } from '@/components/ui/ClothScreen';
 import { usedPhotoIds } from '@/lib/album/geometry';
 import type { PhotoMap } from '@/lib/album/types';
 import { bumpShareViews, getShareByToken, hasItem } from '@/lib/server/repo/orders';
@@ -15,20 +15,6 @@ import { getProjectPresentation } from '@/lib/server/repo/projects';
 
 export const metadata: Metadata = { title: 'Shared album', robots: { index: false, follow: false } };
 
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="grid min-h-dvh place-items-center bg-paper px-5">
-      <div className="w-full max-w-sm text-center">
-        <Logo className="justify-center" />
-        <div className="mt-10 rounded-3xl border border-line bg-white p-8 text-left">{children}</div>
-        <p className="mt-6 text-xs text-muted">
-          Made with <Link href="/" className="underline underline-offset-2">FULLSTORY</Link>
-        </p>
-      </div>
-    </div>
-  );
-}
-
 async function Shared({ params }: { params: Promise<{ token: string }> }) {
   // Access depends on the visitor's cookie and the link's expiry: always render per request.
   await connection();
@@ -37,19 +23,20 @@ async function Shared({ params }: { params: Promise<{ token: string }> }) {
   const access = await shareAccess(share);
   if (access.state === 'unavailable') {
     return (
-      <Shell>
-        <h1 className="font-serif text-3xl">Album unavailable</h1>
-        <p className="mt-2 text-sm text-ink-soft">{access.reason}</p>
-      </Shell>
+      <ClothScreen kicker="A shared album" title={<>This album has been <span className="italic">put away.</span></>} colophon>
+        <p className="mx-auto mt-5 max-w-sm text-white/70">{access.reason}</p>
+        <Link href="/" className="btn btn-light btn-lg mt-10 text-[0.75rem] uppercase tracking-[0.2em]">
+          Make an album of your own
+        </Link>
+      </ClothScreen>
     );
   }
   if (access.state === 'locked') {
     return (
-      <Shell>
-        <h1 className="font-serif text-3xl">{share!.title}</h1>
-        <p className="mb-6 mt-2 text-sm text-ink-soft">This album is password protected.</p>
+      <ClothScreen kicker="A private album" title={share!.title} colophon>
+        <p className="mx-auto mt-5 max-w-sm text-white/70">Whoever sent you this link added a password. Enter it to open the album.</p>
         <ShareUnlock token={token} />
-      </Shell>
+      </ClothScreen>
     );
   }
   await bumpShareViews(share!.id);

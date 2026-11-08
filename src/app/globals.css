@@ -783,6 +783,10 @@
   transform-origin: top;
   animation: fs-ribbon-sway 7s ease-in-out infinite;
 }
+.ribbon-ink {
+  /* a dark silk marker, for ribbons laid over the red cloth */
+  background: linear-gradient(90deg, #0b0607 0%, #241819 38%, #3a2a2c 50%, #1c1213 64%, #050203 100%);
+}
 @keyframes fs-ribbon-sway {
   0%,
   100% {

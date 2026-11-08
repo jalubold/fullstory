@@ -1,19 +1,18 @@
 import Link from 'next/link';
-import { Logo } from '@/components/ui/Logo';
+import { ClothScreen } from '@/components/ui/ClothScreen';
 
 export default function NotFound() {
   return (
-    <div className="grid min-h-dvh place-items-center bg-paper px-6 text-center">
-      <div>
-        <Logo className="justify-center" />
-        <p className="mt-12 font-serif text-7xl italic text-accent">404</p>
-        <h1 className="mt-4 font-serif text-4xl">This page isn’t in the album.</h1>
-        <p className="mt-3 text-ink-soft">The link may be broken, or the page may have moved.</p>
-        <div className="mt-8 flex justify-center gap-3">
-          <Link href="/" className="btn btn-primary">Back home</Link>
-          <Link href="/templates" className="btn btn-secondary">Browse templates</Link>
-        </div>
+    <ClothScreen stamp="404" kicker="A missing page" title={<>This page was never <span className="italic">bound in.</span></>}>
+      <p className="mx-auto mt-5 max-w-sm text-white/70">The link may be incomplete, or the page has moved. Everything else is right where you left it.</p>
+      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+        <Link href="/" className="btn btn-light btn-lg text-[0.75rem] uppercase tracking-[0.2em]">
+          Back to the beginning
+        </Link>
+        <Link href="/templates" className="text-[0.75rem] font-medium uppercase tracking-[0.2em] text-white">
+          <span className="link-underline">Browse the collection</span>
+        </Link>
       </div>
-    </div>
+    </ClothScreen>
   );
 }
