@@ -1,0 +1,310 @@
+{
+  "$comment": "FULLSTORY product catalog. All prices are integers in minor units (cents/pence). These are SAMPLE values for development — replace them with your real prices, formats and print specifications before launch, then set isSample to false. You can also override this file at runtime with the FULLSTORY_CATALOG_JSON environment variable.",
+  "isSample": true,
+  "currencies": [
+    "USD",
+    "GBP",
+    "EUR"
+  ],
+  "defaultCurrency": "USD",
+  "pages": {
+    "min": 20,
+    "max": 120,
+    "step": 2,
+    "default": 20
+  },
+  "sizes": [
+    {
+      "id": "square-8",
+      "label": "8 × 8 in",
+      "metricLabel": "20 × 20 cm",
+      "orientation": "square",
+      "widthMm": 203.2,
+      "heightMm": 203.2
+    },
+    {
+      "id": "square-10",
+      "label": "10 × 10 in",
+      "metricLabel": "25 × 25 cm",
+      "orientation": "square",
+      "widthMm": 254,
+      "heightMm": 254
+    },
+    {
+      "id": "square-12",
+      "label": "12 × 12 in",
+      "metricLabel": "30 × 30 cm",
+      "orientation": "square",
+      "widthMm": 304.8,
+      "heightMm": 304.8
+    },
+    {
+      "id": "landscape-11",
+      "label": "11 × 8.5 in",
+      "metricLabel": "28 × 22 cm",
+      "orientation": "landscape",
+      "widthMm": 279.4,
+      "heightMm": 215.9
+    },
+    {
+      "id": "landscape-14",
+      "label": "14 × 11 in",
+      "metricLabel": "36 × 28 cm",
+      "orientation": "landscape",
+      "widthMm": 355.6,
+      "heightMm": 279.4
+    },
+    {
+      "id": "portrait-8",
+      "label": "8.5 × 11 in",
+      "metricLabel": "22 × 28 cm",
+      "orientation": "portrait",
+      "widthMm": 215.9,
+      "heightMm": 279.4
+    }
+  ],
+  "covers": [
+    {
+      "id": "softcover",
+      "label": "Softcover",
+      "description": "Flexible matte cover, perfect bound."
+    },
+    {
+      "id": "hardcover",
+      "label": "Hardcover",
+      "description": "Printed wrap-around hardcover with a matte laminate."
+    },
+    {
+      "id": "layflat",
+      "label": "Layflat Hardcover",
+      "description": "Thick pages that open completely flat — ideal for panoramic spreads."
+    }
+  ],
+  "digital": {
+    "pdf": {
+      "label": "Digital PDF",
+      "description": "A high-resolution PDF of your finished album to download, keep and print anywhere.",
+      "price": {
+        "USD": 1200,
+        "GBP": 1000,
+        "EUR": 1100
+      }
+    },
+    "share": {
+      "label": "Shareable online album",
+      "description": "A private link to a beautiful page-turning version of your album, with optional password protection.",
+      "price": {
+        "USD": 900,
+        "GBP": 800,
+        "EUR": 900
+      }
+    }
+  },
+  "print": {
+    "basePrice": {
+      "square-8": {
+        "softcover": {
+          "USD": 3400,
+          "GBP": 2900,
+          "EUR": 3200
+        },
+        "hardcover": {
+          "USD": 4900,
+          "GBP": 4200,
+          "EUR": 4600
+        },
+        "layflat": {
+          "USD": 7900,
+          "GBP": 6800,
+          "EUR": 7400
+        }
+      },
+      "square-10": {
+        "softcover": {
+          "USD": 4400,
+          "GBP": 3800,
+          "EUR": 4200
+        },
+        "hardcover": {
+          "USD": 6400,
+          "GBP": 5500,
+          "EUR": 6000
+        },
+        "layflat": {
+          "USD": 9900,
+          "GBP": 8500,
+          "EUR": 9300
+        }
+      },
+      "square-12": {
+        "softcover": {
+          "USD": 5900,
+          "GBP": 5100,
+          "EUR": 5600
+        },
+        "hardcover": {
+          "USD": 7900,
+          "GBP": 6800,
+          "EUR": 7400
+        },
+        "layflat": {
+          "USD": 12900,
+          "GBP": 11000,
+          "EUR": 12100
+        }
+      },
+      "landscape-11": {
+        "softcover": {
+          "USD": 4400,
+          "GBP": 3800,
+          "EUR": 4200
+        },
+        "hardcover": {
+          "USD": 6400,
+          "GBP": 5500,
+          "EUR": 6000
+        },
+        "layflat": {
+          "USD": 9900,
+          "GBP": 8500,
+          "EUR": 9300
+        }
+      },
+      "landscape-14": {
+        "softcover": {
+          "USD": 6400,
+          "GBP": 5500,
+          "EUR": 6000
+        },
+        "hardcover": {
+          "USD": 8900,
+          "GBP": 7600,
+          "EUR": 8400
+        },
+        "layflat": {
+          "USD": 13900,
+          "GBP": 11900,
+          "EUR": 13100
+        }
+      },
+      "portrait-8": {
+        "softcover": {
+          "USD": 4200,
+          "GBP": 3600,
+          "EUR": 3900
+        },
+        "hardcover": {
+          "USD": 5900,
+          "GBP": 5100,
+          "EUR": 5600
+        },
+        "layflat": {
+          "USD": 9400,
+          "GBP": 8100,
+          "EUR": 8800
+        }
+      }
+    },
+    "extraPagePrice": {
+      "square-8": {
+        "USD": 100,
+        "GBP": 90,
+        "EUR": 95
+      },
+      "square-10": {
+        "USD": 140,
+        "GBP": 120,
+        "EUR": 130
+      },
+      "square-12": {
+        "USD": 180,
+        "GBP": 160,
+        "EUR": 170
+      },
+      "landscape-11": {
+        "USD": 140,
+        "GBP": 120,
+        "EUR": 130
+      },
+      "landscape-14": {
+        "USD": 200,
+        "GBP": 175,
+        "EUR": 190
+      },
+      "portrait-8": {
+        "USD": 130,
+        "GBP": 110,
+        "EUR": 120
+      }
+    },
+    "maxQuantity": 25,
+    "bleedMm": 3.175,
+    "safeMarginMm": 6.35,
+    "spine": {
+      "mmPerPage": 0.12,
+      "minMm": 6.35,
+      "coverWrapMm": 15
+    },
+    "minDpi": 150,
+    "targetDpi": 300,
+    "digitalDpi": 200
+  },
+  "shipping": [
+    {
+      "id": "standard",
+      "label": "Standard",
+      "estimate": "6–9 business days",
+      "price": {
+        "USD": 899,
+        "GBP": 699,
+        "EUR": 799
+      }
+    },
+    {
+      "id": "express",
+      "label": "Express",
+      "estimate": "3–4 business days",
+      "price": {
+        "USD": 1999,
+        "GBP": 1499,
+        "EUR": 1799
+      }
+    }
+  ],
+  "shippingCountries": [
+    "US",
+    "CA",
+    "GB",
+    "IE",
+    "DE",
+    "FR",
+    "NL",
+    "BE",
+    "LU",
+    "AT",
+    "CH",
+    "ES",
+    "PT",
+    "IT",
+    "DK",
+    "SE",
+    "NO",
+    "FI",
+    "PL",
+    "CZ",
+    "AU",
+    "NZ"
+  ],
+  "share": {
+    "defaultExpiryDays": null
+  },
+  "premiumTemplate": {
+    "label": "Premium design",
+    "description": "One-time fee per order for designs marked Premium.",
+    "price": {
+      "USD": 500,
+      "GBP": 400,
+      "EUR": 500
+    }
+  }
+}

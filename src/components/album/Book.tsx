@@ -1,0 +1,122 @@
+import type { CSSProperties } from 'react';
+import type { Page, PageSize, PhotoMap } from '@/lib/album/types';
+import { PageView } from './PageView';
+
+/** Keep `relative` unless the caller positions the element itself. */
+const positioned = (cls: string) => (/\b(absolute|fixed|sticky)\b/.test(cls) ? '' : 'relative');
+
+interface BaseProps {
+  size: Pick<PageSize, 'widthMm' | 'heightMm'>;
+  photos: PhotoMap;
+  renderWidth?: number;
+  className?: string;
+  style?: CSSProperties;
+  eager?: boolean;
+}
+
+/** A closed hardcover book showing the front cover. */
+export function BookCover({ page, size, photos, renderWidth = 400, className = '', style, eager }: BaseProps & { page: Page }) {
+  return (
+    <div className={`${positioned(className)} ${className}`} style={style}>
+      {/* page block peeking out at the fore-edge and bottom */}
+      <div
+        aria-hidden
+        className="absolute rounded-[2px]"
+        style={{
+          top: '1.2%',
+          left: '1.5%',
+          right: '-1.4%',
+          bottom: '-1.4%',
+          background: 'repeating-linear-gradient(90deg,#f4f0e9 0 1px,#e7e1d6 1px 2px)',
+          boxShadow: '0 18px 40px -16px rgb(37 35 31 / .45), 0 4px 10px -4px rgb(37 35 31 / .25)',
+        }}
+      />
+      <div className="relative overflow-hidden rounded-[1px_3px_3px_1px]" style={{ boxShadow: '0 1px 1px rgb(0 0 0 / .08)' }}>
+        <PageView page={page} size={size} photos={photos} renderWidth={renderWidth} eager={eager} emptyFrames="placeholder" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[7%] bg-gradient-to-r from-black/30 via-black/8 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-[4.2%] w-px bg-white/25" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/14 via-transparent to-black/12" />
+      </div>
+    </div>
+  );
+}
+
+/** An open book showing a two-page spread. Null slots render as endpapers. */
+export function OpenBook({
+  left,
+  right,
+  size,
+  photos,
+  renderWidth = 900,
+  className = '',
+  style,
+  endpaper = '#EFEAE2',
+  eager,
+}: BaseProps & { left: Page | null; right: Page | null; endpaper?: string }) {
+  const half = renderWidth / 2;
+  return (
+    <div className={`${positioned(className)} ${className}`} style={style}>
+      <div
+        aria-hidden
+        className="absolute rounded-[3px]"
+        style={{
+          inset: '0.8% -0.9% -1.6% -0.9%',
+          background: 'linear-gradient(90deg,#e4ddd1,#f3efe8 3%,#f3efe8 97%,#e4ddd1)',
+          boxShadow: '0 30px 60px -24px rgb(37 35 31 / .5), 0 8px 18px -8px rgb(37 35 31 / .3)',
+        }}
+      />
+      <div className="relative flex overflow-hidden rounded-[2px]">
+        <BookSide page={left} side="left" size={size} photos={photos} width={half} eager={eager} endpaper={endpaper} />
+        <BookSide page={right} side="right" size={size} photos={photos} width={half} eager={eager} endpaper={endpaper} />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-1/2 w-[6%] -translate-x-1/2 spread-gutter" />
+      </div>
+    </div>
+  );
+}
+
+function BookSide({
+  page,
+  side,
+  size,
+  photos,
+  width,
+  eager,
+  endpaper,
+}: {
+  page: Page | null;
+  side: 'left' | 'right';
+  size: Pick<PageSize, 'widthMm' | 'heightMm'>;
+  photos: PhotoMap;
+  width: number;
+  eager?: boolean;
+  endpaper: string;
+}) {
+  return (
+    <div className="relative min-w-0 flex-1">
+      {page ? (
+        <PageView page={page} size={size} photos={photos} renderWidth={width} eager={eager} />
+      ) : (
+        <div style={{ aspectRatio: `${size.widthMm} / ${size.heightMm}`, background: endpaper }} />
+      )}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            side === 'left'
+              ? 'linear-gradient(90deg, rgb(0 0 0 / .05) 0%, transparent 12%, transparent 80%, rgb(0 0 0 / .10) 94%, rgb(0 0 0 / .22) 100%)'
+              : 'linear-gradient(270deg, rgb(0 0 0 / .05) 0%, transparent 12%, transparent 80%, rgb(0 0 0 / .08) 94%, rgb(0 0 0 / .2) 100%)',
+        }}
+      />
+    </div>
+  );
+}
+
+/** A single flat page with a soft paper shadow (for thumbnails). */
+export function FlatPage({ page, size, photos, renderWidth = 300, className = '', style, eager }: BaseProps & { page: Page }) {
+  return (
+    <div className={`overflow-hidden rounded-[2px] bg-white shadow-[0_1px_2px_rgb(37_35_31/.08),0_6px_16px_-8px_rgb(37_35_31/.25)] ${className}`} style={style}>
+      <PageView page={page} size={size} photos={photos} renderWidth={renderWidth} eager={eager} />
+    </div>
+  );
+}

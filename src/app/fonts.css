@@ -1,0 +1,33 @@
+/* Generated from src/lib/album/fonts.ts — do not edit by hand. */
+@font-face{font-family:"Cormorant Garamond";src:url(/fonts/cormorant-garamond-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Cormorant Garamond";src:url(/fonts/cormorant-garamond-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap;}
+@font-face{font-family:"Cormorant Garamond";src:url(/fonts/cormorant-garamond-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:"Cormorant Garamond";src:url(/fonts/cormorant-garamond-400i.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+@font-face{font-family:"Cormorant Garamond";src:url(/fonts/cormorant-garamond-500i.woff2) format("woff2");font-weight:500;font-style:italic;font-display:swap;}
+@font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-400i.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+@font-face{font-family:"Inter";src:url(/fonts/inter-300.woff2) format("woff2");font-weight:300;font-style:normal;font-display:swap;}
+@font-face{font-family:"Inter";src:url(/fonts/inter-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Inter";src:url(/fonts/inter-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap;}
+@font-face{font-family:"Inter";src:url(/fonts/inter-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:"Manrope";src:url(/fonts/manrope-300.woff2) format("woff2");font-weight:300;font-style:normal;font-display:swap;}
+@font-face{font-family:"Manrope";src:url(/fonts/manrope-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Manrope";src:url(/fonts/manrope-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:"Manrope";src:url(/fonts/manrope-700.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap;}
+@font-face{font-family:"Libre Baskerville";src:url(/fonts/libre-baskerville-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Libre Baskerville";src:url(/fonts/libre-baskerville-700.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap;}
+@font-face{font-family:"Libre Baskerville";src:url(/fonts/libre-baskerville-400i.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+@font-face{font-family:"DM Serif Display";src:url(/fonts/dm-serif-display-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"DM Serif Display";src:url(/fonts/dm-serif-display-400i.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+@font-face{font-family:"Montserrat";src:url(/fonts/montserrat-300.woff2) format("woff2");font-weight:300;font-style:normal;font-display:swap;}
+@font-face{font-family:"Montserrat";src:url(/fonts/montserrat-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap;}
+@font-face{font-family:"Montserrat";src:url(/fonts/montserrat-700.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap;}
+@font-face{font-family:"Great Vibes";src:url(/fonts/great-vibes-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Caveat";src:url(/fonts/caveat-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Caveat";src:url(/fonts/caveat-700.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap;}
+@font-face{font-family:"Special Elite";src:url(/fonts/special-elite-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Fredoka";src:url(/fonts/fredoka-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Fredoka";src:url(/fonts/fredoka-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:"Josefin Sans";src:url(/fonts/josefin-sans-300.woff2) format("woff2");font-weight:300;font-style:normal;font-display:swap;}
+@font-face{font-family:"Josefin Sans";src:url(/fonts/josefin-sans-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
