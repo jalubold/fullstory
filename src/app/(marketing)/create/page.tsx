@@ -24,7 +24,7 @@ export default function CreatePage() {
           const t = TEMPLATES.find((x) => x.category === c.id);
           const d = t ? getTemplateDemo(t) : null;
           return (
-            <Link key={c.id} href={`/create/template?category=${c.id}`} className="group overflow-hidden rounded-[10px] border border-line bg-white transition hover:-translate-y-0.5 hover:shadow-card active:scale-[0.98] sm:rounded-[4px]">
+            <Link key={c.id} href={`/templates?category=${c.id}`} className="group overflow-hidden rounded-[10px] border border-line bg-white transition hover:-translate-y-0.5 hover:shadow-card active:scale-[0.98] sm:rounded-[4px]">
               <div className="grid aspect-[4/3] place-items-center bg-paper-2 transition-colors group-hover:bg-paper-3">
                 {d && (
                   <BookCover
@@ -64,7 +64,7 @@ export default function CreatePage() {
       </div>
       <p className="mt-10 text-sm text-muted">
         Already know what you want?{' '}
-        <Link href="/create/template" className="text-ink underline underline-offset-4">See all templates</Link>
+        <Link href="/templates" className="text-ink underline underline-offset-4">See all designs</Link>
       </p>
     </div>
   );

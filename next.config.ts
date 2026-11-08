@@ -10,6 +10,13 @@ const nextConfig: NextConfig = {
     "/api/**/*": ["./src/assets/fonts/**/*"],
   },
   images: { unoptimized: true },
+  // Retired pages. Query strings (e.g. ?category=wedding) are passed through.
+  async redirects() {
+    return [
+      { source: "/create/template", destination: "/templates", permanent: false },
+      { source: "/pricing", destination: "/", permanent: true },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {
