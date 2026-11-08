@@ -22,7 +22,7 @@ export function ClothScreen({
 }) {
   return (
     <main className="cloth relative flex min-h-dvh flex-col items-center overflow-hidden px-5 text-center">
-      <span aria-hidden className="ribbon ribbon-ink absolute left-[14%] top-0 h-28 w-4 sm:left-[22%] sm:h-44 sm:w-5" />
+      <span aria-hidden className="ribbon absolute left-[14%] top-0 h-28 w-4 sm:left-[22%] sm:h-44 sm:w-5" />
       <div className="relative pt-10">
         <Logo tone="light" />
       </div>

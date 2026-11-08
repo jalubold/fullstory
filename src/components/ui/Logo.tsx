@@ -5,7 +5,7 @@ import { WORDMARK } from './wordmark';
  * The FULLSTORY wordmark: "Fullstory" in Cormorant Garamond, with the second
  * "l" drawn as a ribbon bookmark hanging below the line — the place you keep
  * in a story. The letters take the current text colour; the ribbon is deep red
- * (or ink on red backgrounds).
+ * (or a soft blush on red backgrounds).
  */
 export function Wordmark({ height = 26, ribbon = 'var(--ribbon, var(--color-accent))', className = '' }: { height?: number; ribbon?: string; className?: string }) {
   const [, , w, h] = WORDMARK.viewBox.split(' ').map(Number);
@@ -46,7 +46,7 @@ export function Logo({
       className={`group inline-flex items-center ${tone === 'dark' ? 'text-ink' : 'text-white'} ${className}`}
       aria-label="FULLSTORY — home"
     >
-      {compact ? <RibbonMark /> : <Wordmark height={height} ribbon={tone === 'light' ? 'var(--color-ink)' : undefined} />}
+      {compact ? <RibbonMark /> : <Wordmark height={height} ribbon={tone === 'light' ? 'var(--color-blush)' : undefined} />}
     </Link>
   );
 }
