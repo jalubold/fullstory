@@ -48,10 +48,3 @@ export function appUrl(): string {
 
 /** Password for /admin (order management). Admin is disabled when unset. */
 export const adminPassword = env('ADMIN_PASSWORD');
-
-export function setupIssues(): string[] {
-  const issues: string[] = [];
-  if (dbMode === 'none') issues.push('No database is connected yet (connect Supabase in Vercel → Storage).');
-  if (storageMode === 'none') issues.push('No photo storage is connected yet (Supabase provides this too).');
-  return issues;
-}

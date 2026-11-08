@@ -2,12 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { BookCover } from '@/components/album/Book';
-import { SetupNotice } from '@/components/auth/SetupNotice';
 import { StartAlbum } from '@/components/create/StartAlbum';
 import { DEFAULT_THEME, buildPage } from '@/lib/album/build';
 import type { Orientation } from '@/lib/album/types';
 import { getCatalog, sizesFor } from '@/lib/commerce/catalog';
-import { platformReady, setupIssues } from '@/lib/server/env';
+import { platformReady } from '@/lib/server/env';
 import { getTemplate } from '@/lib/templates';
 import { getTemplateDemo } from '@/lib/templates/demo';
 import { categoryById } from '@/lib/templates/taxonomy';
@@ -20,14 +19,41 @@ async function Start({ searchParams }: { searchParams: Promise<Record<string, st
   const orientation = (['square', 'landscape', 'portrait'] as const).includes(sp.orientation as Orientation) ? (sp.orientation as Orientation) : 'square';
 
   if (!platformReady) {
+    const demo = template ? getTemplateDemo(template) : null;
     return (
-      <div className="container-page max-w-xl py-24">
-        <h1 className="font-serif text-4xl">Albums aren’t available yet</h1>
-        <div className="mt-6">
-          <SetupNotice issues={setupIssues()} />
+      <section className="grain relative isolate flex min-h-[calc(100svh-4.5rem)] items-center overflow-hidden bg-night text-white">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <div className="aurora absolute -left-[15%] -top-[35%] h-[85%] w-[70%] rounded-full bg-accent/35 blur-[140px]" />
+          <div className="aurora absolute -bottom-[40%] right-[-10%] h-[80%] w-[55%] rounded-full bg-violet/25 blur-[140px]" style={{ animationDelay: '-6s' }} />
         </div>
-        <Link href="/templates" className="btn btn-secondary">Back to templates</Link>
-      </div>
+        <div className="container-page grid items-center gap-12 py-20 lg:grid-cols-[1fr_auto]">
+          <div className="max-w-xl">
+            <p className="eyebrow text-white/50">Album studio</p>
+            <h1 className="rise mt-4 font-serif text-5xl leading-[1.05] sm:text-6xl">
+              Opening <span className="text-gradient italic">very soon.</span>
+            </h1>
+            <p className="rise mt-5 text-lg text-white/70" style={{ animationDelay: '120ms' }}>
+              Saving albums isn’t switched on for this site yet. Every template is ready to explore — flip through the demos and pick your favourite.
+            </p>
+            <div className="rise mt-9 flex flex-wrap gap-3" style={{ animationDelay: '220ms' }}>
+              {template ? (
+                <Link href={`/templates/${template.id}/preview`} className="btn btn-light">Flip through {template.name}</Link>
+              ) : null}
+              <Link href="/templates" className={template ? 'btn btn-outline-light' : 'btn btn-light'}>Browse templates</Link>
+            </div>
+            <p className="mt-12 max-w-md border-t border-white/10 pt-5 text-xs leading-relaxed text-white/40">
+              For the site owner: albums and photos need a place to be saved. Connect Supabase in Vercel → Storage, then redeploy. Visitors never need an account.
+            </p>
+          </div>
+          {demo ? (
+            <div className="drop-in hidden w-[340px] lg:block" style={{ perspective: '1800px' }}>
+              <div className="float-slow" style={{ transform: 'rotateY(-14deg) rotateX(4deg)' }}>
+                <BookCover page={demo.doc.cover} size={demo.doc.size} photos={demo.photos} renderWidth={320} eager />
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </section>
     );
   }
 
