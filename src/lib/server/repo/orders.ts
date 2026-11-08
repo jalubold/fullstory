@@ -4,6 +4,7 @@ import type { AlbumDocument } from '@/lib/album/types';
 import type { Currency } from '@/lib/commerce/catalog';
 import type { OrderItemInput, PricedLine } from '@/lib/commerce/pricing';
 import { sql, sqlOne, transaction } from '../db';
+import { NO_GUEST_ID } from '../auth/guest-id';
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'cancelled';
 export type FulfillmentStatus = 'awaiting_payment' | 'processing' | 'in_production' | 'shipped' | 'delivered' | 'cancelled';
@@ -129,6 +130,7 @@ export async function getOwnedOrder(userId: string, id: string): Promise<OrderRo
 }
 
 export async function listOrders(userId: string): Promise<OrderRow[]> {
+  if (userId === NO_GUEST_ID) return [];
   return sql<OrderRow>(
     `select id, number, user_id, project_id, status, currency, items, lines, amount_subtotal, amount_shipping, amount_total, provider, receipt_url,
             shipping_address, print_options, fulfillment_status, carrier, tracking_number, tracking_url, created_at, updated_at, paid_at, refunded_at,
@@ -284,6 +286,7 @@ export async function getShareForOrder(orderId: string) {
 }
 
 export async function listShares(userId: string) {
+  if (userId === NO_GUEST_ID) return [];
   return sql<ShareRow & { status: PaymentStatus; number: string }>(
     `select s.*, o.status, o.number from shares s join orders o on o.id = s.order_id where s.user_id = $1 order by s.created_at desc`,
     [userId],

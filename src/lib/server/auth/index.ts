@@ -6,6 +6,7 @@ import { cache } from 'react';
 import { dbMode, isProduction } from '../env';
 import { sql, sqlOne } from '../db';
 import { sign, verify } from './session';
+import { NO_GUEST_ID } from './guest-id';
 
 /**
  * Guest identity — FULLSTORY has no accounts or passwords.
@@ -26,7 +27,7 @@ export interface SessionUser {
 
 const COOKIE = 'fs_guest';
 const MAX_AGE = 400 * 86400; // browsers cap cookie lifetime at 400 days
-const NOBODY: SessionUser = { id: '00000000-0000-0000-0000-000000000000', name: null, email: null, exists: false };
+const NOBODY: SessionUser = { id: NO_GUEST_ID, name: null, email: null, exists: false };
 
 async function readGuestId(): Promise<string | null> {
   const token = (await cookies()).get(COOKIE)?.value;
@@ -40,8 +41,9 @@ async function profile(id: string) {
 
 /** The visitor for this request, or null if this browser has never created an album. */
 export const getUser = cache(async (): Promise<SessionUser | null> => {
-  if (dbMode === 'none') return null;
+  // Always request-time: pages that show "your albums" must never be prerendered.
   await connection();
+  if (dbMode === 'none') return null;
   const id = await readGuestId();
   if (!id) return null;
   const p = await profile(id);

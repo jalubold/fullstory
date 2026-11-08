@@ -4,6 +4,7 @@ import { usedPhotoIds } from '@/lib/album/geometry';
 import type { AlbumDocument, Page, PageSize, PhotoMap } from '@/lib/album/types';
 import { sql, sqlOne, transaction } from '../db';
 import { photoMapFor } from './photos';
+import { NO_GUEST_ID } from '../auth/guest-id';
 
 export type ProjectStatus = 'draft' | 'completed' | 'archived';
 
@@ -50,7 +51,7 @@ export async function createProject(userId: string, title: string, doc: AlbumDoc
 
 /** Returns the project only if it belongs to the user. */
 export async function getProject(userId: string, id: string): Promise<ProjectRow | null> {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  if (userId === NO_GUEST_ID || !/^[0-9a-f-]{36}$/i.test(id)) return null;
   return sqlOne<ProjectRow>('select * from projects where id = $1 and user_id = $2 and deleted_at is null', [id, userId]);
 }
 
@@ -110,6 +111,7 @@ export async function duplicateProject(userId: string, id: string): Promise<Proj
 }
 
 export async function listProjects(userId: string, status?: ProjectStatus): Promise<ProjectSummary[]> {
+  if (userId === NO_GUEST_ID) return [];
   const rows = await sql<{
     id: string;
     title: string;
