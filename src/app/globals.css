@@ -14,8 +14,6 @@
   --color-accent: #8e1126;
   --color-accent-dark: #6d0a1b;
   --color-accent-soft: #f8eaec;
-  /* The logo's ribbon when it sits on the red cloth: a soft blush, never black. */
-  --color-blush: #f3c4cc;
   --color-rose: #d8465c;
   --color-violet: #4d0914;
   --color-night: #0d0809;
@@ -123,7 +121,6 @@
   }
   /* Deep red book cloth */
   .cloth {
-    --ribbon: var(--color-blush);
     background-color: #7a1020;
     background-image:
       radial-gradient(120% 90% at 30% 20%, rgb(255 255 255 / 0.07), transparent 55%),
