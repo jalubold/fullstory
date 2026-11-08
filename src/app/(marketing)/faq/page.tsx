@@ -19,7 +19,7 @@ export default function FaqPage() {
         ['Is it free to design an album?', 'Yes. Creating, editing, saving and previewing projects is free. You only pay when you order a digital PDF or a shareable album.'],
         ['How many pages will my album have?', 'Each design comes with its pages already laid out — the number is shown on the template’s page. Your photos fill the frames automatically, and you can swap any photo afterwards.'],
         ['Will I lose my work if I close the browser?', 'No. Your album saves automatically while you work, and a local backup protects changes made while you are offline. Open “My albums” to continue — or use your private album link from another device.'],
-        ['Can I make an album on my phone?', 'Yes. The editor works on phones, tablets and computers. On a phone you swipe through the pages, tap a photo to change it and tap any text to rewrite it.'],
+        ['Can I make an album on my phone?', 'Yes. The editor works on phones, tablets and computers. On a phone you swipe through the pages, tap a photo to zoom, reposition or change it, and tap any text to rewrite it.'],
       ],
     },
     {

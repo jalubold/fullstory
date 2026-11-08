@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const STEPS = [
   { title: 'Choose your design', text: 'Browse templates by occasion or style and preview every page with real photography. Pick a size and start your project in one click.' },
   { title: 'Add your photos', text: 'Pick photos from your phone or computer. They appear instantly, fill the frames for you and upload privately in the background.' },
-  { title: 'Make it yours', text: 'Tap any photo to swap it, tap any text to rewrite it, and choose music and a page-turn style. The design stays exactly as it was made — nothing to arrange.' },
+  { title: 'Make it yours', text: 'Tap any photo to zoom, reposition or swap it, tap any text to rewrite it, and choose music and a page-turn style. The design stays exactly as it was made — nothing to arrange.' },
   { title: 'Review the full album', text: 'Flip through every spread exactly as it will look — front cover to back — and fix anything before you order.' },
   { title: 'Download or share', text: 'Download a high-resolution PDF, or publish a private, page-turning album to share with family.' },
 ];
@@ -20,7 +20,7 @@ const STEPS = [
 const FEATURES = [
   { icon: CloudUpload, title: 'Add dozens at once', text: 'Pick a whole camera roll. Photos appear instantly and upload in the background.' },
   { icon: LayoutTemplate, title: 'Auto-fill', text: 'Photos drop into the frames for you, matched to each frame’s shape.' },
-  { icon: ImagePlus, title: 'Swap any photo', text: 'Tap a photo to choose another — or drag one onto the frame on a computer.' },
+  { icon: ImagePlus, title: 'Frame every photo', text: 'Tap a photo to zoom in and slide it into place, or swap it for another.' },
   { icon: Type, title: 'Write on the page', text: 'Tap any text to rewrite it. The typography stays exactly as designed.' },
   { icon: Music2, title: 'Music & page turns', text: 'Add a song from a link and choose how the pages turn in your shared album.' },
   { icon: Save, title: 'Autosave & undo', text: 'Everything saves as you go, and any change can be undone.' },

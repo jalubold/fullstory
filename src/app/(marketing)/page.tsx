@@ -154,7 +154,7 @@ export default function HomePage() {
                 <ol className="mt-9 max-w-md divide-y divide-line border-y border-line">
                   {[
                     ['Drop in your photos', 'They fill the frames for you — a whole album in seconds.'],
-                    ['Tap to swap a photo', 'Choose another from your library, or drag one onto the frame.'],
+                    ['Frame every photo', 'Tap to zoom and slide it into place — or swap it for another.'],
                     ['Write on the page', 'Tap any caption and type — it stays beautifully set.'],
                   ].map(([t, d], i) => (
                     <li key={t} className="flex gap-5 py-4">

@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { memo, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type DragEvent, type ReactNode } from 'react';
-import { AlertCircle, AlertTriangle, ArrowRight, Check, ChevronLeft, ChevronRight, CloudOff, Eye, ImagePlus, Loader2, Music2, Plus, Redo2, Trash2, Undo2, Wand2, X } from 'lucide-react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type DragEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import { AlertCircle, AlertTriangle, ArrowRight, Check, ChevronLeft, ChevronRight, CloudOff, Eye, ImagePlus, Loader2, Minus, Move, Music2, Plus, Redo2, RotateCcw, Trash2, Undo2, Upload, Wand2, X } from 'lucide-react';
 import { PageView } from '@/components/album/PageView';
 import { bookFinish, luminance } from '@/lib/album/color';
 import { cssFontStack } from '@/lib/album/fonts';
-import { buildSpreads, effectiveDpi, pageSizePt } from '@/lib/album/geometry';
+import { buildSpreads, computeCrop, effectiveDpi, pageSizePt, panCrop } from '@/lib/album/geometry';
 import { allPages, autofill, findElement, pageAt } from '@/lib/album/ops';
-import type { AlbumDocument, AlbumElement, Page, PageRef, PageSize, PhotoAsset, PhotoElement, PhotoMap, TextElement } from '@/lib/album/types';
+import type { AlbumDocument, AlbumElement, Crop, Page, PageRef, PageSize, PhotoAsset, PhotoElement, PhotoMap, TextElement } from '@/lib/album/types';
 import { MotionPanel } from '../MotionPanel';
 import { useEditor } from '../store';
 import { uploadFiles } from '../uploads';
@@ -314,7 +314,7 @@ export function SimpleEditor({ save, banners, minDpi }: { save: () => Promise<bo
         </div>
       </div>
 
-      {sheet?.kind === 'photo' && <PhotoSheet target={sheet.target} refs={slides[at]?.refs ?? []} onClose={() => setSheet(null)} />}
+      {sheet?.kind === 'photo' && <PhotoSheet target={sheet.target} refs={slides[at]?.refs ?? []} minDpi={minDpi} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'text' && <TextSheet target={sheet.target} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'motion' && (
         <Sheet title="Music & page turns" onClose={() => setSheet(null)}>
@@ -461,8 +461,8 @@ const TapPage = memo(function TapPage({
                 useEditor.getState().toast(filled ? 'Photo changed' : 'Photo added', 'success');
               } else if (e.dataTransfer.files.length) uploadInto(target, [...e.dataTransfer.files]);
             }}
-            aria-label={filled ? 'Change this photo' : 'Add a photo here'}
-            title={filled ? 'Change this photo' : 'Add a photo'}
+            aria-label={filled ? 'Adjust or change this photo' : 'Add a photo here'}
+            title={filled ? 'Adjust or change this photo' : 'Add a photo'}
             style={box(el)}
             className={`group/frame absolute grid place-items-center transition-colors active:bg-black/15 ${over === el.id ? 'bg-accent/25 outline outline-2 -outline-offset-2 outline-accent' : 'hover:bg-black/10'}`}
           >
@@ -474,7 +474,7 @@ const TapPage = memo(function TapPage({
             )}
             {filled && !small && (
               <span className="pointer-events-none hidden items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-medium text-ink opacity-0 shadow-[0_4px_12px_-4px_rgb(0_0_0/.35)] transition-opacity group-hover/frame:opacity-100 [@media(hover:hover)]:flex">
-                <ImagePlus size={13} className="text-accent" /> Change
+                <Move size={13} className="text-accent" /> Adjust
               </span>
             )}
             {lowRes && (
@@ -720,12 +720,13 @@ function Sheet({ title, onClose, children, footer, keyboard = false }: { title: 
   );
 }
 
-function PhotoSheet({ target, refs, onClose }: { target: Target | null; refs: Array<PageRef | null>; onClose: () => void }) {
+function PhotoSheet({ target, refs, minDpi, onClose }: { target: Target | null; refs: Array<PageRef | null>; minDpi: number; onClose: () => void }) {
   const doc = useEditor((s) => s.doc)!;
   const photos = useEditor((s) => s.photos);
   const photoMap = useEditor((s) => s.photoMap);
   const pending = usePendingUploads();
   const input = useRef<HTMLInputElement>(null);
+  const top = useRef<HTMLDivElement>(null);
   const frame = target ? (findElement(doc, target.ref, target.id) as PhotoElement | undefined) : undefined;
   const current = frame?.photoId ? photoMap[frame.photoId] : undefined;
   const used = useMemo(() => usedPhotoIds(doc), [doc]);
@@ -735,9 +736,10 @@ function PhotoSheet({ target, refs, onClose }: { target: Target | null; refs: Ar
   const choose = (photo: PhotoAsset) => {
     const s = useEditor.getState();
     if (target) {
+      // Stay open on the new photo, so it can be framed right away.
       assignPhoto(target, photo.id);
-      s.toast(current ? 'Photo changed' : 'Photo added', 'success');
-      onClose();
+      s.toast(current ? 'Photo changed — drag or zoom to frame it' : 'Photo added — drag or zoom to frame it', 'success');
+      top.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
     } else if (placeOnSpread(refs, photo)) onClose();
     else s.toast('This page is full — tap a photo on the page to swap it');
   };
@@ -748,9 +750,17 @@ function PhotoSheet({ target, refs, onClose }: { target: Target | null; refs: Ar
     onClose();
   };
 
+  const adjusting = !!(target && frame && current);
+  const uploadLabel = (
+    <>
+      <span className="md:hidden">{adjusting ? 'New photo' : 'Upload from phone'}</span>
+      <span className="hidden md:inline">{adjusting ? 'Upload new' : 'Upload from computer'}</span>
+    </>
+  );
+
   return (
     <Sheet
-      title={target ? (current ? 'Change photo' : 'Add a photo') : 'Your photos'}
+      title={adjusting ? 'Adjust photo' : target ? 'Add a photo' : 'Your photos'}
       onClose={onClose}
       footer={
         <div className="flex gap-2">
@@ -763,28 +773,40 @@ function PhotoSheet({ target, refs, onClose }: { target: Target | null; refs: Ar
             onChange={(e) => {
               uploadInto(target, [...(e.target.files ?? [])]);
               e.target.value = '';
-              onClose();
+              // Into a frame: stay here — the photo appears in the frame editor in a moment.
+              if (!target) onClose();
             }}
           />
-          <button type="button" onClick={() => input.current?.click()} className="btn btn-primary h-12 flex-1 text-[0.75rem] uppercase tracking-[0.16em]">
-            <ImagePlus size={17} /> <span className="md:hidden">Upload from phone</span>
-            <span className="hidden md:inline">Upload from computer</span>
-          </button>
-          {current && (
-            <button type="button" onClick={remove} aria-label="Remove photo from this frame" title="Remove photo from this frame" className="btn btn-secondary h-12 w-12 shrink-0 !p-0 text-danger">
-              <Trash2 size={17} />
+          {adjusting ? (
+            <>
+              <button type="button" onClick={() => input.current?.click()} className="btn btn-secondary h-12 shrink-0 px-4 text-[0.6875rem] uppercase tracking-[0.14em]">
+                <Upload size={16} /> {uploadLabel}
+              </button>
+              <button type="button" onClick={remove} aria-label="Remove photo from this frame" title="Remove photo from this frame" className="btn btn-secondary h-12 w-12 shrink-0 !p-0 text-danger">
+                <Trash2 size={17} />
+              </button>
+              <button type="button" onClick={onClose} className="btn btn-primary h-12 flex-1 text-[0.75rem] uppercase tracking-[0.16em]">
+                <Check size={16} /> Done
+              </button>
+            </>
+          ) : (
+            <button type="button" onClick={() => input.current?.click()} className="btn btn-primary h-12 flex-1 text-[0.75rem] uppercase tracking-[0.16em]">
+              <ImagePlus size={17} /> {uploadLabel}
             </button>
           )}
         </div>
       }
     >
+      <div ref={top} className="scroll-mt-4" />
+      {adjusting && <CropEditor key={current!.id} target={target!} el={frame!} asset={current!} size={doc.size} minDpi={minDpi} />}
       <UploadStatus compact />
       {photos.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted">No photos yet. Upload a few — they fill the empty frames for you.</p>
       ) : (
         <>
+          {adjusting && <p className="smallcaps mt-7">Or choose another photo</p>}
           <p className="mb-3 mt-1 text-[13px] text-muted">
-            {target ? 'Choose a photo to put here.' : 'Choose a photo to add it to this page.'}{' '}
+            {adjusting ? 'Tap one to put it in this frame instead.' : target ? 'Choose a photo to put here.' : 'Choose a photo to add it to this page.'}{' '}
             <span className="inline-flex translate-y-[2px] items-center gap-1">
               <span className="grid h-3.5 w-3.5 place-items-center rounded-full bg-ink/65 text-white">
                 <Check size={8} strokeWidth={3} />
@@ -792,12 +814,12 @@ function PhotoSheet({ target, refs, onClose }: { target: Target | null; refs: Ar
               already used
             </span>
           </p>
-          <div className="grid grid-cols-3 gap-1.5 md:grid-cols-4">
+          <div className="grid grid-cols-4 gap-1.5 md:grid-cols-5">
             {ordered.map((p) => {
               const isCurrent = current?.id === p.id;
               const progress = pending.get(p.id);
               return (
-                <button key={p.id} type="button" onClick={() => choose(p)} className={`relative aspect-square overflow-hidden rounded-[2px] bg-paper-2 transition hover:opacity-90 active:opacity-80 ${isCurrent ? 'ring-2 ring-accent ring-offset-2 ring-offset-card' : ''}`}>
+                <button key={p.id} type="button" onClick={() => choose(p)} disabled={isCurrent} className={`relative aspect-square overflow-hidden rounded-[2px] bg-paper-2 transition hover:opacity-90 active:opacity-80 ${isCurrent ? 'ring-2 ring-accent ring-offset-2 ring-offset-card' : ''}`}>
                   <img src={p.thumbUrl} alt={p.alt ?? ''} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   {used.has(p.id) && !isCurrent && (
                     <span className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-ink/65 text-white" aria-label="Already in the album">
@@ -817,6 +839,187 @@ function PhotoSheet({ target, refs, onClose }: { target: Target | null; refs: Ar
         </>
       )}
     </Sheet>
+  );
+}
+
+/* --------------------------------- framing --------------------------------- */
+
+const MAX_ZOOM = 4;
+const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(1, z));
+const distance = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y);
+
+/**
+ * Frames a photo inside its frame: drag to reposition, pinch / scroll / slider
+ * to zoom. The frame itself never moves. What's outside the frame stays
+ * visible but dimmed, so it's obvious what will be cut off.
+ */
+function CropEditor({ target, el, asset, size, minDpi }: { target: Target; el: PhotoElement; asset: PhotoAsset; size: PageSize; minDpi: number }) {
+  const wide = useWide();
+  const pt = pageSizePt(size);
+  const rawW = el.w * pt.w;
+  const rawH = el.h * pt.h;
+  const bw = Math.max(0, Math.min(el.borderWidth, rawW / 2 - 1, rawH / 2 - 1));
+  const fw = rawW - bw * 2;
+  const fh = rawH - bw * 2;
+  const ratio = fw / fh;
+
+  const [crop, setCrop] = useState<Crop>(el.crop);
+  const latest = useRef<Crop>(el.crop);
+  const frameRaf = useRef(0);
+  const stage = useRef<HTMLDivElement>(null);
+  const [stageW, setStageW] = useState(320);
+  const [dragging, setDragging] = useState(false);
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{ d: number; zoom: number } | null>(null);
+
+  useEffect(() => {
+    const node = stage.current;
+    if (!node) return;
+    const ro = new ResizeObserver(([e]) => setStageW(e.contentRect.width));
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, []);
+
+  /** Shows the change at once; writes it to the album once per frame (one undo step per gesture run). */
+  const apply = useCallback(
+    (next: Crop) => {
+      latest.current = next;
+      setCrop(next);
+      if (frameRaf.current) return;
+      frameRaf.current = requestAnimationFrame(() => {
+        frameRaf.current = 0;
+        const c = latest.current;
+        useEditor.getState().updateElement(target.ref, target.id, (d) => void ((d as PhotoElement).crop = { zoom: c.zoom, fx: c.fx, fy: c.fy }), { key: `crop:${target.id}` });
+      });
+    },
+    [target],
+  );
+
+  // Scroll wheel / trackpad pinch zooms (needs a non-passive listener to keep the page still).
+  useEffect(() => {
+    const node = stage.current;
+    if (!node) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const c = latest.current;
+      apply({ ...c, zoom: clampZoom(c.zoom * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015))) });
+    };
+    node.addEventListener('wheel', onWheel, { passive: false });
+    return () => node.removeEventListener('wheel', onWheel);
+  }, [apply]);
+
+  const maxH = wide ? 340 : 250;
+  const W = Math.max(80, Math.min(stageW * 0.82, maxH * ratio));
+  const H = W / ratio;
+  const pad = wide ? 28 : 22;
+  const left = (stageW - W) / 2;
+  const c = computeCrop(asset.width, asset.height, fw, fh, crop);
+  const soft = effectiveDpi(asset.width, asset.height, fw, fh, crop) < minDpi;
+
+  const down = (e: ReactPointerEvent) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2) {
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = { d: Math.max(1, distance(a, b)), zoom: latest.current.zoom };
+    }
+    setDragging(true);
+  };
+  const move = (e: ReactPointerEvent) => {
+    const prev = pointers.current.get(e.pointerId);
+    if (!prev) return;
+    const now = { x: e.clientX, y: e.clientY };
+    pointers.current.set(e.pointerId, now);
+    if (pointers.current.size >= 2 && pinch.current) {
+      const [a, b] = [...pointers.current.values()];
+      apply({ ...latest.current, zoom: clampZoom((pinch.current.zoom * distance(a, b)) / pinch.current.d) });
+      return;
+    }
+    apply(panCrop(asset.width, asset.height, fw, fh, latest.current, (now.x - prev.x) / W, (now.y - prev.y) / H));
+  };
+  const up = (e: ReactPointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
+    if (!pointers.current.size) setDragging(false);
+  };
+
+  const zoomBy = (delta: number) => apply({ ...latest.current, zoom: clampZoom(Math.round((latest.current.zoom + delta) * 4) / 4) });
+  const changed = Math.abs(crop.zoom - 1) > 0.001 || Math.abs(crop.fx - 0.5) > 0.001 || Math.abs(crop.fy - 0.5) > 0.001;
+
+  return (
+    <div>
+      <div
+        ref={stage}
+        onPointerDown={down}
+        onPointerMove={move}
+        onPointerUp={up}
+        onPointerCancel={up}
+        role="application"
+        aria-label="Photo framing: drag to reposition, pinch or scroll to zoom"
+        className={`relative select-none overflow-hidden rounded-[4px] bg-[#1b1214] touch-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ height: H + pad * 2 }}
+      >
+        <img
+          src={asset.displayUrl}
+          alt=""
+          draggable={false}
+          className="pointer-events-none absolute max-w-none"
+          style={{ left: left + c.relX * W, top: pad + c.relY * H, width: c.relW * W, height: c.relH * H }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{
+            left,
+            top: pad,
+            width: W,
+            height: H,
+            borderRadius: el.shape === 'ellipse' ? '50%' : 2,
+            boxShadow: '0 0 0 1px rgb(255 255 255 / .9), 0 0 0 9999px rgb(24 15 17 / .66)',
+          }}
+        >
+          {/* Thirds, while moving: a gentle guide for placing faces and horizons. */}
+          <span className={`absolute inset-0 transition-opacity duration-200 ${dragging ? 'opacity-100' : 'opacity-0'}`}>
+            <span className="absolute inset-y-0 left-1/3 w-px bg-white/45" />
+            <span className="absolute inset-y-0 left-2/3 w-px bg-white/45" />
+            <span className="absolute inset-x-0 top-1/3 h-px bg-white/45" />
+            <span className="absolute inset-x-0 top-2/3 h-px bg-white/45" />
+          </span>
+        </div>
+        {!dragging && !changed && (
+          <span className="pointer-events-none absolute bottom-2.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-black/55 px-3 py-1 text-[11px] text-white">
+            <Move size={12} /> {wide ? 'Drag to reposition · scroll to zoom' : 'Drag to reposition · pinch to zoom'}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 flex items-center gap-2">
+        <button type="button" onClick={() => zoomBy(-0.25)} disabled={crop.zoom <= 1} aria-label="Zoom out" className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink-soft hover:bg-paper-2 disabled:opacity-30">
+          <Minus size={18} />
+        </button>
+        <input
+          type="range"
+          min={1}
+          max={MAX_ZOOM}
+          step={0.01}
+          value={crop.zoom}
+          onChange={(e) => apply({ ...latest.current, zoom: clampZoom(Number(e.target.value)) })}
+          aria-label="Zoom"
+          className="h-10 min-w-0 flex-1 cursor-pointer accent-[var(--color-accent)]"
+        />
+        <button type="button" onClick={() => zoomBy(0.25)} disabled={crop.zoom >= MAX_ZOOM} aria-label="Zoom in" className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink-soft hover:bg-paper-2 disabled:opacity-30">
+          <Plus size={18} />
+        </button>
+        <button type="button" onClick={() => apply({ zoom: 1, fx: 0.5, fy: 0.5 })} disabled={!changed} className="ml-1 inline-flex h-10 shrink-0 items-center gap-1 px-2 text-xs font-medium text-ink-soft hover:text-ink disabled:opacity-30">
+          <RotateCcw size={13} /> Reset
+        </button>
+      </div>
+      {soft && (
+        <p className="mt-1 flex items-center gap-1.5 text-[12px] text-warning">
+          <AlertTriangle size={13} /> Zoomed in a lot — this photo may look soft. Zoom out a little, or use a larger photo.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -895,11 +1098,11 @@ function FirstTimeTip({ wide }: { wide: boolean }) {
       <p className="flex-1 text-[13px] leading-snug">
         {wide ? (
           <>
-            <span className="font-medium">Click a photo</span> to change it — or drag one from your library onto it. <span className="font-medium">Click any text</span> to rewrite it. Use ← → to turn pages.
+            <span className="font-medium">Click a photo</span> to zoom, reposition or change it — or drag one from your library onto it. <span className="font-medium">Click any text</span> to rewrite it. Use ← → to turn pages.
           </>
         ) : (
           <>
-            <span className="font-medium">Tap a photo</span> to change it, <span className="font-medium">tap any text</span> to rewrite it. Swipe for the next page.
+            <span className="font-medium">Tap a photo</span> to zoom, reposition or change it. <span className="font-medium">Tap any text</span> to rewrite it. Swipe for the next page.
           </>
         )}
       </p>
