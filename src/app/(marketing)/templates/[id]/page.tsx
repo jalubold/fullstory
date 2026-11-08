@@ -93,7 +93,7 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
           <dl className="mt-8 divide-y divide-line rounded-[4px] border border-line bg-white text-sm">
             <Spec label="Orientation" value={t.orientation[0].toUpperCase() + t.orientation.slice(1)} />
             <Spec label="Available sizes" value={sizes.map((s) => `${s.label} (${s.metricLabel})`).join(' · ')} />
-            <Spec label="Formats" value={['Digital PDF', 'Shareable album', ...catalog.covers.map((c) => c.label)].join(' · ')} />
+            <Spec label="Formats" value={['Digital PDF', 'Shareable album', ...(catalog.print.enabled !== false ? catalog.covers.map((c) => c.label) : [])].join(' · ')} />
             <Spec label="Designed pages" value={`${stats.pageCount} pages + cover`} />
             <Spec label="Page count" value={`Add or remove pages — ${catalog.pages.min} to ${catalog.pages.max} pages`} />
             <Spec label="Recommended photos" value={`${stats.photoSlots}–${stats.recommendedPhotos} photos`} />
@@ -108,7 +108,7 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
               <Eye size={16} /> Preview full album
             </Link>
           </div>
-          <p className="mt-4 text-xs text-muted">Free to customise. You only pay when you order a print, PDF or share link.</p>
+          <p className="mt-4 text-xs text-muted">Free to customise. You only pay when you order {catalog.print.enabled !== false ? 'a print, PDF or share link' : 'your PDF or share link'}.</p>
         </div>
       </section>
 

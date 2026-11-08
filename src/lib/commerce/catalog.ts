@@ -25,6 +25,8 @@ export interface Catalog {
     share: { label: string; description: string; price: Money };
   };
   print: {
+    /** Sell printed photobooks. When false, only digital products are offered. */
+    enabled?: boolean;
     basePrice: Record<string, Record<string, Money>>;
     extraPagePrice: Record<string, Money>;
     maxQuantity: number;
@@ -59,6 +61,11 @@ export function getCatalog(): Catalog {
   }
   cached = catalog;
   return catalog;
+}
+
+/** Whether printed photobooks are offered at all. */
+export function printEnabled(catalog = getCatalog()): boolean {
+  return catalog.print.enabled !== false;
 }
 
 export function sizesFor(orientation: Orientation, catalog = getCatalog()): CatalogSize[] {

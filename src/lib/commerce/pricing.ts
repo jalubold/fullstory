@@ -55,6 +55,7 @@ export function quote(items: OrderItemInput[], currency: Currency, shippingId: s
       if (amount === null) throw new PricingError(`No ${currency} price configured for ${p.label}`);
       lines.push({ kind: item.kind, label: p.label, quantity: 1, unitAmount: amount, amount });
     } else {
+      if (catalog.print.enabled === false) throw new PricingError('Printed photobooks aren’t available.');
       hasPrint = true;
       const size = catalog.sizes.find((s) => s.id === item.sizeId);
       const cover = catalog.covers.find((c) => c.id === item.coverId);
@@ -84,6 +85,7 @@ export function quote(items: OrderItemInput[], currency: Currency, shippingId: s
 
 /** Lowest configured print price for a currency (for "from" labels). */
 export function lowestPrintPrice(currency: Currency, catalog = getCatalog()): number | null {
+  if (catalog.print.enabled === false) return null;
   let best: number | null = null;
   for (const covers of Object.values(catalog.print.basePrice)) {
     for (const money of Object.values(covers)) {

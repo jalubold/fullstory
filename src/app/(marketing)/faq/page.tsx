@@ -5,7 +5,7 @@ import { getCatalog } from '@/lib/commerce/catalog';
 
 export const metadata: Metadata = {
   title: 'Frequently asked questions',
-  description: 'Answers about creating, printing, downloading and sharing photo albums with FULLSTORY.',
+  description: 'Answers about creating, downloading and sharing photo albums with FULLSTORY.',
 };
 
 export default function FaqPage() {
@@ -16,7 +16,7 @@ export default function FaqPage() {
       items: [
         ['Do I need an account?', 'No. There’s nothing to sign up for. Your albums are saved to this browser automatically, and you get a private album link to open them on another device.'],
         ['Do I need design experience?', 'Not at all. Every template is a complete, finished design. You simply add your photos and words — and if you want to, you can change layouts, fonts, colours and backgrounds.'],
-        ['Is it free to design an album?', 'Yes. Creating, editing, saving and previewing projects is free. You only pay when you order a printed book, a digital PDF or a shareable album.'],
+        ['Is it free to design an album?', 'Yes. Creating, editing, saving and previewing projects is free. You only pay when you order a digital PDF or a shareable album.'],
         ['Can I add or remove pages?', `Yes. Albums can have between ${c.pages.min} and ${c.pages.max} pages. You can add, duplicate, delete and reorder pages in the editor.`],
         ['Will I lose my work if I close the browser?', 'No. Your album saves automatically while you work, and a local backup protects changes made while you are offline. Open “My albums” to continue — or use your private album link from another device.'],
         ['Can I use the editor on a tablet or phone?', 'The editor works on desktop computers and tablets. On phones you can browse templates, preview albums and manage your projects; we recommend a larger screen for detailed editing.'],
@@ -27,10 +27,12 @@ export default function FaqPage() {
       items: [
         ['Which file types can I upload?', 'JPEG, PNG and WebP images, up to 40 MB each. If your phone saves HEIC photos, export them as JPEG first.'],
         ['How many photos do I need?', 'Each template shows a recommended number of photos on its detail page. As a rough guide, plan for one to three photos per page.'],
-        ['Will my photos be printed in good quality?', `The editor warns you when a photo is too small for its frame at print size (below about ${c.print.minDpi} DPI). Print files are produced from your original uploads, not from screen previews.`],
+        ['Will my photos look sharp?', `The editor warns you when a photo is too small for its frame at full size (below about ${c.print.minDpi} DPI). Print files are produced from your original uploads, not from screen previews.`],
         ['Who can see my photos?', 'Only you. Uploaded photos are stored privately and linked to your browser. If you publish a shareable album, people with the link (and password, if you set one) can view that album.'],
       ],
     },
+    ...(c.print.enabled !== false
+      ? [
     {
       title: 'Printing & shipping',
       items: [
@@ -38,8 +40,10 @@ export default function FaqPage() {
         ['How long does delivery take?', c.shipping.map((s) => `${s.label}: ${s.estimate}`).join('. ') + '. Production time is shown at checkout.'],
         ['Where do you ship?', `We currently ship to ${c.shippingCountries.length} countries, including the United States, the United Kingdom and most of Europe.`],
         ['Can I track my order?', 'Yes. Your order page in the dashboard shows each stage — processing, in production and shipped — and a tracking link once your book is on its way.'],
-      ],
-    },
+      ] as Array<[string, string]>,
+    }
+        ]
+      : []),
     {
       title: 'Digital PDF & sharing',
       items: [

@@ -119,6 +119,8 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
         </div>
         <Option icon={Download} title={catalog.digital.pdf.label} text={catalog.digital.pdf.description} price={catalog.digital.pdf.price[currency]} currency={currency} checked={pdf} onChange={setPdf} />
         <Option icon={Link2} title={catalog.digital.share.label} text={catalog.digital.share.description} price={catalog.digital.share.price[currency]} currency={currency} checked={share} onChange={setShare} />
+        {catalog.print.enabled !== false && (
+          <>
         <Option icon={BookOpen} title="Printed photobook" text={`Professionally printed and bound, ${printPages} pages.`} price={undefined} currency={currency} checked={print} onChange={setPrint} />
 
         {print && (
@@ -208,6 +210,8 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
               {field('phone', 'Phone (for delivery questions)', { auto: 'tel' })}
             </fieldset>
           </div>
+        )}
+          </>
         )}
       </div>
 

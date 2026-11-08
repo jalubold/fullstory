@@ -6,7 +6,7 @@ import { getTemplateDemo } from '@/lib/templates/demo';
 
 export const metadata: Metadata = {
   title: 'How it works',
-  description: 'Choose a template, upload your photos, customise every page and order a printed book, PDF or shareable album.',
+  description: 'Choose a template, upload your photos, customise every page, then download a PDF or share a page-turning album.',
 };
 
 const STEPS = [
@@ -14,7 +14,7 @@ const STEPS = [
   { title: 'Upload your photos', text: 'Add JPEG, PNG or WebP photos from your computer or tablet. They are stored privately in your project and can be reused on any page.' },
   { title: 'Make it yours', text: 'Drag photos into frames, crop and zoom, switch layouts, rewrite every line of text, change backgrounds and add pages.' },
   { title: 'Review the full album', text: 'Flip through every spread exactly as it will look — front cover to back — and fix anything before you order.' },
-  { title: 'Print, download or share', text: 'Order a printed book, download a high-resolution PDF, or publish a private online album to share with family.' },
+  { title: 'Download or share', text: 'Download a high-resolution PDF, or publish a private, page-turning album to share with family.' },
 ];
 
 const FEATURES = [
@@ -94,7 +94,7 @@ export default function HowItWorksPage() {
       <section className="container-page mt-24 grid gap-6 md:grid-cols-3">
         {[
           { icon: Eye, title: 'Preview before you pay', text: 'See your finished album page by page, in spreads or single pages, before choosing a format.' },
-          { icon: Save, title: 'Print-ready files', text: 'Printed books are produced from a dedicated print file with bleed and safe margins — not a screenshot.' },
+          { icon: Save, title: 'Full-resolution files', text: 'Your PDF is rendered from your original photos at full resolution — not a screenshot of the editor.' },
           { icon: CloudUpload, title: 'Private by default', text: 'Your photos are only visible to you, unless you choose to publish a share link.' },
         ].map(({ icon: Icon, title, text }) => (
           <div key={title} className="card p-7">

@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { Plus } from 'lucide-react';
 import { WorkspaceNav } from '@/components/dashboard/WorkspaceNav';
 import { Logo } from '@/components/ui/Logo';
+import { printEnabled } from '@/lib/commerce/catalog';
 
 export default function WorkspaceLayout({ children }: LayoutProps<'/'>) {
   return (
@@ -23,7 +24,7 @@ export default function WorkspaceLayout({ children }: LayoutProps<'/'>) {
       </header>
       <div className="container-page flex flex-col gap-0 py-6 lg:flex-row lg:gap-10 lg:py-10">
         <Suspense fallback={<div className="hidden w-60 shrink-0 lg:block" />}>
-          <WorkspaceNav />
+          <WorkspaceNav printOn={printEnabled()} />
         </Suspense>
         <main className="min-w-0 flex-1">{children}</main>
       </div>

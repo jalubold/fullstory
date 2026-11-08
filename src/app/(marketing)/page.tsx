@@ -5,7 +5,7 @@ import { EditorDemo } from '@/components/marketing/EditorDemo';
 import { HeroFlipBook } from '@/components/marketing/HeroFlipBook';
 import { Reveal } from '@/components/motion/Reveal';
 import { TemplateCard } from '@/components/templates/TemplateCard';
-import { formatMoney, getCatalog, priceIn } from '@/lib/commerce/catalog';
+import { formatMoney, getCatalog, priceIn, printEnabled } from '@/lib/commerce/catalog';
 import { lowestPrintPrice } from '@/lib/commerce/pricing';
 import type { PhotoMap } from '@/lib/album/types';
 import { photoUrl } from '@/lib/album/photos';
@@ -44,6 +44,7 @@ export default function HomePage() {
   const catalog = getCatalog();
   const cur = catalog.defaultCurrency;
   const printFrom = lowestPrintPrice(cur);
+  const printOn = printEnabled(catalog);
   const pdf = priceIn(catalog.digital.pdf.price, cur);
   const share = priceIn(catalog.digital.share.price, cur);
 
@@ -71,8 +72,7 @@ export default function HomePage() {
               <span className="rise block italic" style={{ animationDelay: '0.41s' }}>Your book.</span>
             </h1>
             <p className="rise mt-8 max-w-md text-[1.0625rem] leading-relaxed text-white/75" style={{ animationDelay: '0.55s' }}>
-              Choose a design, drop in your photos and add your words. We bind it into something worth keeping — in print, as a PDF, or as a private
-              page-turning album.
+              Choose a design, drop in your photos and add your words. We bind it into something worth keeping — {printOn ? 'in print, as a PDF, or as a private page-turning album.' : 'a high-resolution PDF and a private, page-turning album to share.'}
             </p>
             <div className="rise mt-10 flex flex-wrap items-center gap-x-8 gap-y-5" style={{ animationDelay: '0.68s' }}>
               <Link href="/create" className="btn btn-light btn-lg text-[0.75rem] uppercase tracking-[0.2em]">
@@ -84,7 +84,7 @@ export default function HomePage() {
               </Link>
             </div>
             <p className="rise mt-14 text-sm text-white/55" style={{ animationDelay: '0.8s' }}>
-              No account <span className="mx-2 text-white/30">·</span> Free to design <span className="mx-2 text-white/30">·</span> Print, PDF or private link
+              No account <span className="mx-2 text-white/30">·</span> Free to design <span className="mx-2 text-white/30">·</span> {printOn ? 'Print, PDF or private link' : 'PDF or private link'}
             </p>
           </div>
 
@@ -188,7 +188,7 @@ export default function HomePage() {
             {[
               { t: 'Choose a design', d: 'Browse the collection and flip through every page before you begin.' },
               { t: 'Make it yours', d: 'Add your photos, move things around and write your own words.' },
-              { t: 'Keep it', d: 'Order a printed book, download a print-ready PDF, or share a private link.' },
+              { t: 'Keep it', d: printOn ? 'Order a printed book, download a print-ready PDF, or share a private link.' : 'Download a high-resolution PDF, or share a private, page-turning link.' },
             ].map((s, i) => (
               <Reveal key={s.t} delay={i * 130} className={`py-8 md:px-10 md:py-2 ${i ? 'border-t border-line md:border-l md:border-t-0' : 'md:pl-0'}`}>
                 <span className="numeral block text-[5.5rem]">{ROMAN[i]}.</span>
@@ -248,9 +248,11 @@ export default function HomePage() {
               <ul className="border-t border-ink">
                 {[
                   { title: 'Printed photobook', text: 'Softcover, hardcover or layflat — printed, bound and delivered.', price: printFrom !== null ? `from ${formatMoney(printFrom, cur)}` : null },
-                  { title: 'Print-ready PDF', text: catalog.digital.pdf.description, price: pdf !== null ? formatMoney(pdf, cur) : null },
+                  { title: printOn ? 'Print-ready PDF' : 'Digital PDF', text: catalog.digital.pdf.description, price: pdf !== null ? formatMoney(pdf, cur) : null },
                   { title: 'Private album link', text: catalog.digital.share.description, price: share !== null ? formatMoney(share, cur) : null },
-                ].map((o) => (
+                ]
+                  .filter((o) => printOn || o.title !== 'Printed photobook')
+                  .map((o) => (
                   <li key={o.title} className="border-b border-line py-6">
                     <div className="flex items-baseline gap-4">
                       <span className="font-serif text-[1.75rem] leading-none text-ink">{o.title}</span>

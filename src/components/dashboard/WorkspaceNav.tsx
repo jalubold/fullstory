@@ -16,14 +16,14 @@ export const WORKSPACE_NAV = [
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
 ];
 
-export function WorkspaceNav() {
+export function WorkspaceNav({ printOn = true }: { printOn?: boolean }) {
   const pathname = usePathname();
   const isActive = (href: string) => (href === '/dashboard' ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)) || (href === '/dashboard/billing' && pathname.startsWith('/orders/'));
   return (
     <>
       <nav aria-label="Workspace" className="hidden w-60 shrink-0 lg:block">
         <ul className="sticky top-24 space-y-0.5">
-          {WORKSPACE_NAV.map(({ href, label, icon: Icon }) => (
+          {WORKSPACE_NAV.filter((n) => printOn || n.href !== '/dashboard/orders').map(({ href, label, icon: Icon }) => (
             <li key={href}>
               <Link href={href} aria-current={isActive(href) ? 'page' : undefined} className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition ${isActive(href) ? 'bg-white text-ink shadow-[0_1px_2px_rgb(0_0_0/.05)]' : 'text-ink-soft hover:bg-white/60 hover:text-ink'}`}>
                 <Icon size={17} strokeWidth={1.6} className={isActive(href) ? 'text-accent-dark' : ''} />

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Wordmark } from '@/components/ui/Logo';
 import { CATEGORIES } from '@/lib/templates/taxonomy';
+import { printEnabled } from '@/lib/commerce/catalog';
 
 const COLUMNS = [
   {
@@ -27,7 +28,7 @@ const COLUMNS = [
       { href: '/about', label: 'About' },
       { href: '/faq', label: 'FAQ' },
       { href: '/dashboard', label: 'My albums' },
-      { href: '/dashboard/orders', label: 'Track an order' },
+      ...(printEnabled() ? [{ href: '/dashboard/orders', label: 'Track an order' }] : []),
     ],
   },
 ];

@@ -13,6 +13,7 @@ function fmt(amount: number | undefined, currency: Currency) {
 export function PricingTables({ catalog }: { catalog: Catalog }) {
   const [cur, setCur] = useState<Currency>(catalog.defaultCurrency);
   const orientations = ['square', 'landscape', 'portrait'] as const;
+  const printOn = catalog.print.enabled !== false;
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -46,6 +47,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
         ))}
       </div>
 
+      {printOn && (
       <div className="mt-12">
         <div className="flex items-center gap-3">
           <BookOpen size={22} strokeWidth={1.5} className="text-accent-dark" />
@@ -96,8 +98,10 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
           ))}
         </div>
       </div>
+      )}
 
-      <div className="mt-12 grid gap-5 md:grid-cols-[1fr_1fr]">
+      <div className={`mt-12 grid gap-5 ${printOn ? 'md:grid-cols-[1fr_1fr]' : ''}`}>
+        {printOn && (
         <div className="card p-7">
           <div className="flex items-center gap-3">
             <Truck size={20} strokeWidth={1.5} className="text-accent-dark" />
@@ -115,6 +119,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
           </ul>
           <p className="mt-3 text-xs text-muted">We currently ship to {catalog.shippingCountries.length} countries across North America, Europe and Oceania.</p>
         </div>
+        )}
         <div className="card p-7">
           <h3 className="font-serif text-2xl">Premium designs</h3>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">

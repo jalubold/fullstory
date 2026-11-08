@@ -1,5 +1,5 @@
 {
-  "$comment": "FULLSTORY product catalog. All prices are integers in minor units (cents/pence). These are SAMPLE values for development — replace them with your real prices, formats and print specifications before launch, then set isSample to false. You can also override this file at runtime with the FULLSTORY_CATALOG_JSON environment variable.",
+  "$comment": "FULLSTORY product catalog. All prices are integers in minor units (cents/pence). These are SAMPLE values for development — replace them with your real prices, formats and print specifications before launch, then set isSample to false. You can also override this file at runtime with the FULLSTORY_CATALOG_JSON environment variable. Set print.enabled to true to sell printed photobooks (prices, covers and shipping below are then used).",
   "isSample": true,
   "currencies": [
     "USD",
@@ -101,6 +101,7 @@
     }
   },
   "print": {
+    "enabled": false,
     "basePrice": {
       "square-8": {
         "softcover": {
