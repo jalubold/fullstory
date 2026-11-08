@@ -13,6 +13,7 @@ import type { AlbumDocument, AlbumElement, Crop, Page, PageRef, PageSize, PhotoA
 import { MotionPanel } from '../MotionPanel';
 import { useEditor } from '../store';
 import { ACCEPT_ATTR } from '@/lib/client/upload';
+import { useMultiPick } from '@/lib/client/use-multi-pick';
 import { uploadFiles } from '../uploads';
 import { PendingTiles, UploadStatus, usePendingUploads, useUploadStats } from '../UploadStatus';
 
@@ -511,6 +512,7 @@ const TapPage = memo(function TapPage({
 /* ------------------------------ desktop library ------------------------------ */
 
 function LibraryPanel({ refs }: { refs: Array<PageRef | null> }) {
+  const multi = useMultiPick();
   const doc = useEditor((s) => s.doc)!;
   const photos = useEditor((s) => s.photos);
   const pending = usePendingUploads();
@@ -534,7 +536,7 @@ function LibraryPanel({ refs }: { refs: Array<PageRef | null> }) {
           <h2 className="font-serif text-2xl leading-none">Your photos</h2>
           <span className="text-xs tabular-nums text-muted">{photos.length}</span>
         </div>
-        <input ref={input} type="file" accept={ACCEPT} multiple hidden onChange={(e) => { uploadInto(null, [...(e.target.files ?? [])]); e.target.value = ''; }} />
+        <input ref={input} type="file" accept={ACCEPT} multiple={multi} hidden onChange={(e) => { uploadInto(null, [...(e.target.files ?? [])]); e.target.value = ''; }} />
         <button type="button" onClick={() => input.current?.click()} className="btn btn-primary w-full text-[0.75rem] uppercase tracking-[0.16em]">
           <ImagePlus size={16} /> Upload photos
         </button>
@@ -704,6 +706,7 @@ function Sheet({ title, onClose, children, footer, keyboard = false }: { title: 
 }
 
 function PhotoSheet({ target, refs, minDpi, onClose }: { target: Target | null; refs: Array<PageRef | null>; minDpi: number; onClose: () => void }) {
+  const multi = useMultiPick();
   const doc = useEditor((s) => s.doc)!;
   const photos = useEditor((s) => s.photos);
   const photoMap = useEditor((s) => s.photoMap);
@@ -751,13 +754,14 @@ function PhotoSheet({ target, refs, minDpi, onClose }: { target: Target | null; 
             ref={input}
             type="file"
             accept={ACCEPT}
-            multiple
+            multiple={multi}
             hidden
             onChange={(e) => {
               uploadInto(target, [...(e.target.files ?? [])]);
               e.target.value = '';
               // Into a frame: stay here — the photo appears in the frame editor in a moment.
-              if (!target) onClose();
+              // Many photos at once: they fill the frames, so close. One at a time (phones): stay for the next one.
+              if (!target && multi) onClose();
             }}
           />
           {adjusting ? (

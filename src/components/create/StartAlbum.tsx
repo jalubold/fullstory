@@ -1,5 +1,6 @@
 'use client';
 
+import { isMobileDevice } from '@/lib/client/device';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
@@ -80,7 +81,9 @@ export function StartAlbum({ request, visual, title }: { request: Record<string,
           if (ctrl.signal.aborted) return;
           v.done = true;
           setOpening(true);
-          const url = `/projects/${id}/photos`;
+          // Phones and tablets go straight to the editor (photos are added there, one at a time);
+          // desktops add a batch of photos first.
+          const url = isMobileDevice() ? `/projects/${id}/edit` : `/projects/${id}/photos`;
           router.replace(url);
           // If the in-app navigation stalls, finish with a normal page load.
           fallback = window.setTimeout(() => {

@@ -11,7 +11,7 @@ import type { AlbumDocument, PhotoAsset, PhotoMap } from '@/lib/album/types';
 import { useEditor } from '@/components/editor/store';
 import { flushSave, useAutosave } from '@/components/editor/useAutosave';
 import { uploadFiles, uploadsInFlight } from '@/components/editor/uploads';
-import { isAppleTouchDevice } from '@/lib/client/device';
+import { useMultiPick } from '@/lib/client/use-multi-pick';
 import { ACCEPT_ATTR } from '@/lib/client/upload';
 import { PendingTiles, UploadStatus, usePendingUploads, useUploadStats } from '@/components/editor/UploadStatus';
 
@@ -27,12 +27,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
   const [autofillOn, setAutofillOn] = useState(true);
   const [over, setOver] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [ios, setIos] = useState(false);
-  useEffect(() => {
-    // Device details are only known in the browser.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIos(isAppleTouchDevice());
-  }, []);
+  const multi = useMultiPick();
   const input = useRef<HTMLInputElement>(null);
   useAutosave();
 
@@ -70,7 +65,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
 
   return (
     <div>
-      <input ref={input} type="file" accept={ACCEPT_ATTR} multiple hidden onChange={(e) => { if (e.target.files?.length) pick([...e.target.files]); e.target.value = ''; }} />
+      <input ref={input} type="file" accept={ACCEPT_ATTR} multiple={multi} hidden onChange={(e) => { if (e.target.files?.length) pick([...e.target.files]); e.target.value = ''; }} />
       {photos.length === 0 ? (
         <button
           type="button"
@@ -86,13 +81,13 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
           </span>
           <span className="relative font-serif text-3xl">
             <span className="hidden sm:inline">Drop your photos here</span>
-            <span className="sm:hidden">Tap to choose your photos</span>
+            <span className="sm:hidden">{multi ? 'Tap to choose your photos' : 'Tap to add your first photo'}</span>
           </span>
           <span className="relative text-sm text-muted">
             <span className="hidden sm:inline">
               or <span className="font-medium text-accent">browse your files</span> ·{' '}
             </span>
-            Pick as many as you like — straight from your camera roll
+            {multi ? 'Pick as many as you like — straight from your camera roll' : 'One photo at a time — tap again for the next'}
           </span>
         </button>
       ) : (
@@ -108,18 +103,12 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
             <ImagePlus size={20} strokeWidth={1.5} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-serif text-2xl leading-tight">Add more photos</span>
+            <span className="block font-serif text-2xl leading-tight">{multi ? 'Add more photos' : 'Add another photo'}</span>
             <span className="block text-xs text-muted">
               {photos.length} added · <span className="hidden sm:inline">drop more here or </span>tap to choose
             </span>
           </span>
         </button>
-      )}
-
-      {ios && (
-        <p className="mt-3 text-xs leading-relaxed text-muted">
-          iPhone tip: picking about 20 photos at a time is quickest — your iPhone prepares each photo before handing it over. Add more any time.
-        </p>
       )}
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-y border-line px-1 py-4 text-sm">
