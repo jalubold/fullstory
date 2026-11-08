@@ -41,7 +41,7 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
   const credits = [...new Map(SAMPLE_PHOTOS.filter((p) => usedIds.has(`s:${p.key}`)).map((p) => [p.photographer.username, p.photographer.name])).values()];
 
   return (
-    <div className="pb-24">
+    <div className="pb-32 lg:pb-24">
       <div className="container-page pt-8">
         <nav aria-label="Breadcrumb" className="text-sm text-muted">
           <Link href="/templates" className="hover:text-ink">Templates</Link>
@@ -111,6 +111,20 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
           <p className="mt-4 text-xs text-muted">Free to customise. You only pay when you order {catalog.print.enabled !== false ? 'a print, PDF or share link' : 'your PDF or share link'}.</p>
         </div>
       </section>
+
+      {/* Phones: the next step stays one tap away while browsing the pages */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-line bg-paper/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-serif text-lg leading-tight">{t.name}</p>
+          <p className="smallcaps !text-[0.5625rem]">Free to customise</p>
+        </div>
+        <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary btn-sm shrink-0" aria-label="Preview full album">
+          <Eye size={15} />
+        </Link>
+        <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-sm shrink-0 text-[0.6875rem] uppercase tracking-[0.16em]">
+          Use this design
+        </Link>
+      </div>
 
       <section className="container-page mt-24">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
