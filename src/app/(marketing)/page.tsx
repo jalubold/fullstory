@@ -60,7 +60,7 @@ export default function HomePage() {
   return (
     <>
       {/* ───────────── Cover: the open book on red cloth ───────────── */}
-      <section className="cloth relative -mt-16 overflow-hidden pt-16 md:-mt-[4.5rem] md:pt-[4.5rem]">
+      <section className="cloth relative -mt-[calc(4rem+1px)] overflow-hidden pt-[calc(4rem+1px)] md:-mt-[calc(4.5rem+1px)] md:pt-[calc(4.5rem+1px)]">
         <div className="container-page grid min-h-[calc(100svh-8rem)] items-center gap-14 py-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-16">
           <div>
             <p className="rise smallcaps !text-white/60" style={{ animationDelay: '0.05s' }}>
