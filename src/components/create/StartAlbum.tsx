@@ -39,9 +39,9 @@ async function createAlbum(request: Record<string, unknown>, clientKey: string, 
 }
 
 /**
- * One-click start: creates the album as soon as this screen is shown and opens
- * it straight in the editor. Name, size and everything else can be changed
- * there.
+ * One-click start: creates the album as soon as this screen is shown and moves
+ * on to adding photos. Name, size and everything else can be changed later in
+ * the editor.
  *
  * Next.js keeps visited pages alive (hidden with React <Activity>), so this
  * screen can be shown again later with its old state. Each showing therefore
@@ -80,7 +80,7 @@ export function StartAlbum({ request, visual, title }: { request: Record<string,
           if (ctrl.signal.aborted) return;
           v.done = true;
           setOpening(true);
-          const url = `/projects/${id}/edit`;
+          const url = `/projects/${id}/photos`;
           router.replace(url);
           // If the in-app navigation stalls, finish with a normal page load.
           fallback = window.setTimeout(() => {
@@ -138,7 +138,7 @@ export function StartAlbum({ request, visual, title }: { request: Record<string,
               {opening ? 'Opening' : 'Binding'} <span className="italic">{title}</span>
             </h1>
             <p className="rise mt-3 text-white/65" style={{ animationDelay: '0.35s' }}>
-              {opening ? 'Your pages are ready — opening the studio…' : 'Setting out every page for your photos…'}
+              {opening ? 'Your pages are ready — now for your photos…' : 'Setting out every page for your photos…'}
             </p>
             <div className="rise mx-auto mt-9 h-px w-56 overflow-hidden bg-white/20" style={{ animationDelay: '0.45s' }}>
               <div className="h-full w-1/3 animate-[fs-progress_1.2s_ease-in-out_infinite] bg-white" />

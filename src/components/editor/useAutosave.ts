@@ -6,6 +6,8 @@ import { useEditor } from './store';
 const DEBOUNCE_MS = 1200;
 /** Even while the user keeps editing, save at least this often. */
 const MAX_WAIT_MS = 5000;
+/** A save that hasn't answered by now is abandoned and retried. */
+const REQUEST_TIMEOUT_MS = 15_000;
 export const backupKey = (id: string) => `fs:backup:${id}`;
 
 export interface LocalBackup {
@@ -37,11 +39,14 @@ const engine = (() => {
     state.dirtySince = 0;
     const counter = s.changeCounter;
     s.markSaving();
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
     try {
       const res = await fetch(`/api/projects/${s.projectId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ document: s.doc, title: s.title, version: s.version }),
+        signal: ctrl.signal,
       });
       if (res.status === 409) {
         useEditor.getState().markSaveError(true);
@@ -64,12 +69,35 @@ const engine = (() => {
       state.timer = setTimeout(() => void save(), 2000 * 2 ** state.retry);
       return false;
     } finally {
+      clearTimeout(timeout);
       state.inflight = false;
       if (useEditor.getState().saveState === 'dirty') schedule();
     }
   }
-  return { save, schedule };
+  /**
+   * Saves now and waits for it — including a save already in flight — so the
+   * next page loads the latest album. Gives up after timeoutMs (the local
+   * backup still has the changes).
+   */
+  async function flush(timeoutMs = 10_000): Promise<boolean> {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const st = useEditor.getState().saveState;
+      if (st === 'saved') return true;
+      if (st === 'conflict') return false;
+      if (!state.inflight) {
+        if (state.timer) clearTimeout(state.timer);
+        state.timer = null;
+        if (await save()) return true;
+      }
+      await new Promise((r) => setTimeout(r, 150));
+    }
+    return useEditor.getState().saveState === 'saved';
+  }
+  return { save, schedule, flush };
 })();
+
+export const flushSave = engine.flush;
 
 export function useAutosave() {
   useEffect(() => {
