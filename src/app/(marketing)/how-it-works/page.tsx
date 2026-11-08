@@ -53,7 +53,7 @@ export default function HowItWorksPage() {
       </section>
 
       <section className="container-page mt-24">
-        <ol className="grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-5">
+        <ol className="grid gap-px overflow-hidden rounded-[4px] border border-line bg-line md:grid-cols-5">
           {STEPS.map((s, i) => (
             <li key={s.title} className="bg-paper p-7">
               <p className="font-serif text-4xl italic text-accent">{String(i + 1).padStart(2, '0')}</p>

@@ -54,7 +54,7 @@ export function ProjectCard({ p }: { p: ProjectSummaryLite }) {
   const status = STATUS[p.status] ?? STATUS.draft;
   return (
     <article className="group relative">
-      <Link href={`/projects/${p.id}/edit`} className="relative grid aspect-[4/3.2] place-items-center overflow-hidden rounded-2xl bg-paper-2 transition-colors hover:bg-paper-3">
+      <Link href={`/projects/${p.id}/edit`} className="relative grid aspect-[4/3.2] place-items-center overflow-hidden rounded-[4px] bg-paper-2 transition-colors hover:bg-paper-3">
         <BookCover page={p.cover} size={p.size} photos={p.photos} renderWidth={240} style={{ width: p.size.widthMm > p.size.heightMm * 1.1 ? '68%' : p.size.heightMm > p.size.widthMm * 1.1 ? '42%' : '54%' }} />
         {busy && <span className="absolute inset-0 grid place-items-center bg-paper/60"><Loader2 className="animate-spin" /></span>}
       </Link>

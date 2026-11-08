@@ -7,7 +7,7 @@ import { Check, Copy, KeyRound } from 'lucide-react';
 export function RecoveryLink({ url, compact = false }: { url: string; compact?: boolean }) {
   const [copied, setCopied] = useState(false);
   return (
-    <div className={compact ? '' : 'rounded-2xl border border-line bg-white p-6'}>
+    <div className={compact ? '' : 'rounded-[4px] border border-line bg-white p-6'}>
       <div className="flex items-start gap-3">
         <KeyRound size={20} strokeWidth={1.6} className="mt-0.5 shrink-0 text-accent-dark" />
         <div className="min-w-0 flex-1">

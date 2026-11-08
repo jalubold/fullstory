@@ -14,7 +14,7 @@ async function List() {
   const shares = await listShares(user.id);
   if (!shares.length) {
     return (
-      <div className="rounded-3xl border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
+      <div className="rounded-[4px] border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
         <p className="font-serif text-3xl">No shared albums yet</p>
         <p className="mt-2 text-sm text-ink-soft">Add a shareable album at checkout to get a private link you can send to anyone.</p>
       </div>
@@ -26,7 +26,7 @@ async function List() {
         const expired = !!s.expires_at && new Date(s.expires_at) < new Date();
         const live = s.enabled && !expired && s.status === 'paid';
         return (
-          <li key={s.id} className="rounded-2xl border border-line bg-white p-5">
+          <li key={s.id} className="rounded-[4px] border border-line bg-white p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-serif text-2xl">{s.title}</p>
@@ -53,7 +53,7 @@ export default function SharedPage() {
   return (
     <>
       <PageHeader title="Shared Albums" text="Private links to online versions of your albums." />
-      <Suspense fallback={<div className="h-60 skeleton rounded-3xl" />}>
+      <Suspense fallback={<div className="h-60 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>
     </>

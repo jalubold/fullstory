@@ -14,7 +14,7 @@ async function List() {
   const orders = (await listOrders(user.id)).filter((o) => o.items.some((i) => i.kind === 'digital_pdf') && (o.status === 'paid' || o.status === 'pending'));
   if (!orders.length) {
     return (
-      <div className="rounded-3xl border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
+      <div className="rounded-[4px] border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
         <p className="font-serif text-3xl">No downloads yet</p>
         <p className="mt-2 text-sm text-ink-soft">When you buy a digital PDF of an album, you can download it here at any time.</p>
         <Link href="/dashboard/projects" className="btn btn-secondary mt-6">Go to my projects</Link>
@@ -22,7 +22,7 @@ async function List() {
     );
   }
   return (
-    <ul className="divide-y divide-line rounded-2xl border border-line bg-white">
+    <ul className="divide-y divide-line rounded-[4px] border border-line bg-white">
       {orders.map((o) => (
         <li key={o.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-5">
           <div>
@@ -42,7 +42,7 @@ export default function DownloadsPage() {
   return (
     <>
       <PageHeader title="My Downloads" text="High-resolution PDFs of the albums you’ve purchased." />
-      <Suspense fallback={<div className="h-60 skeleton rounded-3xl" />}>
+      <Suspense fallback={<div className="h-60 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>
     </>

@@ -54,7 +54,7 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
 
       <section className="container-page mt-8 grid gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
         <div className="min-w-0">
-          <div className="relative grid aspect-[1/0.86] place-items-center overflow-hidden rounded-[2rem] bg-paper-2">
+          <div className="relative grid aspect-[1/0.86] place-items-center overflow-hidden rounded-[4px] bg-paper-2">
             <BookCover
               page={doc.cover}
               size={doc.size}
@@ -90,7 +90,7 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
             ))}
           </ul>
 
-          <dl className="mt-8 divide-y divide-line rounded-2xl border border-line bg-white text-sm">
+          <dl className="mt-8 divide-y divide-line rounded-[4px] border border-line bg-white text-sm">
             <Spec label="Orientation" value={t.orientation[0].toUpperCase() + t.orientation.slice(1)} />
             <Spec label="Available sizes" value={sizes.map((s) => `${s.label} (${s.metricLabel})`).join(' · ')} />
             <Spec label="Formats" value={['Digital PDF', 'Shareable album', ...catalog.covers.map((c) => c.label)].join(' · ')} />

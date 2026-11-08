@@ -23,8 +23,8 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
   const first = user.name?.split(' ')[0];
   return (
     <div className="space-y-14">
-      {sp.restored === '1' && <p className="rounded-2xl bg-success-soft px-5 py-3 text-sm text-success">Welcome back — your albums are open in this browser again.</p>}
-      {sp.restore === 'invalid' && <p className="rounded-2xl bg-danger-soft px-5 py-3 text-sm text-danger">That album link isn’t valid. Check you copied the whole link.</p>}
+      {sp.restored === '1' && <p className="rounded-[4px] bg-success-soft px-5 py-3 text-sm text-success">Welcome back — your albums are open in this browser again.</p>}
+      {sp.restore === 'invalid' && <p className="rounded-[4px] bg-danger-soft px-5 py-3 text-sm text-danger">That album link isn’t valid. Check you copied the whole link.</p>}
       <div className="cloth relative overflow-hidden px-6 py-12 sm:px-10 sm:py-14">
         <span aria-hidden className="ribbon absolute right-[12%] top-0 hidden h-[78%] w-6 sm:block" />
         <p className="smallcaps !text-white/60">{first ? `Welcome back, ${first}` : 'Your bookshelf'}</p>
@@ -79,7 +79,7 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
       <section>
         <h2 className="mb-6 font-serif text-3xl">Purchased downloads</h2>
         {downloads.length ? (
-          <ul className="divide-y divide-line rounded-2xl border border-line bg-white">
+          <ul className="divide-y divide-line rounded-[4px] border border-line bg-white">
             {downloads.slice(0, 5).map((o) => (
               <li key={o.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
                 <div>
@@ -91,7 +91,7 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
             ))}
           </ul>
         ) : (
-          <p className="flex items-center gap-2 rounded-2xl border border-dashed border-line-strong px-5 py-6 text-sm text-muted">
+          <p className="flex items-center gap-2 rounded-[4px] border border-dashed border-line-strong px-5 py-6 text-sm text-muted">
             <Download size={16} /> Digital PDFs you buy will appear here.
           </p>
         )}
@@ -102,7 +102,7 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
 
 export default function DashboardPage({ searchParams }: PageProps<'/dashboard'>) {
   return (
-    <Suspense fallback={<div className="h-96 skeleton rounded-3xl" />}>
+    <Suspense fallback={<div className="h-96 skeleton rounded-[4px]" />}>
       <Content searchParams={searchParams} />
     </Suspense>
   );

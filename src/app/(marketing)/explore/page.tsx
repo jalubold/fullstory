@@ -39,7 +39,7 @@ export default function ExplorePage() {
       <section className="container-page mt-14 columns-1 gap-8 md:columns-2 xl:columns-3 [&>*]:mb-10 [&>*]:break-inside-avoid">
         {gallery.map(({ d, s }) => (
           <figure key={d.template.id} className="group">
-            <Link href={`/templates/${d.template.id}/preview`} className="block rounded-2xl bg-paper-2 p-6 transition-colors group-hover:bg-paper-3">
+            <Link href={`/templates/${d.template.id}/preview`} className="block rounded-[4px] bg-paper-2 p-6 transition-colors group-hover:bg-paper-3">
               <OpenBook left={d.doc.pages[s.left!]} right={d.doc.pages[s.right!]} size={d.doc.size} photos={d.photos} renderWidth={520} />
             </Link>
             <figcaption className="mt-3 flex items-baseline justify-between gap-3 px-1">

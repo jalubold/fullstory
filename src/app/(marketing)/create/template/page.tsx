@@ -19,7 +19,7 @@ export default function TemplateSelectPage() {
       category: t.category,
       node: (
         <div className="group">
-          <Link href={`/create/new?template=${t.id}`} className="relative grid aspect-square place-items-center rounded-2xl bg-paper-2 transition-colors hover:bg-paper-3">
+          <Link href={`/create/new?template=${t.id}`} className="relative grid aspect-square place-items-center rounded-[4px] bg-paper-2 transition-colors hover:bg-paper-3">
             <BookCover page={d.doc.cover} size={d.doc.size} photos={d.photos} renderWidth={240} style={{ width: t.orientation === 'landscape' ? '72%' : t.orientation === 'portrait' ? '48%' : '60%' }} />
             {t.tier === 'premium' && <span className="badge absolute left-3 top-3 bg-ink text-paper">Premium</span>}
           </Link>
@@ -47,7 +47,7 @@ export default function TemplateSelectPage() {
         <p className="mt-3 text-ink-soft">Every design is free to customise. Preview any template to see every page first.</p>
       </header>
       <div className="mt-10">
-        <Suspense fallback={<div className="h-96 skeleton rounded-2xl" />}>
+        <Suspense fallback={<div className="h-96 skeleton rounded-[4px]" />}>
           <TemplatePicker items={items} categories={CATEGORIES.map((c) => ({ id: c.id, label: c.label }))} />
         </Suspense>
       </div>

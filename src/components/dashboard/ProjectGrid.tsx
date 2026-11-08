@@ -6,7 +6,7 @@ import { ProjectCard } from './ProjectCard';
 export function ProjectGrid({ projects, empty }: { projects: ProjectSummary[]; empty?: { title: string; text: string } }) {
   if (!projects.length) {
     return (
-      <div className="rounded-3xl border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
+      <div className="rounded-[4px] border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
         <p className="font-serif text-3xl">{empty?.title ?? 'No albums yet'}</p>
         <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">{empty?.text ?? 'Start with a beautiful template and your favourite photos.'}</p>
         <Link href="/create" className="btn btn-primary mt-6"><Plus size={15} /> Create New Album</Link>

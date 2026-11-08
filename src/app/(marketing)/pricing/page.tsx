@@ -25,7 +25,7 @@ export default function PricingPage() {
       <div className="mx-auto mt-12 max-w-5xl">
         <PricingTables catalog={catalog} />
       </div>
-      <div className="mx-auto mt-16 max-w-5xl rounded-3xl bg-paper-2 p-10 text-center">
+      <div className="mx-auto mt-16 max-w-5xl rounded-[4px] bg-paper-2 p-10 text-center">
         <h2 className="font-serif text-3xl">Questions about printing or delivery?</h2>
         <p className="mt-2 text-ink-soft">Read our FAQ or start designing — you can change your mind at checkout.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">

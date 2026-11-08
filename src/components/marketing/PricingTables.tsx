@@ -17,9 +17,9 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted">Prices include all design tools and premium layouts in free templates. Taxes are calculated at checkout where applicable.</p>
-        <div className="flex rounded-full border border-line-strong bg-white p-0.5" role="group" aria-label="Currency">
+        <div className="flex rounded-[3px] border border-line-strong bg-white p-0.5" role="group" aria-label="Currency">
           {catalog.currencies.map((c) => (
-            <button key={c} type="button" onClick={() => setCur(c)} aria-pressed={cur === c} className={`rounded-full px-3.5 py-1.5 text-xs font-medium ${cur === c ? 'bg-ink text-paper' : 'text-ink-soft'}`}>
+            <button key={c} type="button" onClick={() => setCur(c)} aria-pressed={cur === c} className={`rounded-[3px] px-3.5 py-1.5 text-xs font-medium ${cur === c ? 'bg-ink text-paper' : 'text-ink-soft'}`}>
               {c}
             </button>
           ))}
@@ -32,7 +32,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
           { icon: Link2, item: catalog.digital.share },
         ].map(({ icon: Icon, item }) => (
           <div key={item.label} className="card flex gap-5 p-7">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent-dark">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[4px] bg-accent-soft text-accent-dark">
               <Icon size={22} strokeWidth={1.5} />
             </span>
             <div className="flex-1">
@@ -54,7 +54,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
         <p className="mt-2 text-sm text-ink-soft">
           Prices include {catalog.pages.min} pages. Add pages in steps of {catalog.pages.step}, up to {catalog.pages.max} pages.
         </p>
-        <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
+        <div className="mt-6 overflow-x-auto rounded-[4px] border border-line bg-white">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-[0.12em] text-muted">
@@ -89,7 +89,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {catalog.covers.map((c) => (
-            <div key={c.id} className="rounded-2xl border border-line bg-white/60 p-5">
+            <div key={c.id} className="rounded-[4px] border border-line bg-white/60 p-5">
               <p className="font-medium">{c.label}</p>
               <p className="mt-1 text-sm text-ink-soft">{c.description}</p>
             </div>

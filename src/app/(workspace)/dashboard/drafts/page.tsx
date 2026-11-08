@@ -18,7 +18,7 @@ export default function Page() {
   return (
     <>
       <PageHeader title="Saved Drafts" text="Albums you’re still working on. Everything saves automatically." action={<Link href="/create" className="btn btn-primary btn-sm"><Plus size={15} /> Create New Album</Link>} />
-      <Suspense fallback={<div className="h-80 skeleton rounded-3xl" />}>
+      <Suspense fallback={<div className="h-80 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>
     </>

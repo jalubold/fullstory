@@ -16,12 +16,12 @@ async function List() {
   return (
     <>
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-line bg-white p-5"><p className="eyebrow">Orders</p><p className="mt-2 font-serif text-3xl">{orders.length}</p></div>
-        <div className="rounded-2xl border border-line bg-white p-5"><p className="eyebrow">Paid</p><p className="mt-2 font-serif text-3xl">{paid.length}</p></div>
-        <div className="rounded-2xl border border-line bg-white p-5"><p className="eyebrow">Payment method</p><p className="mt-2 text-sm text-ink-soft">Entered securely at checkout — we never store card details.</p></div>
+        <div className="rounded-[4px] border border-line bg-white p-5"><p className="eyebrow">Orders</p><p className="mt-2 font-serif text-3xl">{orders.length}</p></div>
+        <div className="rounded-[4px] border border-line bg-white p-5"><p className="eyebrow">Paid</p><p className="mt-2 font-serif text-3xl">{paid.length}</p></div>
+        <div className="rounded-[4px] border border-line bg-white p-5"><p className="eyebrow">Payment method</p><p className="mt-2 text-sm text-ink-soft">Entered securely at checkout — we never store card details.</p></div>
       </div>
       {orders.length ? (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+        <div className="overflow-x-auto rounded-[4px] border border-line bg-white">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-[0.12em] text-muted">
@@ -48,7 +48,7 @@ async function List() {
           </table>
         </div>
       ) : (
-        <p className="rounded-2xl border border-dashed border-line-strong px-5 py-8 text-center text-sm text-muted">No payments yet.</p>
+        <p className="rounded-[4px] border border-dashed border-line-strong px-5 py-8 text-center text-sm text-muted">No payments yet.</p>
       )}
     </>
   );
@@ -58,7 +58,7 @@ export default function BillingPage() {
   return (
     <>
       <PageHeader title="Billing" text="Your payment history and receipts." />
-      <Suspense fallback={<div className="h-60 skeleton rounded-3xl" />}>
+      <Suspense fallback={<div className="h-60 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>
     </>

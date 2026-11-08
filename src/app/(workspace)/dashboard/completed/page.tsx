@@ -18,7 +18,7 @@ export default function Page() {
   return (
     <>
       <PageHeader title="Completed Albums" text="Albums you’ve ordered as a print, PDF or shareable album." action={<Link href="/create" className="btn btn-primary btn-sm"><Plus size={15} /> Create New Album</Link>} />
-      <Suspense fallback={<div className="h-80 skeleton rounded-3xl" />}>
+      <Suspense fallback={<div className="h-80 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>
     </>

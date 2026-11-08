@@ -16,7 +16,7 @@ async function List() {
   const orders = (await listOrders(user.id)).filter((o) => o.items.some((i) => i.kind === 'print'));
   if (!orders.length) {
     return (
-      <div className="rounded-3xl border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
+      <div className="rounded-[4px] border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
         <p className="font-serif text-3xl">No print orders yet</p>
         <p className="mt-2 text-sm text-ink-soft">Printed photobooks you order will appear here, with tracking once they ship.</p>
         <Link href="/dashboard/projects" className="btn btn-secondary mt-6">Choose an album to print</Link>
@@ -32,7 +32,7 @@ async function List() {
         const pay = PAYMENT_LABEL[o.status];
         return (
           <li key={o.id}>
-            <Link href={`/orders/${o.id}`} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-5 transition hover:shadow-card">
+            <Link href={`/orders/${o.id}`} className="flex flex-wrap items-center justify-between gap-4 rounded-[4px] border border-line bg-white px-5 py-5 transition hover:shadow-card">
               <div>
                 <p className="font-medium">{o.number}</p>
                 <p className="mt-0.5 text-sm text-ink-soft">{p?.quantity} × {cover?.label} · {size?.label} · {p?.pageCount} pages</p>
@@ -55,7 +55,7 @@ export default function OrdersPage() {
   return (
     <>
       <PageHeader title="Print Orders" text="Track your printed photobooks from production to your door." />
-      <Suspense fallback={<div className="h-60 skeleton rounded-3xl" />}>
+      <Suspense fallback={<div className="h-60 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>
     </>

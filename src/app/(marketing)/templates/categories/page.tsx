@@ -23,7 +23,7 @@ export default function CategoriesPage() {
           const templates = TEMPLATES.filter((t) => t.category === c.id);
           const demo = templates[0] ? getTemplateDemo(templates[0]) : null;
           return (
-            <Link key={c.id} href={`/templates/category/${c.id}`} className="group overflow-hidden rounded-3xl border border-line bg-white transition hover:shadow-card">
+            <Link key={c.id} href={`/templates/category/${c.id}`} className="group overflow-hidden rounded-[4px] border border-line bg-white transition hover:shadow-card">
               <div className="relative grid aspect-[16/10] place-items-center bg-paper-2 transition-colors group-hover:bg-paper-3">
                 {demo && (
                   <BookCover

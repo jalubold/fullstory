@@ -33,8 +33,8 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
   return (
     <div className="space-y-8">
       <OrderStatusPoller orderId={order.id} status={order.status} />
-      <div className="flex flex-col gap-6 rounded-3xl border border-line bg-white p-6 sm:flex-row sm:items-center sm:p-8">
-        <div className="grid h-36 w-36 shrink-0 place-items-center rounded-2xl bg-paper-2">
+      <div className="flex flex-col gap-6 rounded-[4px] border border-line bg-white p-6 sm:flex-row sm:items-center sm:p-8">
+        <div className="grid h-36 w-36 shrink-0 place-items-center rounded-[4px] bg-paper-2">
           <BookCover page={doc.cover} size={doc.size} photos={photos} renderWidth={160} style={{ width: doc.orientation === 'landscape' ? '84%' : doc.orientation === 'portrait' ? '56%' : '70%' }} />
         </div>
         <div className="flex-1">
@@ -53,7 +53,7 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
       </div>
 
       {order.status === 'paid' && hasItem(order, 'digital_pdf') && (
-        <section className="rounded-3xl border border-line bg-white p-6 sm:p-8">
+        <section className="rounded-[4px] border border-line bg-white p-6 sm:p-8">
           <div className="flex items-center gap-3"><Download size={20} className="text-accent-dark" /><h2 className="font-serif text-2xl">Digital PDF</h2></div>
           <p className="mb-5 mt-2 text-sm text-ink-soft">A high-resolution PDF of your album — cover, every page and back cover.</p>
           <DownloadButton orderId={order.id} />
@@ -61,7 +61,7 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
       )}
 
       {order.status === 'paid' && share && (
-        <section className="rounded-3xl border border-line bg-white p-6 sm:p-8">
+        <section className="rounded-[4px] border border-line bg-white p-6 sm:p-8">
           <div className="flex items-center gap-3"><Link2 size={20} className="text-accent-dark" /><h2 className="font-serif text-2xl">Shareable album</h2></div>
           <p className="mb-5 mt-2 text-sm text-ink-soft">Send this link to family and friends. You control who can see it and for how long.</p>
           <ShareManager
@@ -73,7 +73,7 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
       )}
 
       {print && (
-        <section className="rounded-3xl border border-line bg-white p-6 sm:p-8">
+        <section className="rounded-[4px] border border-line bg-white p-6 sm:p-8">
           <div className="flex items-center gap-3"><Package size={20} className="text-accent-dark" /><h2 className="font-serif text-2xl">Printed photobook</h2></div>
           <p className="mt-2 text-sm text-ink-soft">
             {print.quantity} × {cover?.label} · {size?.label} · {print.pageCount} pages
@@ -110,7 +110,7 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
         </section>
       )}
 
-      <section className="rounded-3xl border border-line bg-white p-6 sm:p-8">
+      <section className="rounded-[4px] border border-line bg-white p-6 sm:p-8">
         <h2 className="font-serif text-2xl">Summary</h2>
         <dl className="mt-4 space-y-2 text-sm">
           {order.lines.map((l, i) => (
@@ -134,7 +134,7 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
 
 export default function OrderPage({ params }: PageProps<'/orders/[id]'>) {
   return (
-    <Suspense fallback={<div className="h-96 skeleton rounded-3xl" />}>
+    <Suspense fallback={<div className="h-96 skeleton rounded-[4px]" />}>
       <Order params={params} />
     </Suspense>
   );

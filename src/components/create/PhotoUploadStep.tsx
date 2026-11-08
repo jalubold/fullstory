@@ -27,7 +27,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.projectId]);
 
-  if (!ready) return <div className="h-96 skeleton rounded-3xl" />;
+  if (!ready) return <div className="h-96 skeleton rounded-[4px]" />;
   const frames = countPhotoFrames(doc);
   const uploading = uploads.some((u) => u.status === 'uploading' || u.status === 'queued');
 

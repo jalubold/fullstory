@@ -122,7 +122,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
         <Option icon={BookOpen} title="Printed photobook" text={`Professionally printed and bound, ${printPages} pages.`} price={undefined} currency={currency} checked={print} onChange={setPrint} />
 
         {print && (
-          <div className="space-y-8 rounded-2xl border border-line bg-white p-6">
+          <div className="space-y-8 rounded-[4px] border border-line bg-white p-6">
             {printPages !== pageCount && (
               <p className="flex gap-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning">
                 <AlertTriangle size={16} className="mt-0.5 shrink-0" />
@@ -212,7 +212,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
       </div>
 
       <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-2xl border border-line bg-white p-6">
+        <div className="rounded-[4px] border border-line bg-white p-6">
           <h2 className="font-serif text-2xl">Order summary</h2>
           {q ? (
             <dl className="mt-5 space-y-3 text-sm">
@@ -266,7 +266,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
 
 function Option({ icon: Icon, title, text, price, currency, checked, onChange }: { icon: typeof Download; title: string; text: string; price: number | undefined; currency: Currency; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className={`flex cursor-pointer gap-4 rounded-2xl border bg-white p-5 transition ${checked ? 'border-ink shadow-card' : 'border-line hover:border-line-strong'}`}>
+    <label className={`flex cursor-pointer gap-4 rounded-[4px] border bg-white p-5 transition ${checked ? 'border-ink shadow-card' : 'border-line hover:border-line-strong'}`}>
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 h-4 w-4 accent-accent" />
       <Icon size={22} strokeWidth={1.4} className="mt-0.5 shrink-0 text-accent-dark" />
       <span className="flex-1">

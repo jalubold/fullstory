@@ -80,7 +80,7 @@ export default function FaqPage() {
           {groups.map((g) => (
             <section key={g.title} id={g.title.toLowerCase().replace(/[^a-z]+/g, '-')} className="scroll-mt-24">
               <h2 className="font-serif text-3xl">{g.title}</h2>
-              <div className="mt-5 divide-y divide-line rounded-2xl border border-line bg-white">
+              <div className="mt-5 divide-y divide-line rounded-[4px] border border-line bg-white">
                 {g.items.map(([q, a]) => (
                   <details key={q} className="group px-6 py-1 [&_summary::-webkit-details-marker]:hidden">
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-medium">
@@ -93,7 +93,7 @@ export default function FaqPage() {
               </div>
             </section>
           ))}
-          <div className="rounded-2xl bg-paper-2 p-8">
+          <div className="rounded-[4px] bg-paper-2 p-8">
             <p className="font-serif text-2xl">Still have a question?</p>
             <p className="mt-2 text-ink-soft">
               Start a project — it’s free — or <Link href="/how-it-works" className="underline underline-offset-4">see how it works</Link>.

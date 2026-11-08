@@ -22,7 +22,7 @@ export default function CreatePage() {
           const t = TEMPLATES.find((x) => x.category === c.id);
           const d = t ? getTemplateDemo(t) : null;
           return (
-            <Link key={c.id} href={`/create/template?category=${c.id}`} className="group overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-0.5 hover:shadow-card">
+            <Link key={c.id} href={`/create/template?category=${c.id}`} className="group overflow-hidden rounded-[4px] border border-line bg-white transition hover:-translate-y-0.5 hover:shadow-card">
               <div className="grid aspect-[4/3] place-items-center bg-paper-2 transition-colors group-hover:bg-paper-3">
                 {d && (
                   <BookCover
@@ -44,7 +44,7 @@ export default function CreatePage() {
             </Link>
           );
         })}
-        <div className="flex flex-col justify-between rounded-2xl border border-dashed border-line-strong bg-white p-6">
+        <div className="flex flex-col justify-between rounded-[4px] border border-dashed border-line-strong bg-white p-6">
           <div>
             <FilePlus2 size={28} strokeWidth={1.3} className="text-accent" />
             <p className="mt-4 font-serif text-2xl">Start from a blank book</p>

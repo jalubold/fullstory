@@ -67,7 +67,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="container-page mt-24 rounded-3xl bg-ink px-8 py-16 text-center text-paper">
+      <section className="container-page mt-24 rounded-[4px] bg-ink px-8 py-16 text-center text-paper">
         <h2 className="font-serif text-4xl md:text-5xl">Start your first chapter.</h2>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/create" className="btn btn-accent btn-lg">Create an album</Link>

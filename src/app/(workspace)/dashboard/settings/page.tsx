@@ -16,7 +16,7 @@ async function Content() {
   const user = await getUser();
   if (!user) {
     return (
-      <div className="rounded-3xl border border-dashed border-line-strong bg-white/60 px-6 py-14 text-center">
+      <div className="rounded-[4px] border border-dashed border-line-strong bg-white/60 px-6 py-14 text-center">
         <p className="font-serif text-3xl">Nothing saved in this browser yet</p>
         <p className="mt-2 text-sm text-ink-soft">Start an album — no account needed. If you made albums elsewhere, open your private album link here.</p>
         <Link href="/create" className="btn btn-primary mt-6">Create an album</Link>
@@ -28,12 +28,12 @@ async function Content() {
   return (
     <div className="space-y-8">
       <RecoveryLink url={`${appUrl()}/restore/${recoveryToken(user)}`} />
-      <section className="rounded-3xl border border-line bg-white p-6 sm:p-8">
+      <section className="rounded-[4px] border border-line bg-white p-6 sm:p-8">
         <h2 className="mb-2 font-serif text-2xl">Your details</h2>
         <p className="mb-6 text-sm text-ink-soft">Used to pre-fill checkout. We never require an account.</p>
         <ProfileForm name={user.name ?? ''} email={user.email ?? ''} currency={profile?.currency ?? catalog.defaultCurrency} currencies={catalog.currencies} />
       </section>
-      <section className="rounded-3xl border border-line bg-white p-6 sm:p-8">
+      <section className="rounded-[4px] border border-line bg-white p-6 sm:p-8">
         <h2 className="font-serif text-2xl">Privacy</h2>
         <p className="mt-2 text-sm text-ink-soft">
           Your photos and albums are private to this browser (and anyone you give your private album link to). Shared albums are only visible to
@@ -52,7 +52,7 @@ export default function SettingsPage() {
   return (
     <>
       <PageHeader title="Settings" />
-      <Suspense fallback={<div className="h-96 skeleton rounded-3xl" />}>
+      <Suspense fallback={<div className="h-96 skeleton rounded-[4px]" />}>
         <Content />
       </Suspense>
     </>
