@@ -19,7 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import { PageView } from '@/components/album/PageView';
-import { applyLayout, buildPage, roleStyle } from '@/lib/album/build';
+import { applyLayout, buildPage, resizeDocument, roleStyle } from '@/lib/album/build';
 import { cssFontStack } from '@/lib/album/fonts';
 import { buildSpreads, usedPhotoIds } from '@/lib/album/geometry';
 import { LAYOUT_GROUPS, LAYOUTS } from '@/lib/album/layouts';
@@ -95,6 +95,7 @@ function PagesPanel() {
       <div className="rounded-xl bg-paper p-4 text-sm">
         <p className="font-medium">{doc.size.label} · {doc.orientation[0].toUpperCase() + doc.orientation.slice(1)}</p>
         <p className="mt-0.5 text-muted">{doc.pages.length} pages + cover</p>
+        <SizePicker />
         {doc.pages.length % 2 === 1 && <p className="mt-2 text-xs text-warning">Printed books need an even number of pages — a blank page will be added at the end when printing.</p>}
       </div>
 
@@ -150,6 +151,32 @@ function PagesPanel() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function SizePicker() {
+  const sizes = useEditor((s) => s.sizes);
+  const current = useEditor((s) => s.doc.size.id);
+  if (sizes.length < 2) return null;
+  return (
+    <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Book size">
+      {sizes.map((sz) => (
+        <button
+          key={sz.id}
+          type="button"
+          aria-pressed={current === sz.id}
+          onClick={() => {
+            const s = useEditor.getState();
+            if (s.doc.size.id === sz.id) return;
+            s.apply((d) => Object.assign(d, resizeDocument(d as never, sz)));
+            s.toast(`Book size changed to ${sz.label}`);
+          }}
+          className={`rounded-full border px-2.5 py-1 text-xs transition ${current === sz.id ? 'border-accent bg-accent text-white' : 'border-line-strong bg-white text-ink-soft hover:border-accent hover:text-accent'}`}
+        >
+          {sz.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -372,7 +399,7 @@ function TextPanel() {
             type="button"
             onClick={() => add(role)}
             className="block w-full truncate rounded-xl border border-line bg-paper px-4 py-3 text-left transition hover:border-ink/40"
-            style={{ fontFamily: cssFontStack(st.font), fontWeight: st.weight, fontStyle: st.italic ? 'italic' : 'normal', fontSize: px, letterSpacing: `${st.letterSpacing}em`, textTransform: st.uppercase ? 'uppercase' : undefined, color: '#25231F' }}
+            style={{ fontFamily: cssFontStack(st.font), fontWeight: st.weight, fontStyle: st.italic ? 'italic' : 'normal', fontSize: px, letterSpacing: `${st.letterSpacing}em`, textTransform: st.uppercase ? 'uppercase' : undefined, color: '#0A0A0F' }}
           >
             {label}
           </button>

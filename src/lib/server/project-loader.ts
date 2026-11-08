@@ -4,7 +4,7 @@ import { requireUser } from './auth';
 import { listProjectPhotos, photoAsset } from './repo/photos';
 import { getProject } from './repo/projects';
 
-/** Loads a project for its owner (redirects to login / 404 otherwise). */
+/** Loads a project owned by this browser's guest id (404 otherwise). */
 export async function loadOwnedProject(id: string, next: string) {
   const user = await requireUser(next);
   const project = await getProject(user.id, id);

@@ -4,7 +4,7 @@ import { countPhotoFrames, usedPhotoIds } from '@/lib/album/geometry';
 import { getCatalog, getSize, isCurrency, type Currency } from '@/lib/commerce/catalog';
 import { normalisePageCount, quote, type OrderItemInput } from '@/lib/commerce/pricing';
 import { getTemplate } from '@/lib/templates';
-import type { SessionUser } from './auth';
+import { updateProfile, type SessionUser } from './auth';
 import { appUrl } from './env';
 import { HttpError } from './http';
 import { getPaymentProvider } from './payments';
@@ -15,6 +15,7 @@ import { getProject, updateProjectMeta } from './repo/projects';
 
 export const orderRequestSchema = z.object({
   projectId: z.string().uuid(),
+  email: z.string().trim().email().max(200),
   currency: z.string(),
   pdf: z.boolean().default(false),
   share: z.boolean().default(false),
@@ -71,6 +72,7 @@ export async function createCheckout(user: SessionUser, req: OrderRequest): Prom
   if (countPhotoFrames(doc).filled === 0) throw new HttpError(400, 'Add at least one photo to your album before ordering.');
 
   const q = quote(items, currency, printOptions?.shippingId ?? null, catalog);
+  await updateProfile(user, { email: req.email, name: req.print?.address.name ?? null });
 
   // Photo manifest: lets exports find the exact files even if the photos are later removed from the project.
   const ids = [...usedPhotoIds(doc)].filter((id) => /^[0-9a-f-]{36}$/i.test(id));
@@ -93,14 +95,14 @@ export async function createCheckout(user: SessionUser, req: OrderRequest): Prom
     manifest,
     address: req.print?.address ?? null,
     print: printOptions,
-    email: user.email,
+    email: req.email,
   });
 
   const base = appUrl();
   const session = await provider.createCheckout(order, {
     successUrl: `${base}/orders/${order.id}?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${base}/projects/${project.id}/checkout?cancelled=${order.id}`,
-    email: user.email,
+    email: req.email,
   });
   await setProviderSession(order.id, session.sessionId);
   return { orderId: order.id, url: session.url };

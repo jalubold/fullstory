@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { ImagePlus, Monitor, X } from 'lucide-react';
 import { duplicateElement, pageAt, removeElement } from '@/lib/album/ops';
-import type { AlbumDocument, PhotoAsset } from '@/lib/album/types';
+import type { AlbumDocument, PageSize, PhotoAsset } from '@/lib/album/types';
+import { WelcomeTips } from './WelcomeTips';
 import { AlbumCanvas } from './AlbumCanvas';
 import { EditorSidebar } from './EditorSidebar';
 import { EditorToolbar } from './EditorToolbar';
@@ -23,6 +24,7 @@ export interface EditorProps {
   photos: PhotoAsset[];
   safeMarginMm: number;
   minDpi: number;
+  sizes: PageSize[];
 }
 
 const isTyping = (t: EventTarget | null) => {
@@ -41,7 +43,7 @@ export function Editor(props: EditorProps) {
   const save = useAutosave();
 
   useEffect(() => {
-    useEditor.getState().init({ projectId: props.projectId, title: props.title, status: props.status, doc: props.doc, version: props.version, photos: props.photos });
+    useEditor.getState().init({ projectId: props.projectId, title: props.title, status: props.status, doc: props.doc, version: props.version, photos: props.photos, sizes: props.sizes });
     try {
       const raw = localStorage.getItem(backupKey(props.projectId));
       if (raw) {
@@ -198,6 +200,7 @@ export function Editor(props: EditorProps) {
           <PropertiesPanel minDpi={props.minDpi} />
         </div>
       </div>
+      <WelcomeTips />
       {fileDrag && (
         <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center bg-ink/30 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3 rounded-3xl bg-white px-10 py-8 shadow-pop">

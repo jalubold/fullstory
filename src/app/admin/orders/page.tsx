@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { AdminOrderActions } from '@/components/dashboard/AdminOrderRow';
 import { date, FULFILLMENT_LABEL, money, PAYMENT_LABEL } from '@/components/dashboard/format';
 import { Logo } from '@/components/ui/Logo';
+import { adminLogoutAction } from '@/lib/server/actions/account';
 import { requireAdminPage } from '@/lib/server/admin';
 import { listAllOrders } from '@/lib/server/repo/orders';
 
@@ -49,8 +50,13 @@ export default function AdminOrdersPage() {
     <div className="min-h-dvh bg-paper">
       <header className="border-b border-line bg-white/70">
         <div className="container-page flex h-16 items-center justify-between">
-          <Logo href="/dashboard" />
-          <span className="eyebrow">Admin · Orders</span>
+          <Logo href="/" />
+          <div className="flex items-center gap-3">
+            <span className="eyebrow">Admin · Orders</span>
+            <form action={adminLogoutAction}>
+              <button type="submit" className="btn btn-ghost btn-sm">Log out</button>
+            </form>
+          </div>
         </div>
       </header>
       <main className="container-page py-10">

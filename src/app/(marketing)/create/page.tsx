@@ -44,13 +44,21 @@ export default function CreatePage() {
             </Link>
           );
         })}
-        <Link href="/create/new?blank=1" className="group flex flex-col justify-between rounded-2xl border border-dashed border-line-strong bg-paper p-6 transition hover:border-ink">
-          <FilePlus2 size={28} strokeWidth={1.3} className="text-accent-dark" />
+        <div className="flex flex-col justify-between rounded-2xl border border-dashed border-line-strong bg-white p-6">
           <div>
-            <p className="font-serif text-2xl">Start from a blank book</p>
-            <p className="mt-1 text-sm text-muted">Simple layouts and plenty of room to make it your own.</p>
+            <FilePlus2 size={28} strokeWidth={1.3} className="text-accent" />
+            <p className="mt-4 font-serif text-2xl">Start from a blank book</p>
+            <p className="mt-1 text-sm text-muted">Simple, balanced layouts and plenty of room to make it your own.</p>
           </div>
-        </Link>
+          <div className="mt-5 grid grid-cols-3 gap-2">
+            {(['square', 'landscape', 'portrait'] as const).map((o) => (
+              <Link key={o} href={`/create/new?blank=1&orientation=${o}`} className="group flex flex-col items-center gap-2 rounded-xl border border-line px-2 py-3 text-xs text-ink-soft transition hover:border-accent hover:text-accent">
+                <span className="block rounded-[2px] bg-paper-3 transition group-hover:bg-accent/20" style={{ width: o === 'portrait' ? 18 : 26, height: o === 'landscape' ? 18 : 26 }} />
+                {o[0].toUpperCase() + o.slice(1)}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
       <p className="mt-10 text-sm text-muted">
         Already know what you want?{' '}

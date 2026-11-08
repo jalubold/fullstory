@@ -90,7 +90,7 @@ function Slider({ label, value, min, max, step, unit, onChange }: { label: strin
           {unit}
         </span>
       </span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)} className="mt-1.5 w-full accent-[#a68c70]" />
+      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)} className="mt-1.5 w-full accent-[#3a47ff]" />
     </label>
   );
 }
@@ -202,7 +202,7 @@ function TextProps({ el }: { el: TextElement }) {
             ))}
           </select>
           <label className="flex items-center gap-1.5 rounded-lg border border-line-strong px-2.5 text-xs" title={hasItalic(el.font) ? 'Italic' : 'No italic for this font'}>
-            <input type="checkbox" checked={el.italic} disabled={!hasItalic(el.font)} onChange={(e) => update({ italic: e.target.checked })} className="accent-[#25231f]" />
+            <input type="checkbox" checked={el.italic} disabled={!hasItalic(el.font)} onChange={(e) => update({ italic: e.target.checked })} className="accent-[#3a47ff]" />
             <span className="italic">Italic</span>
           </label>
         </div>
@@ -236,7 +236,7 @@ function TextProps({ el }: { el: TextElement }) {
         <Slider label="Line height" value={el.lineHeight} min={0.8} max={2.5} step={0.05} onChange={(v) => update({ lineHeight: v }, 'lh')} />
         <Slider label="Letter spacing" value={el.letterSpacing} min={-0.05} max={0.5} step={0.01} unit="em" onChange={(v) => update({ letterSpacing: v }, 'ls')} />
         <label className="flex items-center gap-2 text-sm text-ink-soft">
-          <input type="checkbox" checked={el.uppercase} onChange={(e) => update({ uppercase: e.target.checked })} className="accent-[#25231f]" /> Uppercase
+          <input type="checkbox" checked={el.uppercase} onChange={(e) => update({ uppercase: e.target.checked })} className="accent-[#3a47ff]" /> Uppercase
         </label>
       </Section>
     </>

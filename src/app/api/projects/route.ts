@@ -37,4 +37,4 @@ export const POST = authed(async (req, { user }) => {
   }
   const project = await createProject(user.id, body.title, doc);
   return json({ id: project.id }, 201);
-});
+}, { create: true });

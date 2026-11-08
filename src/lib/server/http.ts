@@ -1,7 +1,7 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
-import { getUser, type SessionUser } from './auth';
+import { ensureUser, getUser, type SessionUser } from './auth';
 import { SetupError } from './db';
 
 export class HttpError extends Error {
@@ -27,12 +27,15 @@ export function errorResponse(e: unknown) {
 
 type Handler<P> = (req: Request, ctx: { params: P; user: SessionUser }) => Promise<Response>;
 
-/** Wraps a route handler: requires a signed-in user and maps errors to JSON. */
-export function authed<P = Record<string, string>>(handler: Handler<P>) {
+/**
+ * Wraps a route handler with the visitor's guest identity and maps errors to
+ * JSON. With `create`, a guest id is issued if this browser has none yet.
+ */
+export function authed<P = Record<string, string>>(handler: Handler<P>, opts: { create?: boolean } = {}) {
   return async (req: Request, ctx: { params: Promise<P> }) => {
     try {
-      const user = await getUser();
-      if (!user) return json({ error: 'Please log in to continue.' }, 401);
+      const user = opts.create ? await ensureUser() : await getUser();
+      if (!user) return json({ error: 'We couldn’t find your albums in this browser. Open your recovery link to restore them.' }, 401);
       return await handler(req, { params: await ctx.params, user });
     } catch (e) {
       return errorResponse(e);

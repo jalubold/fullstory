@@ -49,7 +49,7 @@ export function AlbumCanvas({ safeMarginMm }: { safeMarginMm: number }) {
             r ? (
               <PageSlot key={JSON.stringify(r)} pageRef={r} widthPx={pageW} safeMarginMm={safeMarginMm} isActive={sameRef(r, active)} side={cols === 2 ? (i === 0 ? 'left' : 'right') : 'single'} />
             ) : (
-              <div key={`empty-${i}`} style={{ width: pageW, height: pageW / aspect }} className="grid place-items-center bg-[#e6e1d8]">
+              <div key={`empty-${i}`} style={{ width: pageW, height: pageW / aspect }} className="grid place-items-center bg-[#e2e2e9]">
                 <span className="text-xs uppercase tracking-[0.16em] text-faint">{i === 0 ? 'Inside cover' : 'Inside back cover'}</span>
               </div>
             ),

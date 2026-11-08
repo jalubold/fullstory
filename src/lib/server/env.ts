@@ -18,22 +18,21 @@ export const isProduction = process.env.NODE_ENV === 'production';
 export const isVercel = process.env.VERCEL === '1';
 
 export const supabaseUrl = env('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
-export const supabaseAnonKey = env('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_ANON_KEY', 'SUPABASE_PUBLISHABLE_KEY');
 export const supabaseServiceKey = env('SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SECRET_KEY');
 export const databaseUrl = env('DATABASE_URL', 'POSTGRES_URL', 'POSTGRES_PRISMA_URL');
 export const storageBucket = env('SUPABASE_STORAGE_BUCKET') ?? 'fullstory';
 
 export type DbMode = 'postgres' | 'pglite' | 'none';
-export type AuthMode = 'supabase' | 'local' | 'none';
 export type StorageMode = 'supabase' | 'local' | 'none';
 
 export const dbMode: DbMode = databaseUrl ? 'postgres' : !isVercel ? 'pglite' : 'none';
-export const authMode: AuthMode =
-  supabaseUrl && supabaseAnonKey && env('AUTH_PROVIDER') !== 'local' ? 'supabase' : dbMode !== 'none' ? 'local' : 'none';
 export const storageMode: StorageMode = supabaseUrl && supabaseServiceKey ? 'supabase' : !isVercel ? 'local' : 'none';
 
-/** True when accounts, projects and uploads can work. */
-export const platformReady = dbMode !== 'none' && authMode !== 'none' && storageMode !== 'none';
+/**
+ * True when albums can be saved. There are no user accounts: each browser gets
+ * an anonymous, signed guest id (see lib/server/auth).
+ */
+export const platformReady = dbMode !== 'none' && storageMode !== 'none';
 
 export const dataDir = env('FULLSTORY_DATA_DIR') ?? `${process.cwd()}/.data`;
 
@@ -47,15 +46,12 @@ export function appUrl(): string {
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
-export const adminEmails = (env('ADMIN_EMAILS') ?? '')
-  .split(',')
-  .map((s) => s.trim().toLowerCase())
-  .filter(Boolean);
+/** Password for /admin (order management). Admin is disabled when unset. */
+export const adminPassword = env('ADMIN_PASSWORD');
 
 export function setupIssues(): string[] {
   const issues: string[] = [];
-  if (dbMode === 'none') issues.push('No database configured. Connect Supabase (or set DATABASE_URL / POSTGRES_URL).');
-  if (storageMode === 'none') issues.push('No file storage configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.');
-  if (authMode === 'none') issues.push('No authentication configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+  if (dbMode === 'none') issues.push('No database is connected yet (connect Supabase in Vercel → Storage).');
+  if (storageMode === 'none') issues.push('No photo storage is connected yet (Supabase provides this too).');
   return issues;
 }

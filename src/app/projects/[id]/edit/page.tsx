@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Editor } from '@/components/editor/Editor';
-import { getCatalog } from '@/lib/commerce/catalog';
+import { getCatalog, sizesFor } from '@/lib/commerce/catalog';
 import { loadOwnedProject } from '@/lib/server/project-loader';
 
 export const metadata: Metadata = { title: 'Editor', robots: { index: false } };
@@ -21,6 +21,7 @@ async function EditorLoader({ params }: { params: Promise<{ id: string }> }) {
       photos={photos}
       safeMarginMm={catalog.print.safeMarginMm}
       minDpi={catalog.print.minDpi}
+      sizes={sizesFor(project.document.orientation).map((s) => ({ id: s.id, label: s.label, widthMm: s.widthMm, heightMm: s.heightMm }))}
     />
   );
 }

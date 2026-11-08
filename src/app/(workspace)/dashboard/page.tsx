@@ -5,13 +5,16 @@ import { ArrowRight, Download, Plus } from 'lucide-react';
 import { DownloadButton } from '@/components/dashboard/OrderClient';
 import { date } from '@/components/dashboard/format';
 import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
-import { requireUser } from '@/lib/server/auth';
+import { RecoveryLink } from '@/components/dashboard/RecoveryLink';
+import { recoveryToken, requireUser } from '@/lib/server/auth';
+import { appUrl } from '@/lib/server/env';
 import { listOrders } from '@/lib/server/repo/orders';
 import { listProjects } from '@/lib/server/repo/projects';
 
 export const metadata: Metadata = { title: 'Dashboard', robots: { index: false } };
 
-async function Content() {
+async function Content({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const sp = await searchParams;
   const user = await requireUser('/dashboard');
   const [projects, orders] = await Promise.all([listProjects(user.id), listOrders(user.id)]);
   const drafts = projects.filter((p) => p.status === 'draft');
@@ -20,15 +23,23 @@ async function Content() {
   const first = user.name?.split(' ')[0];
   return (
     <div className="space-y-14">
-      <div className="relative overflow-hidden rounded-3xl bg-paper-2 px-6 py-10 sm:px-10">
-        <p className="eyebrow">{first ? `Welcome back, ${first}` : 'Welcome'}</p>
-        <h1 className="mt-3 max-w-xl font-serif text-4xl font-medium leading-tight md:text-5xl">Your stories, all in one place.</h1>
-        <div className="mt-6 flex flex-wrap gap-6 text-sm text-ink-soft">
-          <span><span className="font-serif text-2xl text-ink">{projects.length}</span> albums</span>
-          <span><span className="font-serif text-2xl text-ink">{drafts.length}</span> drafts</span>
-          <span><span className="font-serif text-2xl text-ink">{orders.filter((o) => o.status === 'paid').length}</span> orders</span>
+      {sp.restored === '1' && <p className="rounded-2xl bg-success-soft px-5 py-3 text-sm text-success">Welcome back — your albums are open in this browser again.</p>}
+      {sp.restore === 'invalid' && <p className="rounded-2xl bg-danger-soft px-5 py-3 text-sm text-danger">That album link isn’t valid. Check you copied the whole link.</p>}
+      <div className="grain relative isolate overflow-hidden rounded-[2rem] bg-night px-6 py-12 text-white sm:px-10">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <div className="aurora absolute -right-20 -top-24 h-80 w-80 rounded-full bg-accent/40 blur-[100px]" />
+          <div className="aurora absolute -bottom-24 left-10 h-64 w-64 rounded-full bg-rose/20 blur-[100px]" style={{ animationDelay: '-6s' }} />
         </div>
-        <Link href="/create" className="btn btn-primary btn-lg mt-8"><Plus size={16} /> Create New Album</Link>
+        <p className="eyebrow !text-white/50">{first ? `Welcome back, ${first}` : 'Your workspace'}</p>
+        <h1 className="mt-3 max-w-xl font-serif text-4xl font-medium leading-tight md:text-6xl">
+          Your stories, <span className="italic text-gradient">all in one place.</span>
+        </h1>
+        <div className="mt-7 flex flex-wrap gap-8 text-sm text-white/60">
+          <span><span className="block font-serif text-4xl text-white">{projects.length}</span> albums</span>
+          <span><span className="block font-serif text-4xl text-white">{drafts.length}</span> drafts</span>
+          <span><span className="block font-serif text-4xl text-white">{orders.filter((o) => o.status === 'paid').length}</span> orders</span>
+        </div>
+        <Link href="/create" className="btn btn-light btn-lg btn-glow mt-9"><Plus size={16} /> Create New Album</Link>
       </div>
 
       <section>
@@ -59,6 +70,8 @@ async function Content() {
         </section>
       )}
 
+      {user.exists && projects.length > 0 && <RecoveryLink url={`${appUrl()}/restore/${recoveryToken(user)}`} />}
+
       <section>
         <h2 className="mb-6 font-serif text-3xl">Purchased downloads</h2>
         {downloads.length ? (
@@ -83,10 +96,10 @@ async function Content() {
   );
 }
 
-export default function DashboardPage() {
+export default function DashboardPage({ searchParams }: PageProps<'/dashboard'>) {
   return (
     <Suspense fallback={<div className="h-96 skeleton rounded-3xl" />}>
-      <Content />
+      <Content searchParams={searchParams} />
     </Suspense>
   );
 }

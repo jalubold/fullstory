@@ -53,13 +53,14 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
         onDragOver={(e) => { e.preventDefault(); setOver(true); }}
         onDragLeave={() => setOver(false)}
         onDrop={(e) => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) void uploadFiles([...e.dataTransfer.files]); }}
-        className={`flex w-full flex-col items-center gap-3 rounded-3xl border-2 border-dashed px-6 py-14 text-center transition ${over ? 'border-accent bg-accent-soft/50' : 'border-line-strong bg-white hover:border-accent'}`}
+        className={`group relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-[2rem] border-2 border-dashed px-6 py-16 text-center transition duration-500 ${over ? 'scale-[1.01] border-accent bg-accent-soft' : 'border-line-strong bg-white hover:border-accent hover:shadow-pop'}`}
       >
-        <span className="grid h-14 w-14 place-items-center rounded-2xl bg-accent-soft text-accent-dark">
-          <ImagePlus size={26} strokeWidth={1.5} />
+        <span aria-hidden className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[60%] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl transition group-hover:bg-accent/20" />
+        <span className="relative grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-accent to-violet text-white shadow-glow transition duration-500 group-hover:-translate-y-1 group-hover:rotate-[-6deg]">
+          <ImagePlus size={28} strokeWidth={1.6} />
         </span>
-        <span className="font-serif text-2xl">Drag photos here, or click to choose</span>
-        <span className="text-sm text-muted">JPEG, PNG or WebP · up to 40 MB each · you can add more later</span>
+        <span className="relative font-serif text-3xl">Drop your photos here</span>
+        <span className="relative text-sm text-muted">or <span className="font-medium text-accent">browse your files</span> · JPEG, PNG or WebP up to 40 MB · add more any time</span>
       </button>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-paper-2/70 px-5 py-4 text-sm">
@@ -67,7 +68,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
           <span className="font-medium">{photos.length}</span> {photos.length === 1 ? 'photo' : 'photos'} uploaded · your design has <span className="font-medium">{frames.frames}</span> photo frames
         </p>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={autofillOn} onChange={(e) => setAutofillOn(e.target.checked)} className="accent-[#25231f]" />
+          <input type="checkbox" checked={autofillOn} onChange={(e) => setAutofillOn(e.target.checked)} className="accent-[#3a47ff]" />
           Place my photos into the layouts automatically
         </label>
       </div>

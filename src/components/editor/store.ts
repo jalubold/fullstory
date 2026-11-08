@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { produce, type Draft } from 'immer';
 import { pageAt } from '@/lib/album/ops';
 import { buildSpreads, spreadIndexOfPage } from '@/lib/album/geometry';
-import type { AlbumDocument, AlbumElement, Page, PageRef, PhotoAsset, PhotoMap } from '@/lib/album/types';
+import type { AlbumDocument, AlbumElement, Page, PageRef, PageSize, PhotoAsset, PhotoMap } from '@/lib/album/types';
 
 export type SaveState = 'saved' | 'dirty' | 'saving' | 'error' | 'conflict';
 export type PanelId = 'pages' | 'photos' | 'layouts' | 'text' | 'backgrounds' | 'elements';
@@ -54,8 +54,9 @@ export interface EditorState {
   uploads: UploadItem[];
   toasts: Toast[];
   dragPhotoId: string | null;
+  sizes: PageSize[];
 
-  init: (p: { projectId: string; title: string; status: string; doc: AlbumDocument; version: number; photos: PhotoAsset[] }) => void;
+  init: (p: { projectId: string; title: string; status: string; doc: AlbumDocument; version: number; photos: PhotoAsset[]; sizes?: PageSize[] }) => void;
   apply: (recipe: (draft: Draft<AlbumDocument>) => void, opts?: { key?: string; silent?: boolean }) => void;
   updateElement: (ref: PageRef, id: string, patch: Partial<AlbumElement> | ((el: Draft<AlbumElement>) => void), opts?: { key?: string }) => void;
   beginGesture: () => void;
@@ -114,9 +115,11 @@ export const useEditor = create<EditorState>()((set, get) => ({
   uploads: [],
   toasts: [],
   dragPhotoId: null,
+  sizes: [],
 
-  init: ({ projectId, title, status, doc, version, photos }) =>
+  init: ({ projectId, title, status, doc, version, photos, sizes }) =>
     set({
+      sizes: sizes ?? [],
       projectId,
       title,
       status,

@@ -14,10 +14,11 @@ export default function FaqPage() {
     {
       title: 'Creating your album',
       items: [
+        ['Do I need an account?', 'No. There’s nothing to sign up for. Your albums are saved to this browser automatically, and you get a private album link to open them on another device.'],
         ['Do I need design experience?', 'Not at all. Every template is a complete, finished design. You simply add your photos and words — and if you want to, you can change layouts, fonts, colours and backgrounds.'],
         ['Is it free to design an album?', 'Yes. Creating, editing, saving and previewing projects is free. You only pay when you order a printed book, a digital PDF or a shareable album.'],
         ['Can I add or remove pages?', `Yes. Albums can have between ${c.pages.min} and ${c.pages.max} pages. You can add, duplicate, delete and reorder pages in the editor.`],
-        ['Will I lose my work if I close the browser?', 'No. Your album saves automatically while you work, and a local backup protects changes made while you are offline. Open your dashboard to continue any project.'],
+        ['Will I lose my work if I close the browser?', 'No. Your album saves automatically while you work, and a local backup protects changes made while you are offline. Open “My albums” to continue — or use your private album link from another device.'],
         ['Can I use the editor on a tablet or phone?', 'The editor works on desktop computers and tablets. On phones you can browse templates, preview albums and manage your projects; we recommend a larger screen for detailed editing.'],
       ],
     },
@@ -27,7 +28,7 @@ export default function FaqPage() {
         ['Which file types can I upload?', 'JPEG, PNG and WebP images, up to 40 MB each. If your phone saves HEIC photos, export them as JPEG first.'],
         ['How many photos do I need?', 'Each template shows a recommended number of photos on its detail page. As a rough guide, plan for one to three photos per page.'],
         ['Will my photos be printed in good quality?', `The editor warns you when a photo is too small for its frame at print size (below about ${c.print.minDpi} DPI). Print files are produced from your original uploads, not from screen previews.`],
-        ['Who can see my photos?', 'Only you. Uploaded photos are stored privately in your account. If you publish a shareable album, people with the link (and password, if you set one) can view that album.'],
+        ['Who can see my photos?', 'Only you. Uploaded photos are stored privately and linked to your browser. If you publish a shareable album, people with the link (and password, if you set one) can view that album.'],
       ],
     },
     {
@@ -48,11 +49,11 @@ export default function FaqPage() {
       ],
     },
     {
-      title: 'Payments & account',
+      title: 'Payments & privacy',
       items: [
         ['How do I pay?', 'Payments are handled securely by our payment provider. We never see or store your card details.'],
         ['When do I get access to my download?', 'Immediately after your payment is confirmed. If a payment is still processing, your order page will update automatically.'],
-        ['Can I delete my account?', 'Yes — contact us from your account settings and we will delete your projects and photos.'],
+        ['How do I get my albums on another device?', 'Open Settings in “My albums” and copy your private album link. Open it on any device to continue where you left off. Keep it private — anyone with the link can open your albums.'],
       ],
     },
   ];

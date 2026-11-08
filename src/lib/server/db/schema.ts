@@ -158,4 +158,9 @@ alter table orders add column if not exists customer_email text;
 alter table orders add column if not exists print_options jsonb
 `,
   },
+  {
+    id: 3,
+    name: 'guest-profiles',
+    sql: `alter table profiles alter column email drop not null`,
+  },
 ];

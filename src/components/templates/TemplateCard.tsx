@@ -18,7 +18,7 @@ export function TemplateVisual({ demo, eager }: { demo: TemplateDemo; eager?: bo
         photos={photos}
         renderWidth={260}
         eager={eager}
-        className="absolute transition-transform duration-500 ease-[var(--ease-soft)] group-hover:translate-x-[4%] group-hover:rotate-[4deg]"
+        className="absolute transition-transform duration-700 ease-[var(--ease-soft)] group-hover:translate-x-[8%] group-hover:rotate-[7deg]"
         style={{ width: `${PAGE_WIDTH[o]}%`, right: '9%', top: '50%', transform: 'translateY(-50%) rotate(2.5deg)' }}
       />
       <BookCover
@@ -27,7 +27,7 @@ export function TemplateVisual({ demo, eager }: { demo: TemplateDemo; eager?: bo
         photos={photos}
         renderWidth={300}
         eager={eager}
-        className="absolute transition-transform duration-500 ease-[var(--ease-soft)] group-hover:-translate-x-[3%]"
+        className="shine absolute transition-transform duration-700 ease-[var(--ease-soft)] group-hover:-translate-x-[4%] group-hover:-translate-y-[3%] group-hover:-rotate-2 group-hover:scale-[1.03]"
         style={{ width: `${COVER_WIDTH[o]}%`, left: '10%', top: '50%', transform: 'translateY(-50%)' }}
       />
     </div>
@@ -42,11 +42,12 @@ export function TemplateCard({ demo, eager }: { demo: TemplateDemo; eager?: bool
     <article className="group flex flex-col">
       <Link
         href={`/templates/${t.id}`}
-        className="relative block aspect-[5/4] overflow-hidden rounded-2xl bg-paper-2 transition-colors duration-300 group-hover:bg-paper-3"
+        className="relative block aspect-[5/4] overflow-hidden rounded-3xl bg-gradient-to-br from-paper-2 to-paper-3 transition-all duration-500 group-hover:shadow-pop"
         aria-label={`${t.name} — view template`}
       >
         <TemplateVisual demo={demo} eager={eager} />
-        {t.tier === 'premium' && <span className="badge absolute left-3 top-3 bg-ink text-paper">Premium</span>}
+        {t.tier === 'premium' && <span className="badge absolute left-3 top-3 bg-ink text-white">Premium</span>}
+        <span className="absolute bottom-3 right-3 translate-y-2 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-ink opacity-0 shadow-card backdrop-blur transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">View design →</span>
       </Link>
       <div className="mt-4 flex items-baseline justify-between gap-3">
         <h3 className="font-serif text-[1.6rem] leading-none text-ink">

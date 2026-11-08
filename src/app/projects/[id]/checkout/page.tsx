@@ -78,6 +78,7 @@ async function Checkout({ params, searchParams }: { params: Promise<{ id: string
           premium={template?.tier === 'premium'}
           provider={provider ? { label: provider.label, isTest: provider.isTest } : null}
           defaultName={user.name ?? ''}
+          defaultEmail={user.email ?? ''}
         />
       </div>
     </div>

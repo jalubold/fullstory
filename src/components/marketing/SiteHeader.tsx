@@ -1,66 +1,52 @@
 import Link from 'next/link';
-import { Suspense } from 'react';
-import { getUser } from '@/lib/server/auth';
+import { Suspense, type ReactNode } from 'react';
 import { Logo } from '@/components/ui/Logo';
+import { HeaderShell } from './HeaderShell';
 import { MobileMenu, NavLinks } from './NavLinks';
 
-async function AccountLinks({ mobile = false }: { mobile?: boolean }) {
-  let user = null;
-  try {
-    user = await getUser();
-  } catch {
-    user = null;
-  }
-  if (mobile) {
-    return user ? (
-      <>
-        <Link href="/dashboard" className="btn btn-secondary btn-lg">My albums</Link>
-        <Link href="/create" className="btn btn-primary btn-lg">Create Album</Link>
-      </>
-    ) : (
-      <>
-        <Link href="/login" className="btn btn-secondary btn-lg">Log In</Link>
-        <Link href="/create" className="btn btn-primary btn-lg">Create Album</Link>
-      </>
-    );
-  }
-  return user ? (
-    <Link href="/dashboard" className="hidden rounded-full px-3 py-2 text-sm text-ink-soft hover:text-ink sm:inline-flex">
-      My albums
-    </Link>
-  ) : (
-    <Link href="/login" className="hidden rounded-full px-3 py-2 text-sm text-ink-soft hover:text-ink sm:inline-flex">
-      Log In
-    </Link>
+function Inner() {
+  return (
+    <div className="container-page flex h-16 items-center justify-between gap-4 md:h-[4.5rem]">
+      <div className="flex flex-1 items-center">
+        <Logo className="group-data-[dark=true]/header:text-white" />
+      </div>
+      <Suspense fallback={<nav aria-label="Main" className="hidden md:flex" />}>
+        <NavLinks />
+      </Suspense>
+      <div className="flex flex-1 items-center justify-end gap-2">
+        <Link href="/dashboard" className="hidden rounded-full px-3 py-2 text-sm text-ink-soft transition-colors hover:text-ink group-data-[dark=true]/header:text-white/75 group-data-[dark=true]/header:hover:text-white sm:inline-flex">
+          My albums
+        </Link>
+        <Link href="/create" className="btn btn-primary btn-sm hidden group-data-[dark=true]/header:bg-white group-data-[dark=true]/header:text-ink sm:inline-flex">
+          Create Album
+        </Link>
+        <Suspense fallback={null}>
+          <MobileMenu>
+            <Link href="/dashboard" className="btn btn-secondary btn-lg">My albums</Link>
+            <Link href="/create" className="btn btn-primary btn-lg">Create Album</Link>
+          </MobileMenu>
+        </Suspense>
+      </div>
+    </div>
   );
+}
+
+function StaticShell({ children }: { children: ReactNode }) {
+  return <header className="group/header sticky top-0 z-50 border-b border-line/70 bg-paper/80 backdrop-blur-xl">{children}</header>;
 }
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-line/80 bg-paper/85 backdrop-blur-md supports-[backdrop-filter]:bg-paper/75">
-      <div className="container-page flex h-16 items-center justify-between gap-4">
-        <div className="flex flex-1 items-center">
-          <Logo />
-        </div>
-        <Suspense fallback={<nav aria-label="Main" className="hidden md:flex" />}>
-          <NavLinks />
-        </Suspense>
-        <div className="flex flex-1 items-center justify-end gap-2">
-          <Suspense fallback={<span className="hidden w-16 sm:inline-block" />}>
-            <AccountLinks />
-          </Suspense>
-          <Link href="/create" className="btn btn-primary btn-sm hidden sm:inline-flex">
-            Create Album
-          </Link>
-          <Suspense fallback={null}>
-            <MobileMenu>
-              <Suspense fallback={null}>
-                <AccountLinks mobile />
-              </Suspense>
-            </MobileMenu>
-          </Suspense>
-        </div>
-      </div>
-    </header>
+    <Suspense
+      fallback={
+        <StaticShell>
+          <Inner />
+        </StaticShell>
+      }
+    >
+      <HeaderShell>
+        <Inner />
+      </HeaderShell>
+    </Suspense>
   );
 }

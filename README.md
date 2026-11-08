@@ -14,8 +14,10 @@ DISCOVER → SELECT → PREVIEW → CUSTOMIZE → REVIEW → PAY → EXPORT / SH
 | --- | --- |
 | Public site | Home, Explore Templates (search + filters), Template Categories, Category pages, Template Detail, interactive Demo Preview, How It Works, Pricing, Explore (inspiration gallery), About, FAQ |
 | Creation | Create New Album, Template Selection, album setup (size/name), Photo Upload, Album Editor, Full Preview, Export & Purchase |
-| Workspace | Dashboard, My Projects, Saved Drafts, Completed Albums, My Downloads, Shared Albums, Print Orders, Account Settings, Billing, order detail/tracking |
-| Operations | `/admin/orders`: fulfilment status, tracking, print-ready files, refunds (users listed in `ADMIN_EMAILS`) |
+| Workspace | Dashboard, My Projects, Saved Drafts, Completed Albums, My Downloads, Shared Albums, Print Orders, Settings, Billing, order detail/tracking |
+| Operations | `/admin/orders`: fulfilment status, tracking, print-ready files, refunds (password: `ADMIN_PASSWORD`) |
+
+**No accounts.** Visitors never sign up or log in. The first time someone starts an album, the server issues an anonymous, signed guest id in an http-only cookie; albums, photos and orders belong to that id. A private recovery link (Settings / Dashboard) reopens the albums on another device. Checkout only asks for an email for receipts and order updates.
 
 - **18 data-driven templates** across 11 categories and 8 styles, each a complete 20-page album with cover and back cover, demoed with real photography.
 - **Editor**: pages / photos / layouts / text / backgrounds / elements panels; drag & drop photos into frames; move, resize, rotate with snapping; crop & zoom inside frames; inline text editing; 30 layouts that keep your photos and text when switched; add / duplicate / delete / reorder pages; undo/redo; autosave with conflict detection and an on-device backup for recovery.
@@ -25,7 +27,7 @@ DISCOVER → SELECT → PREVIEW → CUSTOMIZE → REVIEW → PAY → EXPORT / SH
 
 ## Tech stack
 
-Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind CSS 4 · Supabase (Auth, Postgres, Storage) · pdf-lib + fontkit · sharp · Stripe · zustand + immer · dnd-kit.
+Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind CSS 4 · Supabase (Postgres, Storage) · pdf-lib + fontkit · sharp · Stripe · zustand + immer · dnd-kit.
 
 ## Running locally
 
@@ -38,7 +40,7 @@ Open http://localhost:3000. With no environment variables the app runs fully on 
 
 - **Database**: embedded Postgres (PGlite) in `./.data/pglite`, migrated automatically
 - **Storage**: uploaded photos and exported PDFs in `./.data/storage`
-- **Accounts**: email + password accounts in the local database
+- **Visitors**: anonymous guest ids (signed cookie) — no accounts
 - **Payments**: a clearly-labelled **test provider** — you choose “successful” or “failed” payment; no money moves. It is disabled in production unless `ALLOW_TEST_PAYMENTS=true`.
 
 Copy `.env.example` to `.env.local` to configure integrations.
@@ -46,13 +48,12 @@ Copy `.env.example` to `.env.local` to configure integrations.
 ## Production setup (Vercel + Supabase + Stripe)
 
 1. **Import the repository** into Vercel (framework: Next.js).
-2. **Supabase**: in the Vercel project → *Storage* → connect a Supabase database. This injects `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `POSTGRES_URL`. On first request the app creates its tables (`supabase/migrations/0001_fullstory.sql` is the same schema, for reference) and a private storage bucket. Row Level Security is enabled with no public policies, so the Supabase Data API exposes nothing — all access goes through the server.
-   In Supabase → Authentication → URL configuration, add `https://<your-domain>/auth/callback` as a redirect URL.
+2. **Supabase** (database + photo storage): in the Vercel project → *Storage* → connect a Supabase database. This injects `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `POSTGRES_URL`. On first request the app creates its tables (`supabase/migrations/0001_fullstory.sql` is the same schema, for reference) and a private storage bucket. Row Level Security is enabled with no public policies, so the Supabase Data API exposes nothing — all access goes through the server. Supabase Auth is not used.
 3. **Stripe**: set `STRIPE_SECRET_KEY` and `PAYMENT_PROVIDER=stripe`. Add a webhook endpoint `https://<your-domain>/api/payments/webhook/stripe` for `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired` and `charge.refunded`, then set `STRIPE_WEBHOOK_SECRET`.
-4. Set `APP_URL=https://<your-domain>`, `SESSION_SECRET` (long random string) and `ADMIN_EMAILS`.
+4. Set `APP_URL=https://<your-domain>`, optionally `SESSION_SECRET` (otherwise derived from the database secret), and `ADMIN_PASSWORD` for `/admin`.
 5. **Domain**: Vercel project → *Settings → Domains* → add your domain (e.g. `fullstory.pro`).
 
-Without Supabase configured on Vercel, the public site and template previews work, and account features show a clear “setup required” notice instead of failing silently.
+Without a database on Vercel, the public site and template previews work, and album creation shows a clear “not available yet” notice instead of failing silently.
 
 ## Configuring products and prices
 

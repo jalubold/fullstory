@@ -6,6 +6,7 @@ import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, Columns2, Expand, Minim
 import { buildViewItems, spreadIndexOfPage, type ViewItem } from '@/lib/album/geometry';
 import type { AlbumDocument, PhotoMap } from '@/lib/album/types';
 import { BookCover, FlatPage, OpenBook } from './Book';
+import { FlipBook } from './FlipBook';
 
 export interface AlbumViewerProps {
   doc: AlbumDocument;
@@ -49,7 +50,7 @@ function ItemView({ item, doc, photos, width, eager }: { item: ViewItem; doc: Al
     <OpenBook
       left={item.left !== null ? doc.pages[item.left] : null}
       right={item.right !== null ? doc.pages[item.right] : null}
-      endpaper={doc.theme.background.color === '#FFFFFF' ? '#EFEAE2' : '#E9E4DB'}
+      endpaper="#E9E9EE"
       {...common}
     />
   );
@@ -154,9 +155,13 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
   const displayW = item.kind === 'spread' ? width : isCoverLike ? width : width;
 
   return (
-    <div ref={rootRef} className="flex h-dvh flex-col bg-[#EAE5DC] text-ink">
+    <div ref={rootRef} className="relative flex h-dvh flex-col overflow-hidden bg-night text-white">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="aurora absolute -left-[10%] -top-[30%] h-[70%] w-[60%] rounded-full bg-accent/25 blur-[120px]" />
+        <div className="aurora absolute -bottom-[30%] -right-[10%] h-[60%] w-[50%] rounded-full bg-rose/15 blur-[120px]" style={{ animationDelay: '-8s' }} />
+      </div>
       {/* Top bar */}
-      <div className="flex h-14 shrink-0 items-center gap-3 border-b border-black/5 bg-paper/90 px-3 backdrop-blur sm:px-5">
+      <div className="relative z-10 flex h-14 shrink-0 items-center gap-3 border-b border-white/10 bg-night/60 px-3 backdrop-blur-xl sm:px-5 [&_.btn-ghost]:text-white/80 [&_.btn-ghost:hover]:bg-white/10 [&_.btn-ghost:hover]:text-white">
         {backHref && (
           <Link href={backHref} className="btn btn-ghost btn-sm !px-2.5" aria-label={backLabel}>
             <ArrowLeft size={17} />
@@ -165,13 +170,13 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
         )}
         <div className="min-w-0 flex-1">
           <p className="truncate font-serif text-lg leading-tight">{title}</p>
-          {subtitle && <p className="hidden truncate text-xs text-muted sm:block">{subtitle}</p>}
+          {subtitle && <p className="hidden truncate text-xs text-white/50 sm:block">{subtitle}</p>}
         </div>
-        <div className="hidden items-center rounded-full border border-line-strong bg-white p-0.5 sm:flex" role="group" aria-label="View mode">
-          <button type="button" onClick={() => switchMode('spread')} aria-pressed={mode === 'spread'} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs ${mode === 'spread' ? 'bg-ink text-paper' : 'text-ink-soft'}`}>
+        <div className="hidden items-center rounded-full border border-white/15 bg-white/5 p-0.5 sm:flex" role="group" aria-label="View mode">
+          <button type="button" onClick={() => switchMode('spread')} aria-pressed={mode === 'spread'} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition ${mode === 'spread' ? 'bg-white text-ink' : 'text-white/70 hover:text-white'}`}>
             <Columns2 size={14} /> Spreads
           </button>
-          <button type="button" onClick={() => switchMode('single')} aria-pressed={mode === 'single'} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs ${mode === 'single' ? 'bg-ink text-paper' : 'text-ink-soft'}`}>
+          <button type="button" onClick={() => switchMode('single')} aria-pressed={mode === 'single'} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition ${mode === 'single' ? 'bg-white text-ink' : 'text-white/70 hover:text-white'}`}>
             <RectangleVertical size={14} /> Pages
           </button>
         </div>
@@ -179,7 +184,7 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
           <button type="button" className="btn btn-ghost btn-sm !px-2" aria-label="Zoom out" disabled={zoom <= 1} onClick={() => setZoom((z) => [...ZOOMS].reverse().find((x) => x < z) ?? 1)}>
             <Minus size={16} />
           </button>
-          <button type="button" className="w-12 text-center text-xs tabular-nums text-ink-soft" onClick={() => setZoom(1)} title="Fit to screen">
+          <button type="button" className="w-12 text-center text-xs tabular-nums text-white/70" onClick={() => setZoom(1)} title="Fit to screen">
             {Math.round(zoom * 100)}%
           </button>
           <button type="button" className="btn btn-ghost btn-sm !px-2" aria-label="Zoom in" disabled={zoom >= 3} onClick={() => setZoom((z) => ZOOMS.find((x) => x > z) ?? z)}>
@@ -194,7 +199,7 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
       {banner}
 
       {/* Stage */}
-      <div className="relative min-h-0 flex-1">
+      <div className="relative z-[1] min-h-0 flex-1">
         <div
           ref={stageRef}
           className={`absolute inset-0 ${zoom > 1 ? 'overflow-auto' : 'overflow-hidden'}`}
@@ -211,9 +216,22 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
           onDoubleClick={() => setZoom((z) => (z === 1 ? 2 : 1))}
         >
           <div className="flex min-h-full min-w-full items-center justify-center p-6" style={{ width: zoom > 1 ? width + pad * 2 : undefined }}>
-            <div key={`${mode}-${index}`} className="viewer-turn" data-dir={dir} style={{ width: displayW }}>
-              <ItemView item={item} doc={doc} photos={photos} width={displayW} eager />
-            </div>
+            {item.kind === 'spread' ? (
+              <div key="spread-book" className="viewer-turn" data-dir={dir} style={{ width: displayW }}>
+                <FlipBook
+                  spread={{ left: item.left !== null ? doc.pages[item.left] : null, right: item.right !== null ? doc.pages[item.right] : null }}
+                  dir={dir}
+                  size={doc.size}
+                  photos={photos}
+                  renderWidth={displayW}
+                  eager
+                />
+              </div>
+            ) : (
+              <div key={`${mode}-${index}`} className="viewer-turn" data-dir={dir} style={{ width: displayW }}>
+                <ItemView item={item} doc={doc} photos={photos} width={displayW} eager />
+              </div>
+            )}
           </div>
         </div>
         {/* Preload neighbours */}
@@ -222,19 +240,19 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
             <ItemView key={i} item={it!} doc={doc} photos={photos} width={displayW} eager />
           ))}
         </div>
-        <button type="button" onClick={() => go(-1)} disabled={index === 0} aria-label="Previous" className="absolute left-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow-card transition hover:bg-white disabled:opacity-0 sm:left-5">
+        <button type="button" onClick={() => go(-1)} disabled={index === 0} aria-label="Previous" className="absolute left-2 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white hover:text-ink disabled:opacity-0 sm:left-6">
           <ChevronLeft size={20} />
         </button>
-        <button type="button" onClick={() => go(1)} disabled={index === items.length - 1} aria-label="Next" className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow-card transition hover:bg-white disabled:opacity-0 sm:right-5">
+        <button type="button" onClick={() => go(1)} disabled={index === items.length - 1} aria-label="Next" className="absolute right-2 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white hover:text-ink disabled:opacity-0 sm:right-6">
           <ChevronRight size={20} />
         </button>
-        <p aria-live="polite" className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-ink/75 px-3 py-1 text-xs text-paper">
+        <p aria-live="polite" className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1 text-xs tracking-wide text-white/80 backdrop-blur-md">
           {itemLabel(item, doc.pages.length)}
         </p>
       </div>
 
       {/* Thumbnails */}
-      <div ref={stripRef} className="no-scrollbar flex h-[6.5rem] shrink-0 items-center gap-3 overflow-x-auto border-t border-black/5 bg-paper/90 px-4" aria-label="Pages">
+      <div ref={stripRef} className="no-scrollbar relative z-10 flex h-[6.5rem] shrink-0 items-center gap-3 overflow-x-auto border-t border-white/10 bg-night/60 px-4 backdrop-blur-xl" aria-label="Pages">
         {items.map((it, i) => {
           const a = itemAspect(it, doc);
           const h = 64;
@@ -246,14 +264,14 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
               onClick={() => goTo(i)}
               aria-label={itemLabel(it, doc.pages.length)}
               aria-current={i === index ? 'true' : undefined}
-              className={`shrink-0 rounded-[3px] p-0.5 transition ${i === index ? 'ring-2 ring-accent' : 'opacity-75 hover:opacity-100'}`}
+              className={`shrink-0 rounded-[3px] p-0.5 transition duration-300 ${i === index ? 'scale-105 ring-2 ring-accent' : 'opacity-50 hover:opacity-100'}`}
               style={{ width: h * a + 4 }}
             >
               {it.kind === 'spread' ? (
                 <div className="flex">
                   {[it.left, it.right].map((p, k) => (
                     <div key={k} className="flex-1">
-                      {p !== null ? <FlatPage page={doc.pages[p]} size={doc.size} photos={photos} renderWidth={80} className="!rounded-none !shadow-none" /> : <div style={{ aspectRatio: `${doc.size.widthMm}/${doc.size.heightMm}` }} className="bg-[#E2DCD1]" />}
+                      {p !== null ? <FlatPage page={doc.pages[p]} size={doc.size} photos={photos} renderWidth={80} className="!rounded-none !shadow-none" /> : <div style={{ aspectRatio: `${doc.size.widthMm}/${doc.size.heightMm}` }} className="bg-white/10" />}
                     </div>
                   ))}
                 </div>

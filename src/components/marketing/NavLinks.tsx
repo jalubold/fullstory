@@ -23,7 +23,7 @@ export function NavLinks() {
             key={item.href}
             href={item.href}
             aria-current={active ? 'page' : undefined}
-            className={`rounded-full px-3.5 py-2 text-[0.875rem] transition-colors ${active ? 'text-ink' : 'text-muted hover:text-ink'}`}
+            className={`rounded-full px-3.5 py-2 text-[0.875rem] transition-colors ${active ? 'text-ink group-data-[dark=true]/header:text-white' : 'text-muted hover:text-ink group-data-[dark=true]/header:text-white/65 group-data-[dark=true]/header:hover:text-white'}`}
           >
             {item.label}
             {active && <span className="mx-auto mt-0.5 block h-px w-4 bg-accent" />}
@@ -51,7 +51,7 @@ export function MobileMenu({ children }: { children?: React.ReactNode }) {
   }, [open]);
   return (
     <div className="md:hidden">
-      <button type="button" className="btn btn-ghost btn-sm -mr-2 px-2.5" aria-expanded={open} aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen((o) => !o)}>
+      <button type="button" className="btn btn-ghost btn-sm -mr-2 px-2.5 group-data-[dark=true]/header:text-white" aria-expanded={open} aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen((o) => !o)}>
         {open ? <X size={20} /> : <Menu size={20} />}
       </button>
       {open && (

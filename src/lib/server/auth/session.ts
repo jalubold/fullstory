@@ -9,10 +9,17 @@ let secretCache: Buffer | null = null;
 /** Secret for signing local session and share-access cookies. */
 export function appSecret(): Buffer {
   if (secretCache) return secretCache;
-  const fromEnv = process.env.SESSION_SECRET || process.env.SUPABASE_JWT_SECRET;
-  if (fromEnv) return (secretCache = crypto.createHash('sha256').update(fromEnv).digest());
+  // Any of these server-only secrets works as key material; SESSION_SECRET is preferred.
+  const fromEnv =
+    process.env.SESSION_SECRET ||
+    process.env.SUPABASE_JWT_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL;
+  if (fromEnv) return (secretCache = crypto.createHash('sha256').update(`fullstory:${fromEnv}`).digest());
   if (isProduction && process.env.VERCEL === '1') {
-    throw new Error('SESSION_SECRET must be set in production.');
+    throw new Error('SESSION_SECRET (or a connected database) is required in production.');
   }
   const file = path.join(dataDir, 'session-secret');
   try {
