@@ -148,14 +148,14 @@ export default function HomePage() {
                 Drag. Drop. <span className="italic text-accent">Done.</span>
               </Reveal>
               <Reveal delay={100} as="p" className="mt-6 max-w-md text-lg leading-relaxed text-ink-soft">
-                Every layout, font and colour is curated, so whatever you choose, it looks designed. Everything saves as you go.
+                Every layout, font and colour is already designed — you just bring the photos and the words. Everything saves as you go.
               </Reveal>
               <Reveal delay={160}>
                 <ol className="mt-9 max-w-md divide-y divide-line border-y border-line">
                   {[
-                    ['Drag photos into frames', 'Or let auto-fill place a whole album for you.'],
-                    ['Write on the page', 'Click any caption and type — it stays beautifully set.'],
-                    ['Change layouts freely', 'Swap a page’s design; your photos come with you.'],
+                    ['Drop in your photos', 'They fill the frames for you — a whole album in seconds.'],
+                    ['Tap to swap a photo', 'Choose another from your library, or drag one onto the frame.'],
+                    ['Write on the page', 'Tap any caption and type — it stays beautifully set.'],
                   ].map(([t, d], i) => (
                     <li key={t} className="flex gap-5 py-4">
                       <span className="numeral w-6 shrink-0 text-xl">{ROMAN[i].toLowerCase()}.</span>

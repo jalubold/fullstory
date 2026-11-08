@@ -95,7 +95,6 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
             <Spec label="Available sizes" value={sizes.map((s) => `${s.label} (${s.metricLabel})`).join(' · ')} />
             <Spec label="Formats" value={['Digital PDF', 'Shareable album', ...(catalog.print.enabled !== false ? catalog.covers.map((c) => c.label) : [])].join(' · ')} />
             <Spec label="Designed pages" value={`${stats.pageCount} pages + cover`} />
-            <Spec label="Page count" value={`Add or remove pages — ${catalog.pages.min} to ${catalog.pages.max} pages`} />
             <Spec label="Recommended photos" value={`${stats.photoSlots}–${stats.recommendedPhotos} photos`} />
             {t.tier === 'premium' && premium !== null && <Spec label="Premium design" value={`${formatMoney(premium, catalog.defaultCurrency)} one-time, added at checkout`} />}
           </dl>

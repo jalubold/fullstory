@@ -15,11 +15,11 @@ export default function FaqPage() {
       title: 'Creating your album',
       items: [
         ['Do I need an account?', 'No. There’s nothing to sign up for. Your albums are saved to this browser automatically, and you get a private album link to open them on another device.'],
-        ['Do I need design experience?', 'Not at all. Every template is a complete, finished design. You simply add your photos and words — and if you want to, you can change layouts, fonts, colours and backgrounds.'],
+        ['Do I need design experience?', 'Not at all — that’s the point. Every template is a complete, finished design. You add your photos and your words; the layout, fonts and colours stay exactly as designed, so the result always looks professional.'],
         ['Is it free to design an album?', 'Yes. Creating, editing, saving and previewing projects is free. You only pay when you order a digital PDF or a shareable album.'],
-        ['Can I add or remove pages?', `Yes. Albums can have between ${c.pages.min} and ${c.pages.max} pages. You can add, duplicate, delete and reorder pages in the editor.`],
+        ['How many pages will my album have?', 'Each design comes with its pages already laid out — the number is shown on the template’s page. Your photos fill the frames automatically, and you can swap any photo afterwards.'],
         ['Will I lose my work if I close the browser?', 'No. Your album saves automatically while you work, and a local backup protects changes made while you are offline. Open “My albums” to continue — or use your private album link from another device.'],
-        ['Can I use the editor on a tablet or phone?', 'The editor works on desktop computers and tablets. On phones you can browse templates, preview albums and manage your projects; we recommend a larger screen for detailed editing.'],
+        ['Can I make an album on my phone?', 'Yes. The editor works on phones, tablets and computers. On a phone you swipe through the pages, tap a photo to change it and tap any text to rewrite it.'],
       ],
     },
     {
@@ -27,7 +27,7 @@ export default function FaqPage() {
       items: [
         ['Which file types can I upload?', 'JPEG, PNG and WebP images, up to 40 MB each. If your phone saves HEIC photos, export them as JPEG first.'],
         ['How many photos do I need?', 'Each template shows a recommended number of photos on its detail page. As a rough guide, plan for one to three photos per page.'],
-        ['Will my photos look sharp?', `The editor warns you when a photo is too small for its frame at full size (below about ${c.print.minDpi} DPI). Print files are produced from your original uploads, not from screen previews.`],
+        ['Will my photos look sharp?', `The editor marks any photo that’s too small for its frame (below about ${c.print.minDpi} DPI) with “Low resolution”, so you can swap it for a larger one. Your PDF is made from your full-size uploads, not from screen previews.`],
         ['Who can see my photos?', 'Only you. Uploaded photos are stored privately and linked to your browser. If you publish a shareable album, people with the link (and password, if you set one) can view that album.'],
       ],
     },

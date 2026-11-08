@@ -55,7 +55,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
           <h3 className="font-serif text-3xl">Printed photobooks</h3>
         </div>
         <p className="mt-2 text-sm text-ink-soft">
-          Prices include {catalog.pages.min} pages. Add pages in steps of {catalog.pages.step}, up to {catalog.pages.max} pages.
+          Prices include {catalog.pages.min} pages; longer designs add a little for every {catalog.pages.step} pages, up to {catalog.pages.max}.
         </p>
         <div className="mt-6 overflow-x-auto rounded-[4px] border border-line bg-white">
           <table className="w-full min-w-[640px] text-sm">

@@ -1,29 +1,29 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, CloudUpload, Crop, Eye, LayoutTemplate, Save, Type, Undo2 } from 'lucide-react';
+import { ArrowRight, CloudUpload, Eye, ImagePlus, LayoutTemplate, Music2, Save, Type } from 'lucide-react';
 import { BookCover, FlatPage, OpenBook } from '@/components/album/Book';
 import { getTemplateDemo } from '@/lib/templates/demo';
 
 export const metadata: Metadata = {
   title: 'How it works',
-  description: 'Choose a template, upload your photos, customise every page, then download a PDF or share a page-turning album.',
+  description: 'Choose a template, add your photos, rewrite the words, then download a PDF or share a page-turning album.',
 };
 
 const STEPS = [
   { title: 'Choose your design', text: 'Browse templates by occasion or style and preview every page with real photography. Pick a size and start your project in one click.' },
-  { title: 'Upload your photos', text: 'Add JPEG, PNG or WebP photos from your computer or tablet. They are stored privately in your project and can be reused on any page.' },
-  { title: 'Make it yours', text: 'Drag photos into frames, crop and zoom, switch layouts, rewrite every line of text, change backgrounds and add pages.' },
+  { title: 'Add your photos', text: 'Pick photos from your phone or computer. They appear instantly, fill the frames for you and upload privately in the background.' },
+  { title: 'Make it yours', text: 'Tap any photo to swap it, tap any text to rewrite it, and choose music and a page-turn style. The design stays exactly as it was made — nothing to arrange.' },
   { title: 'Review the full album', text: 'Flip through every spread exactly as it will look — front cover to back — and fix anything before you order.' },
   { title: 'Download or share', text: 'Download a high-resolution PDF, or publish a private, page-turning album to share with family.' },
 ];
 
 const FEATURES = [
-  { icon: CloudUpload, title: 'Bulk upload', text: 'Upload dozens of photos at once with progress for each one.' },
-  { icon: LayoutTemplate, title: 'Smart layouts', text: 'Switch layouts without losing the photos already on the page.' },
-  { icon: Crop, title: 'Crop & reposition', text: 'Zoom into any photo and drag to reframe it inside its frame.' },
-  { icon: Type, title: 'Beautiful typography', text: 'Edit text in place with curated fonts, sizes, colours and alignment.' },
-  { icon: Undo2, title: 'Undo & redo', text: 'Experiment freely — every change can be undone.' },
-  { icon: Save, title: 'Autosave', text: 'Your album saves as you work, and you can pick up where you left off.' },
+  { icon: CloudUpload, title: 'Add dozens at once', text: 'Pick a whole camera roll. Photos appear instantly and upload in the background.' },
+  { icon: LayoutTemplate, title: 'Auto-fill', text: 'Photos drop into the frames for you, matched to each frame’s shape.' },
+  { icon: ImagePlus, title: 'Swap any photo', text: 'Tap a photo to choose another — or drag one onto the frame on a computer.' },
+  { icon: Type, title: 'Write on the page', text: 'Tap any text to rewrite it. The typography stays exactly as designed.' },
+  { icon: Music2, title: 'Music & page turns', text: 'Add a song from a link and choose how the pages turn in your shared album.' },
+  { icon: Save, title: 'Autosave & undo', text: 'Everything saves as you go, and any change can be undone.' },
 ];
 
 export default function HowItWorksPage() {
@@ -70,8 +70,8 @@ export default function HowItWorksPage() {
             <p className="eyebrow">The editor</p>
             <h2 className="mt-3 font-serif text-4xl font-medium md:text-5xl">Simple tools, carefully chosen.</h2>
             <p className="mt-4 text-ink-soft">
-              Everything you need to finish a photobook — and nothing that gets in the way. The editor works on desktop and tablet, and your
-              projects are always available from your dashboard.
+              Everything you need to finish a photobook — and nothing that gets in the way. No dragging boxes around, no design decisions: the
+              editor works on your phone, tablet or computer, and your albums are always waiting in “My albums”.
             </p>
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
               {FEATURES.map(({ icon: Icon, title, text }) => (
@@ -94,7 +94,7 @@ export default function HowItWorksPage() {
       <section className="container-page mt-24 grid gap-6 md:grid-cols-3">
         {[
           { icon: Eye, title: 'Preview before you pay', text: 'See your finished album page by page, in spreads or single pages, before choosing a format.' },
-          { icon: Save, title: 'Full-resolution files', text: 'Your PDF is rendered from your original photos at full resolution — not a screenshot of the editor.' },
+          { icon: Save, title: 'Full-resolution files', text: 'Your PDF is rendered from your full-size photos — not a screenshot of the editor.' },
           { icon: CloudUpload, title: 'Private by default', text: 'Your photos are only visible to you, unless you choose to publish a share link.' },
         ].map(({ icon: Icon, title, text }) => (
           <div key={title} className="card p-7">

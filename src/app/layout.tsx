@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: '%s — FULLSTORY',
   },
   description:
-    'Create beautiful photo albums from your favourite memories. Choose a professionally designed template, customise every page in your browser, then download or share your book.',
+    'Create beautiful photo albums from your favourite memories. Choose a professionally designed template, add your photos and words in your browser, then download or share your book.',
   openGraph: {
     type: 'website',
     siteName: 'FULLSTORY',
