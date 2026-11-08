@@ -52,6 +52,7 @@ export const getUser = cache(async (): Promise<SessionUser | null> => {
  * For pages: the visitor, or an empty placeholder (owns nothing) so lists
  * simply render their empty states.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function requireUser(_next?: string): Promise<SessionUser> {
   return (await getUser()) ?? NOBODY;
 }
