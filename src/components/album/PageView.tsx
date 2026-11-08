@@ -65,7 +65,7 @@ export function PageView({
         ...style,
       }}
     >
-      <BackgroundLayer bg={page.background} Wpt={Wpt} Hpt={Hpt} />
+      <BackgroundLayer bg={page.background} Wpt={Wpt} Hpt={Hpt} pageId={page.id} />
       {page.elements.map((el) =>
         hiddenIds?.has(el.id) ? null : <ElementView key={el.id} el={el} ctx={ctx} />,
       )}
@@ -109,16 +109,29 @@ function ElementView({ el, ctx }: { el: AlbumElement; ctx: RenderCtx }) {
   }
 }
 
-function BackgroundLayer({ bg, Wpt, Hpt }: { bg: Background; Wpt: number; Hpt: number }) {
+function BackgroundLayer({ bg, Wpt, Hpt, pageId }: { bg: Background; Wpt: number; Hpt: number; pageId: string }) {
   if (bg.pattern === 'none') return null;
+  const svgStyle: CSSProperties = { position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' };
+  if (bg.pattern === 'dots') {
+    // Dots repeat thousands of times per page, so they are drawn with a single
+    // SVG pattern tile. Geometry matches backgroundPrimitives() used by the PDF renderer.
+    const unit = Math.min(Wpt, Hpt) / 576;
+    const step = 14 * unit;
+    const id = `fsdots-${pageId}-${Math.round(Wpt)}x${Math.round(Hpt)}`.replace(/[^\w-]/g, '');
+    return (
+      <svg aria-hidden viewBox={`0 0 ${Wpt} ${Hpt}`} preserveAspectRatio="none" style={svgStyle}>
+        <defs>
+          <pattern id={id} width={step} height={step} patternUnits="userSpaceOnUse">
+            <circle cx={step / 2} cy={step / 2} r={0.9 * unit} fill={bg.patternColor} />
+          </pattern>
+        </defs>
+        <rect width={Wpt} height={Hpt} fill={`url(#${id})`} opacity={0.45} />
+      </svg>
+    );
+  }
   const { prims, opacity } = backgroundPrimitives(bg, Wpt, Hpt);
   return (
-    <svg
-      aria-hidden
-      viewBox={`0 0 ${Wpt} ${Hpt}`}
-      preserveAspectRatio="none"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
-    >
+    <svg aria-hidden viewBox={`0 0 ${Wpt} ${Hpt}`} preserveAspectRatio="none" style={svgStyle}>
       <g opacity={opacity} fill={bg.patternColor} stroke={bg.patternColor}>
         {prims.map((p, i) =>
           p.kind === 'line' ? (
