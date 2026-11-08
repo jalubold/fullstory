@@ -4,6 +4,14 @@ import type { PreparedImage } from './image-worker';
 export { prepareImage } from './image-worker';
 
 export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+/**
+ * For file inputs. HEIC is listed on purpose: when a page only accepts JPEG,
+ * iOS converts every selected photo to JPEG inside the picker before handing
+ * them over, which keeps people waiting on the picker. Accepting HEIC gets the
+ * originals instantly; we convert them here, in the background.
+ */
+export const ACCEPT_ATTR = 'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif';
+export const isHeic = (f: File) => /hei[cf]/i.test(f.type) || /\.hei[cf]$/i.test(f.name);
 export const MAX_BYTES = 40 * 1024 * 1024;
 
 export interface Target {
@@ -68,10 +76,7 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export function validateFile(file: File): string | null {
-  if (!ACCEPTED_TYPES.includes(file.type)) {
-    if (/heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name)) return `“${file.name}” is a HEIC photo. Please export it as JPEG first.`;
-    return `“${file.name}” isn’t a supported image. Use JPEG, PNG or WebP.`;
-  }
+  if (!ACCEPTED_TYPES.includes(file.type) && !isHeic(file)) return `“${file.name}” isn’t a supported image. Use JPEG, PNG, WebP or HEIC.`;
   if (file.size > MAX_BYTES) return `“${file.name}” is larger than 40 MB.`;
   return null;
 }

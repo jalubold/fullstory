@@ -11,6 +11,7 @@ import type { AlbumDocument, PhotoAsset, PhotoMap } from '@/lib/album/types';
 import { useEditor } from '@/components/editor/store';
 import { flushSave, useAutosave } from '@/components/editor/useAutosave';
 import { uploadFiles, uploadsInFlight } from '@/components/editor/uploads';
+import { ACCEPT_ATTR } from '@/lib/client/upload';
 import { UploadStatus, usePendingUploads, useUploadStats } from '@/components/editor/UploadStatus';
 
 const NAV_FALLBACK_MS = 8000;
@@ -62,7 +63,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
 
   return (
     <div>
-      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => { if (e.target.files?.length) pick([...e.target.files]); e.target.value = ''; }} />
+      <input ref={input} type="file" accept={ACCEPT_ATTR} multiple hidden onChange={(e) => { if (e.target.files?.length) pick([...e.target.files]); e.target.value = ''; }} />
       {photos.length === 0 ? (
         <button
           type="button"
@@ -84,7 +85,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
             <span className="hidden sm:inline">
               or <span className="font-medium text-accent">browse your files</span> ·{' '}
             </span>
-            Pick as many as you like — JPEG, PNG or WebP
+            Pick as many as you like — straight from your camera roll
           </span>
         </button>
       ) : (

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Eye, Link2, Loader2, MoreHorizontal, PenLine, Receipt, Trash2, Type } from 'lucide-react';
 import { BookCover } from '@/components/album/Book';
 import { DownloadButton } from './OrderClient';
+import { ShareQrButton } from './ShareQr';
 import type { AlbumExtras, ProjectSummaryLite } from './types';
 
 function timeAgo(iso: string) {
@@ -115,6 +116,7 @@ export function ProjectCard({ p, extras }: { p: ProjectSummaryLite; extras?: Alb
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3">
           {extras.pdfOrderId && <DownloadButton orderId={extras.pdfOrderId} label="Download PDF" className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-soft hover:text-ink [&>svg]:h-[13px] [&>svg]:w-[13px]" />}
           {extras.sharePath && <CopyShare path={extras.sharePath} />}
+          {extras.sharePath && <ShareQrButton token={extras.sharePath.split('/').pop()!} />}
         </div>
       )}
     </article>

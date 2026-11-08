@@ -92,7 +92,7 @@
     },
     "share": {
       "label": "Shareable online album",
-      "description": "A private link to a beautiful page-turning version of your album, with optional password protection.",
+      "description": "A private link to a beautiful page-turning version of your album — with a QR code to print, and optional password protection.",
       "price": {
         "USD": 900,
         "GBP": 800,

@@ -141,6 +141,8 @@ export interface Presentation {
   livingPhotos: boolean;
   /** Background music: a direct link to an audio file, played when the album opens. */
   musicUrl: string | null;
+  /** The link the person pasted (Drive, Dropbox…), kept for display; musicUrl is where it actually plays from. */
+  musicSource?: string | null;
 }
 
 export interface AlbumDocument {

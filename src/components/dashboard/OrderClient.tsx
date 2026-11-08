@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { ShareQr } from './ShareQr';
 import { useEffect, useState } from 'react';
 import { Check, Copy, Download, ExternalLink, Loader2 } from 'lucide-react';
 
@@ -104,6 +105,9 @@ export function ShareManager({ share, origin, canDownload }: ShareProps) {
         </div>
       </div>
       <p className="text-xs text-muted">{share.views} {share.views === 1 ? 'view' : 'views'} so far.</p>
+      <div className="rounded-[4px] border border-line bg-paper p-4 sm:p-5">
+        <ShareQr token={share.token} />
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <fieldset>
           <legend className="label">Who can view</legend>

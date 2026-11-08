@@ -4,9 +4,9 @@ import { Suspense } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { date, money, PAYMENT_LABEL } from '@/components/dashboard/format';
 import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
+import { ForgetBrowser } from '@/components/dashboard/ForgetBrowser';
 import { RecoveryLink } from '@/components/dashboard/RecoveryLink';
 import type { AlbumExtras } from '@/components/dashboard/types';
-import { forgetBrowserAction } from '@/lib/server/actions/account';
 import { recoveryToken, requireUser } from '@/lib/server/auth';
 import { appUrl } from '@/lib/server/env';
 import { listOrders, listShares } from '@/lib/server/repo/orders';
@@ -60,7 +60,7 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
       </div>
 
       {orders.length > 0 && (
-        <section className="mt-20">
+        <section className="mt-14 sm:mt-16">
           <h2 className="smallcaps">Orders &amp; receipts</h2>
           <ul className="mt-4 divide-y divide-line border-y border-line">
             {orders.map((o) => {
@@ -87,15 +87,17 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
       )}
 
       {user.exists && projects.length > 0 && (
-        <section className="mt-20 grid gap-6 border-t border-line pt-10 md:grid-cols-[1fr_auto] md:items-start">
-          <RecoveryLink url={`${appUrl()}/restore/${recoveryToken(user)}`} compact />
-          <form action={forgetBrowserAction} className="md:max-w-[14rem] md:text-right">
-            <p className="text-xs text-muted">Using a shared computer?</p>
-            <button type="submit" className="mt-1 text-sm font-medium text-ink-soft underline underline-offset-4 hover:text-danger">
-              Forget this browser
-            </button>
-          </form>
-        </section>
+        <div className="mt-14 sm:mt-16">
+          <RecoveryLink
+            url={`${appUrl()}/restore/${recoveryToken(user)}`}
+            footer={
+              <>
+                <span className="text-muted">Using a shared computer?</span>
+                <ForgetBrowser recoveryUrl={`${appUrl()}/restore/${recoveryToken(user)}`} />
+              </>
+            }
+          />
+        </div>
       )}
     </div>
   );

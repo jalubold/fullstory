@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, Check, Download, Link2, Loader2, Lock, Minus, Plus } from 'lucide-react';
+import { AlertTriangle, BookOpen, Check, Download, Link2, Loader2, Lock, Minus, Plus, QrCode } from 'lucide-react';
 import type { Catalog, Currency } from '@/lib/commerce/catalog';
 import { normalisePageCount, quote, type OrderItemInput } from '@/lib/commerce/pricing';
 import type { Orientation } from '@/lib/album/types';
@@ -118,7 +118,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
           </div>
         </div>
         <Option icon={Download} title={catalog.digital.pdf.label} text={catalog.digital.pdf.description} price={catalog.digital.pdf.price[currency]} currency={currency} checked={pdf} onChange={setPdf} />
-        <Option icon={Link2} title={catalog.digital.share.label} text={catalog.digital.share.description} price={catalog.digital.share.price[currency]} currency={currency} checked={share} onChange={setShare} />
+        <Option icon={Link2} title={catalog.digital.share.label} text={catalog.digital.share.description} price={catalog.digital.share.price[currency]} currency={currency} checked={share} onChange={setShare} extra={<span className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-accent-dark"><QrCode size={14} /> QR code included — guests scan it to open the album</span>} />
         {catalog.print.enabled !== false && (
           <>
         <Option icon={BookOpen} title="Printed photobook" text={`Professionally printed and bound, ${printPages} pages.`} price={undefined} currency={currency} checked={print} onChange={setPrint} />
@@ -268,7 +268,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
   );
 }
 
-function Option({ icon: Icon, title, text, price, currency, checked, onChange }: { icon: typeof Download; title: string; text: string; price: number | undefined; currency: Currency; checked: boolean; onChange: (v: boolean) => void }) {
+function Option({ icon: Icon, title, text, price, currency, checked, onChange, extra }: { icon: typeof Download; title: string; text: string; price: number | undefined; currency: Currency; checked: boolean; onChange: (v: boolean) => void; extra?: React.ReactNode }) {
   return (
     <label className={`flex cursor-pointer gap-4 rounded-[4px] border bg-white p-5 transition ${checked ? 'border-ink shadow-card' : 'border-line hover:border-line-strong'}`}>
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 h-4 w-4 accent-accent" />
@@ -279,6 +279,7 @@ function Option({ icon: Icon, title, text, price, currency, checked, onChange }:
           {price !== undefined && <span className="text-sm">{fmt(price, currency)}</span>}
         </span>
         <span className="mt-1 block text-sm text-ink-soft">{text}</span>
+        {extra}
       </span>
     </label>
   );

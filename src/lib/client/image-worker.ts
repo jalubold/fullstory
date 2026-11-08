@@ -13,9 +13,11 @@ export interface PreparedImage {
   height: number;
   display: Blob;
   thumb: Blob;
-  /** Re-encoded master when the original is very large; null means "upload the original file as is". */
+  /** Re-encoded master when the original is very large or HEIC; null means "upload the original file as is". */
   master: Blob | null;
 }
+
+const isHeicFile = (f: File) => /hei[cf]/i.test(f.type) || /\.hei[cf]$/i.test(f.name);
 
 export const DISPLAY_EDGE = 1600;
 export const THUMB_EDGE = 480;
@@ -40,7 +42,7 @@ async function decode(file) {
   catch (e) { return await createImageBitmap(file); }
 }
 self.onmessage = async (e) => {
-  const { id, file, displayEdge, thumbEdge, masterEdge, masterMaxBytes } = e.data;
+  const { id, file, displayEdge, thumbEdge, masterEdge, masterMaxBytes, forceMaster } = e.data;
   let bitmap;
   try {
     bitmap = await decode(file);
@@ -50,7 +52,7 @@ self.onmessage = async (e) => {
     const [tw, th] = fit(dw, dh, thumbEdge);
     const tc = draw(dc, tw, th);
     let master = null, mw = W, mh = H;
-    if (Math.max(W, H) > masterEdge || file.size > masterMaxBytes) {
+    if (forceMaster || Math.max(W, H) > masterEdge || file.size > masterMaxBytes) {
       [mw, mh] = fit(W, H, masterEdge);
       master = await draw(bitmap, mw, mh).convertToBlob({ type: 'image/jpeg', quality: 0.9 });
     }
@@ -114,7 +116,7 @@ class WorkerPool {
       const w = this.idle.pop()!;
       const { id, file, job } = this.queue.shift()!;
       this.jobs.set(id, job);
-      w.postMessage({ id, file, displayEdge: DISPLAY_EDGE, thumbEdge: THUMB_EDGE, masterEdge: MASTER_EDGE, masterMaxBytes: MASTER_MAX_BYTES });
+      w.postMessage({ id, file, displayEdge: DISPLAY_EDGE, thumbEdge: THUMB_EDGE, masterEdge: MASTER_EDGE, masterMaxBytes: MASTER_MAX_BYTES, forceMaster: isHeicFile(file) });
     }
   }
 }
@@ -150,19 +152,83 @@ function canvasBlob(src: CanvasImageSource, w: number, h: number, quality: numbe
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('encode failed'))), 'image/jpeg', quality));
 }
 
-async function prepareOnMainThread(file: File): Promise<PreparedImage> {
-  let bitmap: ImageBitmap;
+async function decodeWithImg(blob: Blob): Promise<ImageBitmap> {
+  const url = URL.createObjectURL(blob);
   try {
-    bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
-  } catch {
-    bitmap = await createImageBitmap(file);
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    return await createImageBitmap(img);
+  } finally {
+    URL.revokeObjectURL(url);
   }
+}
+
+type Heic2Any = (o: { blob: Blob; toType?: string; quality?: number }) => Promise<Blob | Blob[]>;
+let heicLib: Promise<Heic2Any> | null = null;
+const HEIC_DECODER_FILE = 'heic2any-0.0.4.min.js';
+
+/**
+ * Last resort for HEIC where the browser can't read it (older iOS, desktop
+ * Chrome): a decoder fetched as a static file only when needed, so it never
+ * weighs on the app bundle.
+ */
+function loadHeic2Any(): Promise<Heic2Any> {
+  heicLib ??= new Promise<Heic2Any>((resolve, reject) => {
+    const s = document.createElement('script');
+    // Built at runtime so bundlers don't try to treat the static file as a module.
+    s.src = ['', 'vendor', HEIC_DECODER_FILE].join('/');
+    s.async = true;
+    s.onload = () => {
+      const fn = (window as unknown as { heic2any?: Heic2Any }).heic2any;
+      if (fn) resolve(fn);
+      else reject(new Error('heic decoder missing'));
+    };
+    s.onerror = () => {
+      heicLib = null;
+      reject(new Error('heic decoder failed to load'));
+    };
+    document.head.appendChild(s);
+  });
+  return heicLib;
+}
+
+async function heicToJpeg(file: File): Promise<Blob> {
+  const heic2any = await loadHeic2Any();
+  const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+  return Array.isArray(out) ? out[0] : out;
+}
+
+async function decodeAnyhow(file: File): Promise<ImageBitmap> {
+  try {
+    return await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch {}
+  try {
+    return await createImageBitmap(file);
+  } catch {}
+  try {
+    return await decodeWithImg(file);
+  } catch {}
+  if (isHeicFile(file)) {
+    const jpeg = await heicToJpeg(file);
+    try {
+      return await createImageBitmap(jpeg, { imageOrientation: 'from-image' });
+    } catch {
+      return decodeWithImg(jpeg);
+    }
+  }
+  throw new Error('undecodable');
+}
+
+async function prepareOnMainThread(file: File): Promise<PreparedImage> {
+  const bitmap = await decodeAnyhow(file);
   try {
     const W = bitmap.width;
     const H = bitmap.height;
     const [dw, dh] = fit(W, H, DISPLAY_EDGE);
     const [tw, th] = fit(W, H, THUMB_EDGE);
-    const big = Math.max(W, H) > MASTER_EDGE || file.size > MASTER_MAX_BYTES;
+    // HEIC always gets a JPEG master: the PDF and every browser can read it.
+    const big = isHeicFile(file) || Math.max(W, H) > MASTER_EDGE || file.size > MASTER_MAX_BYTES;
     const [mw, mh] = big ? fit(W, H, MASTER_EDGE) : [W, H];
     const [display, thumb, master] = await Promise.all([
       canvasBlob(bitmap, dw, dh, 0.86),

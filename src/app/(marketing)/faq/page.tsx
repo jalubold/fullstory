@@ -25,7 +25,8 @@ export default function FaqPage() {
     {
       title: 'Photos',
       items: [
-        ['Which file types can I upload?', 'JPEG, PNG and WebP images, up to 40 MB each. If your phone saves HEIC photos, export them as JPEG first.'],
+        ['Can guests scan a QR code to see the album?', 'Yes. Every shareable online album comes with a QR code you can download as PNG or SVG — print it on invitations, place cards or a frame, and anyone who scans it opens your album.'],
+        ['Which file types can I upload?', 'JPEG, PNG, WebP and HEIC (iPhone) photos, up to 40 MB each — pick them straight from your camera roll.'],
         ['How many photos do I need?', 'Each template shows a recommended number of photos on its detail page. As a rough guide, plan for one to three photos per page.'],
         ['Will my photos look sharp?', `The editor marks any photo that’s too small for its frame (below about ${c.print.minDpi} DPI) with “Low resolution”, so you can swap it for a larger one. Your PDF is made from your full-size uploads, not from screen previews.`],
         ['Who can see my photos?', 'Only you. Uploaded photos are stored privately and linked to your browser. If you publish a shareable album, people with the link (and password, if you set one) can view that album.'],

@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { Check, Eye, Pause, Play, X } from 'lucide-react';
-import { ANIMATIONS, normaliseMusicUrl, presentationOf } from '@/lib/album/presentation';
+import { Check, Eye, Loader2, Pause, Play, X } from 'lucide-react';
+import { ANIMATIONS, presentationOf } from '@/lib/album/presentation';
 import type { AlbumDocument, PageAnimation, Presentation } from '@/lib/album/types';
 import { useEditor } from './store';
 
@@ -40,16 +40,19 @@ function AnimationDemo({ id, tick }: { id: PageAnimation; tick: number }) {
   );
 }
 
-type MusicStatus = 'idle' | 'checking' | 'playing' | 'ok' | 'error';
+type MusicStatus = 'idle' | 'importing' | 'checking' | 'playing' | 'ok' | 'error';
 
 export function MotionPanel() {
   const doc = useEditor((s) => s.doc);
   const projectId = useEditor((s) => s.projectId);
   const show = presentationOf(doc);
+  const current = show.musicSource ?? show.musicUrl ?? '';
   const [tick, setTick] = useState(0);
-  const [draft, setDraft] = useState(show.musicUrl ?? '');
+  const [draft, setDraft] = useState(current);
   const [status, setStatus] = useState<MusicStatus>(show.musicUrl ? 'ok' : 'idle');
+  const [problem, setProblem] = useState<string | null>(null);
   const audio = useRef<HTMLAudioElement | null>(null);
+  const importing = useRef(false);
 
   // Replay the little demos so each style is always visibly moving.
   useEffect(() => {
@@ -63,41 +66,65 @@ export function MotionPanel() {
     if (status === 'playing') setStatus('ok');
   };
 
-  /** Saves the link and plays it, so the person hears straight away whether it works. */
-  const applyMusic = (play: boolean) => {
-    const url = normaliseMusicUrl(draft);
-    if (!draft.trim()) {
-      update({ musicUrl: null });
+  const fail = (message: string) => {
+    setProblem(message);
+    setStatus('error');
+  };
+
+  /** Plays the stored song so the person hears straight away that it works. */
+  const play = (src: string, autoplay: boolean) => {
+    audio.current?.pause();
+    const a = new Audio(src);
+    audio.current = a;
+    a.volume = 0.7;
+    a.addEventListener('error', () => fail('This song couldn’t be played. Try an MP3 file.'), { once: true });
+    if (!autoplay) {
+      setStatus('ok');
+      return;
+    }
+    setStatus('checking');
+    a.play()
+      .then(() => setStatus('playing'))
+      // Some browsers won't start sound after a wait; the song is saved either way.
+      .catch((e: unknown) => (e instanceof DOMException && e.name === 'NotAllowedError' ? setStatus('ok') : fail('This song couldn’t be played. Try an MP3 file.')));
+  };
+
+  /**
+   * Adds the song: links from Google Drive, Dropbox or anywhere else are
+   * copied to our storage once, so the album always plays it reliably.
+   */
+  const applyMusic = async (autoplay: boolean) => {
+    const link = draft.trim();
+    setProblem(null);
+    if (!link) {
+      audio.current?.pause();
+      update({ musicUrl: null, musicSource: null });
       setStatus('idle');
       return;
     }
-    if (!url) {
-      setStatus('error');
+    if (show.musicUrl && link === current) {
+      play(show.musicUrl, autoplay);
       return;
     }
-    if (url !== draft) setDraft(url);
-    update({ musicUrl: url });
+    if (!/^https?:\/\//i.test(link)) return fail('Paste the full link, starting with https://');
+    if (importing.current) return;
+    importing.current = true;
     audio.current?.pause();
-    const a = new Audio(url);
-    audio.current = a;
-    a.volume = 0.7;
-    setStatus('checking');
-    a.addEventListener('error', () => setStatus('error'), { once: true });
-    if (play) {
-      a.play()
-        .then(() => setStatus('playing'))
-        .catch(() => setStatus('error'));
-    } else {
-      a.addEventListener('canplay', () => setStatus('ok'), { once: true });
-      a.load();
-    }
+    setStatus('importing');
+    const res = await fetch(`/api/projects/${projectId}/music`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: link }) }).catch(() => null);
+    const data = (await res?.json().catch(() => null)) as { url?: string; error?: string } | null;
+    importing.current = false;
+    if (!res?.ok || !data?.url) return fail(data?.error ?? 'We couldn’t add that song. Check your connection and try again.');
+    update({ musicUrl: data.url, musicSource: link });
+    play(data.url, autoplay);
   };
 
   const remove = () => {
     audio.current?.pause();
     setDraft('');
     setStatus('idle');
-    update({ musicUrl: null });
+    setProblem(null);
+    update({ musicUrl: null, musicSource: null });
   };
 
   return (
@@ -144,23 +171,27 @@ export function MotionPanel() {
 
       <section>
         <p className="smallcaps">Music</p>
-        <p className="mt-1 text-xs text-muted">Paste a link to an MP3. It starts playing when someone opens your album. Google Drive and Dropbox links work too.</p>
+        <p className="mt-1 text-xs text-muted">Paste a link to a song — Google Drive, Dropbox or any MP3 link. It starts playing when someone opens your album.</p>
         <div className="mt-3 flex gap-2">
           <input
             type="url"
             inputMode="url"
-            placeholder="https://…/our-song.mp3"
+            placeholder="https://drive.google.com/file/d/…"
             value={draft}
             onChange={(e) => {
               setDraft(e.target.value);
-              if (status === 'error') setStatus('idle');
+              if (status === 'error') {
+                setStatus('idle');
+                setProblem(null);
+              }
             }}
             onBlur={() => {
-              if ((normaliseMusicUrl(draft) ?? '') !== (show.musicUrl ?? '')) applyMusic(false);
+              if (draft.trim() !== current && status !== 'importing') void applyMusic(false);
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') applyMusic(true);
+              if (e.key === 'Enter') void applyMusic(true);
             }}
+            disabled={status === 'importing'}
             className="input input-sm min-w-0 flex-1"
             aria-label="Music link"
           />
@@ -169,23 +200,26 @@ export function MotionPanel() {
               <Pause size={14} />
             </button>
           ) : (
-            <button type="button" onClick={() => applyMusic(true)} disabled={!draft.trim()} className="btn btn-primary btn-sm !px-2.5" aria-label="Play and use this music">
-              <Play size={14} />
+            <button type="button" onClick={() => void applyMusic(true)} disabled={!draft.trim() || status === 'importing'} className="btn btn-primary btn-sm !px-2.5" aria-label="Play and use this music">
+              {status === 'importing' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
             </button>
           )}
         </div>
         <p className="mt-2 min-h-[1rem] text-xs" aria-live="polite">
-          {status === 'checking' && <span className="text-muted">Checking the link…</span>}
+          {status === 'importing' && <span className="text-muted">Adding your song — this takes a few seconds…</span>}
+          {status === 'checking' && <span className="text-muted">Starting the song…</span>}
           {status === 'playing' && <span className="text-success">Playing — this is the music your album opens with.</span>}
           {status === 'ok' && show.musicUrl && <span className="text-success">Music added. It plays when the album opens.</span>}
-          {status === 'error' && <span className="text-danger">This link can’t be played. Use a direct link to an MP3 file.</span>}
+          {status === 'error' && <span className="text-danger">{problem ?? 'This song couldn’t be played. Try an MP3 file.'}</span>}
         </p>
         {show.musicUrl && (
           <button type="button" onClick={remove} className="mt-1 inline-flex items-center gap-1 text-xs text-muted hover:text-danger">
             <X size={12} /> Remove music
           </button>
         )}
-        <p className="mt-3 text-[0.6875rem] leading-relaxed text-faint">Only use music you have the right to share.</p>
+        <p className="mt-3 text-[0.6875rem] leading-relaxed text-faint">
+          From Google Drive: open the song (not a folder) → Share → set “Anyone with the link” → Copy link. Only use music you have the right to share.
+        </p>
       </section>
 
       <Link href={`/projects/${projectId}/preview`} className="btn btn-secondary w-full text-[0.75rem] uppercase tracking-[0.16em]">

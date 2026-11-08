@@ -12,6 +12,7 @@ import { allPages, autofill, clearPhoto, findElement, pageAt } from '@/lib/album
 import type { AlbumDocument, AlbumElement, Crop, Page, PageRef, PageSize, PhotoAsset, PhotoElement, PhotoMap, TextElement } from '@/lib/album/types';
 import { MotionPanel } from '../MotionPanel';
 import { useEditor } from '../store';
+import { ACCEPT_ATTR } from '@/lib/client/upload';
 import { uploadFiles } from '../uploads';
 import { UploadStatus, usePendingUploads, useUploadStats } from '../UploadStatus';
 
@@ -30,7 +31,7 @@ type Target = { ref: PageRef; id: string };
 type SheetState = { kind: 'photo'; target: Target | null } | { kind: 'text'; target: Target } | { kind: 'motion' } | null;
 type Slide = { refs: Array<PageRef | null>; label: string; short: string };
 
-const ACCEPT = 'image/jpeg,image/png,image/webp';
+const ACCEPT = ACCEPT_ATTR;
 const PHOTO_MIME = 'application/x-fs-photo';
 const TIP_KEY = 'fs:simple-tip:v1';
 const pct = (n: number) => `${n * 100}%`;

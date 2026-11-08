@@ -112,7 +112,8 @@ export const documentSchema = z.object({
     .object({
       animation: z.enum(['flip', 'fade', 'slide', 'zoom', 'reveal']),
       livingPhotos: z.boolean(),
-      musicUrl: z.string().max(2000).regex(/^https?:\/\//i).nullable(),
+      musicUrl: z.string().max(2000).regex(/^(https?:\/\/|\/api\/music\/)/i).nullable(),
+      musicSource: z.string().max(2000).nullable().optional(),
     })
     .optional(),
 });
