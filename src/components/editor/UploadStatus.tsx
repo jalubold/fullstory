@@ -69,3 +69,19 @@ export function usePendingUploads() {
     return m;
   }, [uploads]);
 }
+
+/** Tiles for photos that were picked but aren't ready to show yet — so a big batch never looks stuck. */
+export function PendingTiles({ className = 'aspect-square rounded-[2px]' }: { className?: string }) {
+  const count = useEditor((s) => s.uploads.filter((u) => !u.photoId && (u.status === 'queued' || u.status === 'uploading')).length);
+  if (!count) return null;
+  return (
+    <>
+      {Array.from({ length: Math.min(count, 60) }, (_, i) => (
+        <div key={i} aria-hidden className={`skeleton grid place-items-center ${className}`}>
+          {i === 0 && <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent/60 border-t-transparent" />}
+        </div>
+      ))}
+      <span className="sr-only">{count} photos are being prepared</span>
+    </>
+  );
+}

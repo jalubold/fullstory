@@ -2,7 +2,7 @@
 
 import { allPages, autofill, clearPhoto } from '@/lib/album/ops';
 import type { AlbumDocument, PhotoAsset } from '@/lib/album/types';
-import { completePhoto, prepareImage, registerPhoto, sendPhoto, UploadError, validateFile, withRetry } from '@/lib/client/upload';
+import { completePhoto, prepareImage, registerPhoto, sendOriginal, sendPreview, UploadError, validateFile, withRetry } from '@/lib/client/upload';
 import { useEditor, type UploadItem } from './store';
 
 /** Photos sending bytes at once. Phones and desktops both do well with a handful in parallel. */
@@ -176,7 +176,10 @@ export async function uploadFiles(
           alt: item.file.name,
         });
         patch(item.id, { photoId: reg.photoId, progress: 0.08 });
-        await network.run(() => withRetry(() => sendPhoto(item.file, img, reg, (f) => patch(item.id, { progress: 0.08 + 0.88 * f }))));
+        await network.run(() => withRetry(() => sendPreview(img, reg, (f) => patch(item.id, { progress: 0.08 + 0.17 * f }))));
+        // The full-size file for the PDF; for HEIC and huge photos it is made in the background, after every preview.
+        const master = await img.master;
+        await network.run(() => withRetry(() => sendOriginal(item.file, master, reg, (f) => patch(item.id, { progress: 0.25 + 0.71 * f }))));
         await withRetry(() => completePhoto(reg.photoId));
         patch(item.id, { status: 'done', progress: 1 });
         retryFiles.delete(item.id);

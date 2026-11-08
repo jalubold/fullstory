@@ -14,7 +14,7 @@ import { MotionPanel } from '../MotionPanel';
 import { useEditor } from '../store';
 import { ACCEPT_ATTR } from '@/lib/client/upload';
 import { uploadFiles } from '../uploads';
-import { UploadStatus, usePendingUploads, useUploadStats } from '../UploadStatus';
+import { PendingTiles, UploadStatus, usePendingUploads, useUploadStats } from '../UploadStatus';
 
 /**
  * The album editor, deliberately simple on every screen: nothing on a page
@@ -566,6 +566,7 @@ function LibraryPanel({ refs }: { refs: Array<PageRef | null> }) {
                   }}
                 />
               ))}
+              <PendingTiles />
             </div>
           </>
         )}
@@ -800,6 +801,7 @@ function PhotoSheet({ target, refs, minDpi, onClose }: { target: Target | null; 
             {ordered.map((p) => (
               <PhotoThumb key={p.id} photo={p} used={used.has(p.id)} here={current?.id === p.id} progress={pending.get(p.id)} onPick={() => choose(p)} />
             ))}
+            <PendingTiles />
           </div>
         </>
       )}

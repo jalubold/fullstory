@@ -88,31 +88,34 @@ export interface Registered {
 
 /** Reserves a photo record and returns where to send its three files. Fast: no image bytes involved. */
 export function registerPhoto(projectId: string, file: File, img: PreparedImage): Promise<Registered> {
-  const master = img.master;
+  // Registered before any master exists, so the photo can be shown straight away.
   return api<Registered>(`/api/projects/${projectId}/photos`, {
     method: 'POST',
     body: JSON.stringify({
       filename: file.name,
-      contentType: master ? 'image/jpeg' : file.type,
-      size: master ? master.size : file.size,
+      contentType: img.reencode ? 'image/jpeg' : file.type,
+      size: Math.max(1, file.size),
       width: img.width,
       height: img.height,
     }),
   });
 }
 
-/** Sends the small screen copies first (so the photo is safe to view sooner), then the master. */
-export async function sendPhoto(file: File, img: PreparedImage, reg: Registered, onProgress?: (fraction: number) => void): Promise<void> {
-  const original = img.master ?? file;
-  const originalType = img.master ? 'image/jpeg' : file.type;
-  const total = original.size + img.display.size + img.thumb.size;
-  const loaded = { original: 0, display: 0, thumb: 0 };
-  const report = () => onProgress?.((loaded.original + loaded.display + loaded.thumb) / total);
+/** Sends the small screen copies (so the photo can be viewed anywhere sooner). */
+export async function sendPreview(img: PreparedImage, reg: Registered, onProgress?: (fraction: number) => void): Promise<void> {
+  const total = img.display.size + img.thumb.size;
+  const loaded = { display: 0, thumb: 0 };
+  const report = () => onProgress?.((loaded.display + loaded.thumb) / total);
   await Promise.all([
     put(reg.targets.thumb, img.thumb, 'image/jpeg', (n) => ((loaded.thumb = n), report())),
     put(reg.targets.display, img.display, 'image/jpeg', (n) => ((loaded.display = n), report())),
   ]);
-  await put(reg.targets.original, original, originalType, (n) => ((loaded.original = n), report()));
+}
+
+/** Sends the full-size file used for the PDF: the JPEG master when one was made, otherwise the original. */
+export async function sendOriginal(file: File, master: Blob | null, reg: Registered, onProgress?: (fraction: number) => void): Promise<void> {
+  const body = master ?? file;
+  await put(reg.targets.original, body, master ? 'image/jpeg' : file.type, (n) => onProgress?.(n / Math.max(1, body.size)));
 }
 
 export async function completePhoto(photoId: string): Promise<PhotoAsset> {

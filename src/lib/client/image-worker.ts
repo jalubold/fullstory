@@ -1,10 +1,14 @@
 /**
- * Off-main-thread photo preparation. Decoding and resizing a 12–48 MP phone
- * photo takes hundreds of milliseconds; doing it in a Worker keeps scrolling,
- * tapping and the live album preview smooth while dozens of photos are added.
+ * Off-main-thread photo preparation, in two stages so photos appear fast:
  *
- * The worker is created from an inline source (no bundler wiring needed) and
- * falls back to the main thread where Workers or OffscreenCanvas are missing.
+ *  1. preview — decode, then make the screen-size and thumbnail JPEGs. The
+ *     photo can be shown and placed as soon as this is done.
+ *  2. master — only for HEIC and very large files: a full-size JPEG for the
+ *     PDF, made afterwards at low priority (previews always go first).
+ *
+ * Everything heavy runs in a small pool of Workers. If a worker can't decode a
+ * file (HEIC in some Safari workers), the main thread decodes it — one at a
+ * time, never dozens at once — and hands the bitmap to the worker to finish.
  */
 
 export interface PreparedImage {
@@ -13,8 +17,10 @@ export interface PreparedImage {
   height: number;
   display: Blob;
   thumb: Blob;
-  /** Re-encoded master when the original is very large or HEIC; null means "upload the original file as is". */
-  master: Blob | null;
+  /** True when a JPEG master replaces the original (HEIC, or very large files). */
+  reencode: boolean;
+  /** The JPEG master, ready later; resolves to null when the original is uploaded as is. */
+  master: Promise<Blob | null>;
 }
 
 const isHeicFile = (f: File) => /hei[cf]/i.test(f.type) || /\.hei[cf]$/i.test(f.name);
@@ -42,41 +48,62 @@ async function decode(file) {
   catch (e) { return await createImageBitmap(file); }
 }
 self.onmessage = async (e) => {
-  const { id, file, displayEdge, thumbEdge, masterEdge, masterMaxBytes, forceMaster } = e.data;
-  let bitmap;
+  const { id, kind, file, bitmap: given, size, forceMaster, displayEdge, thumbEdge, masterEdge, masterMaxBytes } = e.data;
+  let bitmap = given || null;
   try {
-    bitmap = await decode(file);
-    const W = bitmap.width, H = bitmap.height;
-    const [dw, dh] = fit(W, H, displayEdge);
-    const dc = draw(bitmap, dw, dh);
-    const [tw, th] = fit(dw, dh, thumbEdge);
-    const tc = draw(dc, tw, th);
-    let master = null, mw = W, mh = H;
-    if (forceMaster || Math.max(W, H) > masterEdge || file.size > masterMaxBytes) {
-      [mw, mh] = fit(W, H, masterEdge);
-      master = await draw(bitmap, mw, mh).convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+    if (!bitmap) {
+      try { bitmap = await decode(file); }
+      catch (err) { self.postMessage({ id, ok: false, decodeFailed: true }); return; }
     }
-    bitmap.close();
-    bitmap = null;
-    const [display, thumb] = await Promise.all([
-      dc.convertToBlob({ type: 'image/jpeg', quality: 0.86 }),
-      tc.convertToBlob({ type: 'image/jpeg', quality: 0.8 }),
-    ]);
-    self.postMessage({ id, ok: true, width: mw, height: mh, display, thumb, master });
+    const W = bitmap.width, H = bitmap.height;
+    const reencode = !!forceMaster || Math.max(W, H) > masterEdge || size > masterMaxBytes;
+    const [mw, mh] = reencode ? fit(W, H, masterEdge) : [W, H];
+    if (kind === 'preview') {
+      const [dw, dh] = fit(W, H, displayEdge);
+      const dc = draw(bitmap, dw, dh);
+      bitmap.close(); bitmap = null;
+      const [tw, th] = fit(dw, dh, thumbEdge);
+      const tc = draw(dc, tw, th);
+      const [display, thumb] = await Promise.all([
+        dc.convertToBlob({ type: 'image/jpeg', quality: 0.86 }),
+        tc.convertToBlob({ type: 'image/jpeg', quality: 0.8 }),
+      ]);
+      self.postMessage({ id, ok: true, width: mw, height: mh, reencode, display, thumb });
+    } else {
+      const master = await draw(bitmap, mw, mh).convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+      bitmap.close(); bitmap = null;
+      self.postMessage({ id, ok: true, master });
+    }
   } catch (err) {
     if (bitmap) bitmap.close();
-    self.postMessage({ id, ok: false, error: String(err && err.message || err) });
+    self.postMessage({ id, ok: false, error: String((err && err.message) || err) });
   }
 };
 `;
 
-type Job = { resolve: (r: PreparedImage) => void; reject: (e: Error) => void };
+type Kind = 'preview' | 'master';
+type PreviewResult = { width: number; height: number; reencode: boolean; display: Blob; thumb: Blob };
+type MasterResult = { master: Blob };
+type Result = PreviewResult | MasterResult;
+
+interface Job {
+  id: number;
+  kind: Kind;
+  file: File;
+  /** Decode on the main thread first (this browser's workers can't read this kind of file). */
+  mainDecode: boolean;
+  resolve: (r: Result) => void;
+  reject: (e: Error) => void;
+}
+
+/** Remembered per session: whether workers here can decode HEIC. */
+let workerReadsHeic: boolean | null = null;
 
 class WorkerPool {
-  private workers: Worker[] = [];
   private idle: Worker[] = [];
-  private queue: Array<{ id: number; file: File; job: Job }> = [];
-  private jobs = new Map<number, Job>();
+  private previews: Job[] = [];
+  private masters: Job[] = [];
+  private running = new Map<number, { job: Job; worker: Worker }>();
   private seq = 0;
   broken = false;
 
@@ -84,39 +111,72 @@ class WorkerPool {
     const url = URL.createObjectURL(new Blob([WORKER_SOURCE], { type: 'text/javascript' }));
     for (let i = 0; i < size; i++) {
       const w = new Worker(url);
-      w.onmessage = (e: MessageEvent) => {
-        const { id, ok, error, ...rest } = e.data as { id: number; ok: boolean; error?: string } & PreparedImage;
-        const job = this.jobs.get(id);
-        this.jobs.delete(id);
-        if (job) (ok ? job.resolve(rest as PreparedImage) : job.reject(new Error(error)));
-        this.idle.push(w);
-        this.pump();
-      };
+      w.onmessage = (e: MessageEvent) => this.done(w, e.data);
       w.onerror = () => {
         // A worker that cannot start (old browser, blocked blob: URLs) — use the main thread from now on.
         this.broken = true;
-        for (const [, job] of this.jobs) job.reject(new Error('worker-unavailable'));
-        this.jobs.clear();
-        for (const q of this.queue.splice(0)) q.job.reject(new Error('worker-unavailable'));
+        const err = new Error('worker-unavailable');
+        for (const { job } of this.running.values()) job.reject(err);
+        this.running.clear();
+        for (const job of [...this.previews.splice(0), ...this.masters.splice(0)]) job.reject(err);
       };
-      this.workers.push(w);
       this.idle.push(w);
     }
   }
 
-  run(file: File): Promise<PreparedImage> {
+  run(file: File, kind: Kind): Promise<Result> {
     return new Promise((resolve, reject) => {
-      this.queue.push({ id: ++this.seq, file, job: { resolve, reject } });
+      const job: Job = { id: ++this.seq, kind, file, mainDecode: isHeicFile(file) && workerReadsHeic === false, resolve, reject };
+      (kind === 'preview' ? this.previews : this.masters).push(job);
       this.pump();
     });
   }
 
+  private done(w: Worker, data: { id: number; ok: boolean; decodeFailed?: boolean; error?: string } & Partial<PreviewResult & MasterResult>) {
+    const entry = this.running.get(data.id);
+    this.running.delete(data.id);
+    this.idle.push(w);
+    if (entry) {
+      const { job } = entry;
+      if (data.ok) {
+        if (isHeicFile(job.file) && !job.mainDecode) workerReadsHeic = true;
+        const { id: _id, ok: _ok, ...rest } = data;
+        job.resolve(rest as Result);
+      } else if (data.decodeFailed && !job.mainDecode) {
+        // This browser's workers can't read the file: decode it here, finish it there.
+        if (isHeicFile(job.file)) workerReadsHeic = false;
+        job.mainDecode = true;
+        (job.kind === 'preview' ? this.previews : this.masters).unshift(job);
+      } else job.reject(new Error(data.error ?? 'decode failed'));
+    }
+    this.pump();
+  }
+
   private pump() {
-    while (this.idle.length && this.queue.length) {
+    while (this.idle.length && (this.previews.length || this.masters.length)) {
+      // Previews first: every photo should appear before any full-size master is made.
+      const job = (this.previews.shift() ?? this.masters.shift())!;
       const w = this.idle.pop()!;
-      const { id, file, job } = this.queue.shift()!;
-      this.jobs.set(id, job);
-      w.postMessage({ id, file, displayEdge: DISPLAY_EDGE, thumbEdge: THUMB_EDGE, masterEdge: MASTER_EDGE, masterMaxBytes: MASTER_MAX_BYTES, forceMaster: isHeicFile(file) });
+      this.running.set(job.id, { job, worker: w });
+      void this.send(w, job);
+    }
+  }
+
+  private async send(w: Worker, job: Job) {
+    const base = { id: job.id, kind: job.kind, size: job.file.size, forceMaster: isHeicFile(job.file), displayEdge: DISPLAY_EDGE, thumbEdge: THUMB_EDGE, masterEdge: MASTER_EDGE, masterMaxBytes: MASTER_MAX_BYTES };
+    if (!job.mainDecode) {
+      w.postMessage({ ...base, file: job.file });
+      return;
+    }
+    try {
+      // At most one decode per worker at a time, so memory stays bounded on phones.
+      const bitmap = await decodeAnyhow(job.file);
+      w.postMessage({ ...base, file: job.file, bitmap }, [bitmap]);
+    } catch (e) {
+      this.running.delete(job.id);
+      this.idle.push(w);
+      job.reject(e instanceof Error ? e : new Error('decode failed'));
+      this.pump();
     }
   }
 }
@@ -133,7 +193,7 @@ function poolSize() {
   return Math.max(1, Math.min(2, (navigator.hardwareConcurrency || 2) - 1));
 }
 
-/* ------------------------------ main-thread fallback ------------------------------ */
+/* ------------------------------ main-thread decoding ------------------------------ */
 
 function fit(w: number, h: number, edge: number) {
   const s = Math.min(1, edge / Math.max(w, h));
@@ -199,6 +259,8 @@ async function heicToJpeg(file: File): Promise<Blob> {
   return Array.isArray(out) ? out[0] : out;
 }
 
+const heicCache = new WeakMap<File, Blob>();
+
 async function decodeAnyhow(file: File): Promise<ImageBitmap> {
   try {
     return await createImageBitmap(file, { imageOrientation: 'from-image' });
@@ -210,7 +272,12 @@ async function decodeAnyhow(file: File): Promise<ImageBitmap> {
     return await decodeWithImg(file);
   } catch {}
   if (isHeicFile(file)) {
-    const jpeg = await heicToJpeg(file);
+    // The slow software decoder runs once per photo; the master stage reuses its result.
+    let jpeg = heicCache.get(file);
+    if (!jpeg) {
+      jpeg = await heicToJpeg(file);
+      heicCache.set(file, jpeg);
+    }
     try {
       return await createImageBitmap(jpeg, { imageOrientation: 'from-image' });
     } catch {
@@ -220,35 +287,59 @@ async function decodeAnyhow(file: File): Promise<ImageBitmap> {
   throw new Error('undecodable');
 }
 
-async function prepareOnMainThread(file: File): Promise<PreparedImage> {
-  const bitmap = await decodeAnyhow(file);
-  try {
-    const W = bitmap.width;
-    const H = bitmap.height;
-    const [dw, dh] = fit(W, H, DISPLAY_EDGE);
-    const [tw, th] = fit(W, H, THUMB_EDGE);
-    // HEIC always gets a JPEG master: the PDF and every browser can read it.
-    const big = isHeicFile(file) || Math.max(W, H) > MASTER_EDGE || file.size > MASTER_MAX_BYTES;
-    const [mw, mh] = big ? fit(W, H, MASTER_EDGE) : [W, H];
-    const [display, thumb, master] = await Promise.all([
-      canvasBlob(bitmap, dw, dh, 0.86),
-      canvasBlob(bitmap, tw, th, 0.8),
-      big ? canvasBlob(bitmap, mw, mh, 0.9) : Promise.resolve(null),
-    ]);
-    return { width: mw, height: mh, display, thumb, master };
-  } finally {
-    bitmap.close();
-  }
+/** Browsers without worker canvases: same two stages, one photo at a time, yielding between steps. */
+let mainChain: Promise<unknown> = Promise.resolve();
+function onMainThread<T>(task: () => Promise<T>): Promise<T> {
+  const run = mainChain.then(() => new Promise((r) => setTimeout(r, 0))).then(task);
+  mainChain = run.catch(() => {});
+  return run;
 }
 
-/** Decodes a photo (respecting EXIF orientation) and makes the display, thumbnail and — for huge files — master JPEGs. */
+async function prepareOnMainThread(file: File): Promise<PreparedImage> {
+  const preview = await onMainThread(async () => {
+    const bitmap = await decodeAnyhow(file);
+    try {
+      const W = bitmap.width;
+      const H = bitmap.height;
+      const reencode = isHeicFile(file) || Math.max(W, H) > MASTER_EDGE || file.size > MASTER_MAX_BYTES;
+      const [mw, mh] = reencode ? fit(W, H, MASTER_EDGE) : [W, H];
+      const [dw, dh] = fit(W, H, DISPLAY_EDGE);
+      const [tw, th] = fit(W, H, THUMB_EDGE);
+      const [display, thumb] = await Promise.all([canvasBlob(bitmap, dw, dh, 0.86), canvasBlob(bitmap, tw, th, 0.8)]);
+      return { width: mw, height: mh, reencode, display, thumb };
+    } finally {
+      bitmap.close();
+    }
+  });
+  const master = preview.reencode
+    ? onMainThread(async () => {
+        const bitmap = await decodeAnyhow(file);
+        try {
+          return await canvasBlob(bitmap, preview.width, preview.height, 0.9);
+        } finally {
+          bitmap.close();
+        }
+      })
+    : Promise.resolve(null);
+  return { ...preview, master };
+}
+
+/** Decodes a photo (respecting EXIF orientation) into a preview now and, when needed, a JPEG master later. */
 export async function prepareImage(file: File): Promise<PreparedImage> {
   if (workersSupported() && !pool?.broken) {
     try {
       pool ??= new WorkerPool(poolSize());
-      return await pool.run(file);
+      const p = pool;
+      const preview = (await p.run(file, 'preview')) as PreviewResult;
+      const master = preview.reencode
+        ? p.run(file, 'master').then(
+            (r) => (r as MasterResult).master,
+            () => prepareOnMainThread(file).then((m) => m.master),
+          )
+        : Promise.resolve(null);
+      return { ...preview, master };
     } catch {
-      // The worker couldn't start or decode this file; the main thread sometimes can.
+      // The workers couldn't handle this file; the main thread sometimes can.
     }
   }
   return prepareOnMainThread(file);

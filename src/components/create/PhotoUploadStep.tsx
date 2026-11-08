@@ -11,8 +11,9 @@ import type { AlbumDocument, PhotoAsset, PhotoMap } from '@/lib/album/types';
 import { useEditor } from '@/components/editor/store';
 import { flushSave, useAutosave } from '@/components/editor/useAutosave';
 import { uploadFiles, uploadsInFlight } from '@/components/editor/uploads';
+import { isAppleTouchDevice } from '@/lib/client/device';
 import { ACCEPT_ATTR } from '@/lib/client/upload';
-import { UploadStatus, usePendingUploads, useUploadStats } from '@/components/editor/UploadStatus';
+import { PendingTiles, UploadStatus, usePendingUploads, useUploadStats } from '@/components/editor/UploadStatus';
 
 const NAV_FALLBACK_MS = 8000;
 
@@ -26,6 +27,12 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
   const [autofillOn, setAutofillOn] = useState(true);
   const [over, setOver] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [ios, setIos] = useState(false);
+  useEffect(() => {
+    // Device details are only known in the browser.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIos(isAppleTouchDevice());
+  }, []);
   const input = useRef<HTMLInputElement>(null);
   useAutosave();
 
@@ -109,6 +116,12 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
         </button>
       )}
 
+      {ios && (
+        <p className="mt-3 text-xs leading-relaxed text-muted">
+          iPhone tip: picking about 20 photos at a time is quickest — your iPhone prepares each photo before handing it over. Add more any time.
+        </p>
+      )}
+
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-y border-line px-1 py-4 text-sm">
         <p>
           <span className="font-medium">{photos.length}</span> {photos.length === 1 ? 'photo' : 'photos'} uploaded · your design has <span className="font-medium">{frames.frames}</span> photo frames
@@ -123,7 +136,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
         <UploadStatus />
       </div>
 
-      {photos.length > 0 && (
+      {(photos.length > 0 || stats.active) && (
         <div className="mt-8 grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-9">
           {photos.map((p) => (
             <div key={p.id} className="group relative aspect-square overflow-hidden rounded-[2px] bg-paper-2">
@@ -138,6 +151,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
               </button>
             </div>
           ))}
+          <PendingTiles />
         </div>
       )}
 
@@ -180,6 +194,13 @@ const LivePreview = memo(function LivePreview({ doc: liveDoc, photos: livePhotos
   const photos = useDeferredValue(livePhotos);
   const photoMap = useMemo<PhotoMap>(() => Object.fromEntries(photos.map((p) => [p.id, p])), [photos]);
   const finish = useMemo(() => bookFinish(doc), [doc]);
+  // Phones: spreads are small on screen, so thumbnails are plenty (and spare the phone's memory with big batches).
+  const [spreadWidth, setSpreadWidth] = useState(560);
+  useEffect(() => {
+    // Screen size is only known in the browser.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (window.innerWidth < 640) setSpreadWidth(280);
+  }, []);
   const spreads = useMemo(() => buildSpreads(doc.pages.length), [doc.pages.length]);
   let filled = 0;
   let total = 0;
@@ -208,7 +229,7 @@ const LivePreview = memo(function LivePreview({ doc: liveDoc, photos: livePhotos
         </figure>
         {spreads.map((s, i) => (
           <figure key={i} className="[content-visibility:auto] [contain-intrinsic-size:auto_320px]">
-            <OpenBook left={s.left !== null ? doc.pages[s.left] : null} right={s.right !== null ? doc.pages[s.right] : null} size={doc.size} photos={photoMap} renderWidth={560} {...finish} />
+            <OpenBook left={s.left !== null ? doc.pages[s.left] : null} right={s.right !== null ? doc.pages[s.right] : null} size={doc.size} photos={photoMap} renderWidth={spreadWidth} {...finish} />
             <figcaption className="folio mt-4 text-center">
               {s.left !== null ? s.left + 1 : ''}
               {s.left !== null && s.right !== null ? ' — ' : ''}
