@@ -3,6 +3,7 @@ import { cssFontStack } from '@/lib/album/fonts';
 import { backgroundPrimitives, computeCrop, pageSizePt } from '@/lib/album/geometry';
 import { ORNAMENTS } from '@/lib/album/ornaments';
 import { photoUrl } from '@/lib/album/photos';
+import { PhotoImg } from './PhotoImg';
 import type {
   AlbumElement,
   Background,
@@ -164,12 +165,10 @@ export function PhotoView({ el, ctx }: { el: PhotoElement; ctx: RenderCtx }) {
     const c = computeCrop(asset.width, asset.height, innerW, innerH, el.crop);
     const needed = (innerW / Wpt) * c.relW * ctx.renderWidth * 2;
     content = (
-      <img
+      <PhotoImg
         src={photoUrl(asset, needed)}
         alt={asset.alt ?? ''}
-        draggable={false}
-        loading={ctx.eager ? 'eager' : 'lazy'}
-        decoding="async"
+        eager={ctx.eager}
         style={{
           position: 'absolute',
           left: pct(c.relX),
