@@ -10,7 +10,6 @@ import { Menu, X } from 'lucide-react';
 export const NAV = [
   { href: '/templates', label: 'Collection' },
   { href: '/explore', label: 'Inspiration' },
-  { href: '/how-it-works', label: 'How it works' },
   { href: '/pricing', label: 'Pricing' },
 ];
 
