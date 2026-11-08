@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import { SiteFooter } from '@/components/marketing/SiteFooter';
 import { SiteHeader } from '@/components/marketing/SiteHeader';
+import { MobileTabBar } from '@/components/mobile/MobileTabBar';
 
 export default function MarketingLayout({ children }: LayoutProps<'/'>) {
   return (
@@ -12,6 +14,9 @@ export default function MarketingLayout({ children }: LayoutProps<'/'>) {
         {children}
       </main>
       <SiteFooter />
+      <Suspense fallback={null}>
+        <MobileTabBar />
+      </Suspense>
     </div>
   );
 }

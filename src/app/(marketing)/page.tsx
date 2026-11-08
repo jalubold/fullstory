@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { OpenBook } from '@/components/album/Book';
 import { EditorDemo } from '@/components/marketing/EditorDemo';
 import { HeroFlipBook } from '@/components/marketing/HeroFlipBook';
 import { Reveal } from '@/components/motion/Reveal';
@@ -11,15 +10,8 @@ import type { PhotoMap } from '@/lib/album/types';
 import { photoUrl } from '@/lib/album/photos';
 import { TEMPLATES } from '@/lib/templates';
 import { getTemplateDemo } from '@/lib/templates/demo';
-import { CATEGORIES } from '@/lib/templates/taxonomy';
 
 const FEATURED = ['evermore', 'wanderlust-journal', 'home-and-heart', 'little-wonders', 'us-lately', 'twelve-months'];
-const PLATES = [
-  { id: 'the-vows', spread: [5, 6], text: 'An editorial wedding story, told in magazine-style chapters.' },
-  { id: 'terra', spread: [7, 8], text: 'Gallery margins and quiet type for landscapes and cities.' },
-  { id: 'home-and-heart', spread: [3, 4], text: 'A modern family yearbook, season by season.' },
-];
-const ROMAN = ['I', 'II', 'III', 'IV', 'V'];
 
 function subsetPhotos(all: PhotoMap, pages: { elements: { type: string; photoId?: string | null }[] }[]): PhotoMap {
   const ids = new Set<string>();
@@ -27,15 +19,10 @@ function subsetPhotos(all: PhotoMap, pages: { elements: { type: string; photoId?
   return Object.fromEntries([...ids].filter((id) => all[id]).map((id) => [id, all[id]]));
 }
 
-function RunningHead({ chapter, title, aside }: { chapter: number; title: string; aside?: string }) {
+function Label({ children }: { children: string }) {
   return (
-    <Reveal className="running-head">
-      <span>
-        <span className="text-accent">Chapter {ROMAN[chapter - 1]}</span>
-        <span className="mx-3 text-line-strong">/</span>
-        {title}
-      </span>
-      {aside && <span className="hidden sm:inline">{aside}</span>}
+    <Reveal as="p" className="smallcaps">
+      {children}
     </Reveal>
   );
 }
@@ -55,13 +42,12 @@ export default function HomePage() {
   const demoT = getTemplateDemo('slow-days')!;
   const demoPage = demoT.doc.pages.find((p) => p.layoutId === 'single-centered') ?? demoT.doc.pages[1];
   const demoThumbs = Object.values(demoT.photos).slice(0, 4).map((a) => photoUrl(a, 200));
-  const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, TEMPLATES.filter((t) => t.category === c.id).length]));
 
   return (
     <>
       {/* ───────────── Cover: the open book on red cloth ───────────── */}
       <section className="cloth relative -mt-[calc(4rem+1px)] overflow-hidden pt-[calc(4rem+1px)] md:-mt-[calc(4.5rem+1px)] md:pt-[calc(4.5rem+1px)]">
-        <div className="container-page grid min-h-[calc(100svh-8rem)] items-center gap-14 py-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-16">
+        <div className="container-page grid items-center gap-12 py-12 lg:min-h-[calc(100svh-4.5rem)] lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-16">
           <div>
             <p className="rise smallcaps !text-white/60" style={{ animationDelay: '0.05s' }}>
               The photobook studio
@@ -72,18 +58,18 @@ export default function HomePage() {
               <span className="rise block italic" style={{ animationDelay: '0.41s' }}>Your book.</span>
             </h1>
             <p className="rise mt-8 max-w-md text-[1.0625rem] leading-relaxed text-white/75" style={{ animationDelay: '0.55s' }}>
-              Choose a design, drop in your photos and add your words. We bind it into something worth keeping — {printOn ? 'in print, as a PDF, or as a private page-turning album.' : 'a high-resolution PDF and a private, page-turning album to share.'}
+              Pick a design and add your photos. Get {printOn ? 'a printed book, a PDF or a private album to share.' : 'a high-resolution PDF and a private album to share.'}
             </p>
-            <div className="rise mt-10 flex flex-wrap items-center gap-x-8 gap-y-5" style={{ animationDelay: '0.68s' }}>
-              <Link href="/create" className="btn btn-light btn-lg text-[0.75rem] uppercase tracking-[0.2em]">
+            <div className="rise mt-10 flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-5" style={{ animationDelay: '0.68s' }}>
+              <Link href="/create" className="btn btn-light btn-lg h-14 text-[0.75rem] uppercase tracking-[0.2em] sm:h-auto">
                 Begin your book
               </Link>
-              <Link href="/templates" className="group inline-flex items-center gap-2 text-[0.75rem] font-medium uppercase tracking-[0.2em] text-white">
+              <Link href="/templates" className="group inline-flex items-center justify-center gap-2 py-2 text-[0.75rem] font-medium uppercase tracking-[0.2em] text-white sm:justify-start">
                 <span className="link-underline">Browse the collection</span>
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
-            <p className="rise mt-14 text-sm text-white/55" style={{ animationDelay: '0.8s' }}>
+            <p className="rise mt-8 text-center text-sm text-white/55 sm:mt-14 sm:text-left" style={{ animationDelay: '0.8s' }}>
               No account <span className="mx-2 text-white/30">·</span> Free to design <span className="mx-2 text-white/30">·</span> {printOn ? 'Print, PDF or private link' : 'PDF or private link'}
             </p>
           </div>
@@ -93,156 +79,77 @@ export default function HomePage() {
             <div aria-hidden className="mx-auto -mt-2 h-8 w-[86%] rounded-[50%] bg-black/45 blur-2xl" />
           </div>
         </div>
-        {/* running foot */}
-        <div className="container-page">
-          <div className="flex items-center justify-between border-t border-white/15 py-4 text-[0.625rem] font-medium uppercase tracking-[0.22em] text-white/45">
-            <span>Fullstory</span>
-            <span className="folio !text-white/50">— i —</span>
-            <span>Volume one</span>
-          </div>
-        </div>
       </section>
 
       {/* ───────────── I. The Collection ───────────── */}
-      <section className="bg-paper py-20 lg:py-28">
+      <section className="bg-paper py-14 lg:py-28">
         <div className="container-page">
-          <RunningHead chapter={1} title="The Collection" aside={`${TEMPLATES.length} designs · ${CATEGORIES.length} occasions`} />
-          <div className="mt-12 grid items-end gap-8 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
-            <Reveal as="h2" className="font-serif text-[2.9rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-7xl">
+          <Label>The collection</Label>
+          <div className="mt-4 grid items-end gap-4 lg:mt-6 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
+            <Reveal as="h2" className="font-serif text-[2.4rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-7xl">
               A design for every <span className="italic text-accent">chapter</span> of your life.
             </Reveal>
-            <Reveal delay={120} as="p" className="max-w-md text-lg leading-relaxed text-ink-soft">
-              Complete albums — covers, layouts and typography — ready for your photos the moment you open them. Hover a book to look inside.
+            <Reveal delay={120} as="p" className="max-w-md leading-relaxed text-ink-soft lg:text-lg">
+              Complete albums, ready for your photos the moment you open them.
             </Reveal>
           </div>
-          <Reveal delay={160} className="no-scrollbar -mx-5 mt-12 flex gap-x-7 overflow-x-auto border-y border-line px-5 py-4 md:mx-0 md:flex-wrap md:gap-y-3 md:px-0">
-            {CATEGORIES.map((c) => (
-              <Link key={c.id} href={`/templates/category/${c.id}`} className="shrink-0 text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink-soft transition-colors hover:text-accent">
-                {c.label}
-                <sup className="ml-1 font-serif text-[0.7rem] normal-case tracking-normal text-faint">{counts[c.id]}</sup>
-              </Link>
-            ))}
-          </Reveal>
-          <div className="mt-14 grid gap-x-10 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-10 sm:gap-y-16 lg:mt-16 lg:grid-cols-3">
             {featured.map((demo, i) => (
               <Reveal key={demo.template.id} delay={(i % 3) * 110}>
                 <TemplateCard demo={demo} />
               </Reveal>
             ))}
           </div>
-          <div className="mt-16 flex justify-center">
-            <Link href="/templates" className="btn btn-secondary btn-lg text-[0.75rem] uppercase tracking-[0.2em]">
+          <div className="mt-10 flex justify-center lg:mt-16">
+            <Link href="/templates" className="btn btn-secondary btn-lg w-full text-[0.75rem] uppercase tracking-[0.2em] sm:w-auto">
               View all {TEMPLATES.length} designs
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ───────────── II. The Studio ───────────── */}
-      <section className="border-y border-line bg-card py-20 lg:py-28">
-        <div className="container-page">
-          <RunningHead chapter={2} title="The Studio" aside="Free to design" />
-          <div className="mt-12 grid items-center gap-14 lg:grid-cols-[1fr_1.15fr]">
-            <div>
-              <Reveal as="h2" className="font-serif text-[2.9rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-7xl">
-                Drag. Drop. <span className="italic text-accent">Done.</span>
-              </Reveal>
-              <Reveal delay={100} as="p" className="mt-6 max-w-md text-lg leading-relaxed text-ink-soft">
-                Every layout, font and colour is already designed — you just bring the photos and the words. Everything saves as you go.
-              </Reveal>
-              <Reveal delay={160}>
-                <ol className="mt-9 max-w-md divide-y divide-line border-y border-line">
-                  {[
-                    ['Drop in your photos', 'They fill the frames for you — a whole album in seconds.'],
-                    ['Frame every photo', 'Tap to zoom and slide it into place — or swap it for another.'],
-                    ['Write on the page', 'Tap any caption and type — it stays beautifully set.'],
-                  ].map(([t, d], i) => (
-                    <li key={t} className="flex gap-5 py-4">
-                      <span className="numeral w-6 shrink-0 text-xl">{ROMAN[i].toLowerCase()}.</span>
-                      <div>
-                        <p className="font-medium text-ink">{t}</p>
-                        <p className="mt-0.5 text-sm text-ink-soft">{d}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </Reveal>
-              <Reveal delay={220}>
-                <Link href="/create" className="btn btn-primary btn-lg mt-10 text-[0.75rem] uppercase tracking-[0.2em]">
-                  Open the studio
-                </Link>
-              </Reveal>
-            </div>
-            <Reveal delay={150}>
-              <EditorDemo page={demoPage} size={demoT.doc.size} photos={demoT.photos} thumbs={demoThumbs} />
+      {/* ───────────── How it works ───────────── */}
+      <section className="border-y border-line bg-card py-14 lg:py-28">
+        <div className="container-page grid items-center gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
+          <div>
+            <Label>How it works</Label>
+            <Reveal as="h2" className="mt-4 font-serif text-[2.4rem] font-medium leading-[0.95] tracking-[-0.015em] lg:mt-6 md:text-7xl">
+              Pick. Drop. <span className="italic text-accent">Done.</span>
+            </Reveal>
+            <Reveal delay={100} as="p" className="mt-4 max-w-md leading-relaxed text-ink-soft lg:mt-6 lg:text-lg">
+              Every layout, font and colour is already designed. You bring the photos and the words.
+            </Reveal>
+            <Reveal delay={160}>
+              <ol className="mt-8 max-w-md divide-y divide-line border-y border-line">
+                {[
+                  ['Choose a design', 'Flip through every page before you begin.'],
+                  ['Add your photos', 'They fill the frames for you. Tap any photo to adjust it, any caption to rewrite it.'],
+                  ['Keep it', printOn ? 'Order it printed, download a PDF, or share a private link.' : 'Download a high-resolution PDF, or share a private link with a QR code.'],
+                ].map(([t, d], i) => (
+                  <li key={t} className="flex gap-4 py-4">
+                    <span className="numeral w-6 shrink-0 text-xl">{i + 1}.</span>
+                    <div>
+                      <p className="font-medium text-ink">{t}</p>
+                      <p className="mt-0.5 text-sm text-ink-soft">{d}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             </Reveal>
           </div>
-        </div>
-      </section>
-
-      {/* ───────────── III. Three steps ───────────── */}
-      <section className="bg-paper py-20 lg:py-28">
-        <div className="container-page">
-          <RunningHead chapter={3} title="How a book is made" aside="About ten minutes" />
-          <div className="mt-14 grid md:grid-cols-3">
-            {[
-              { t: 'Choose a design', d: 'Browse the collection and flip through every page before you begin.' },
-              { t: 'Make it yours', d: 'Add your photos, move things around and write your own words.' },
-              { t: 'Keep it', d: printOn ? 'Order a printed book, download a print-ready PDF, or share a private link.' : 'Download a high-resolution PDF, or share a private, page-turning link.' },
-            ].map((s, i) => (
-              <Reveal key={s.t} delay={i * 130} className={`py-8 md:px-10 md:py-2 ${i ? 'border-t border-line md:border-l md:border-t-0' : 'md:pl-0'}`}>
-                <span className="numeral block text-[5.5rem]">{ROMAN[i]}.</span>
-                <h3 className="mt-6 font-serif text-3xl">{s.t}</h3>
-                <p className="mt-3 max-w-xs leading-relaxed text-ink-soft">{s.d}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────────── IV. Plates ───────────── */}
-      <section className="overflow-hidden bg-paper-2 py-20 lg:py-28">
-        <div className="container-page">
-          <RunningHead chapter={4} title="Plates" aside="From the collection" />
-          <div className="mt-16 space-y-24 lg:space-y-32">
-            {PLATES.map((s, i) => {
-              const d = getTemplateDemo(s.id)!;
-              return (
-                <figure key={s.id} className={`mx-auto max-w-5xl ${i % 2 ? 'lg:pl-24' : 'lg:pr-24'}`}>
-                  <Reveal style={{ perspective: '2400px' }}>
-                    <OpenBook
-                      left={d.doc.pages[s.spread[0]]}
-                      right={d.doc.pages[s.spread[1]]}
-                      size={d.doc.size}
-                      photos={d.photos}
-                      renderWidth={1000}
-                      style={{ transform: `rotateX(5deg) rotateZ(${i % 2 ? 0.8 : -0.8}deg)` }}
-                    />
-                  </Reveal>
-                  <Reveal as="figcaption" delay={120} className="mt-10 grid gap-3 border-t border-line-strong pt-4 sm:grid-cols-[auto_1fr_auto] sm:items-baseline sm:gap-8">
-                    <span className="smallcaps !text-accent">Plate {ROMAN[i]}</span>
-                    <span>
-                      <span className="font-serif text-2xl text-ink">{d.template.name}</span>
-                      <span className="ml-3 text-sm text-ink-soft">{s.text}</span>
-                    </span>
-                    <Link href={`/templates/${s.id}/preview`} className="group inline-flex items-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink">
-                      <span className="link-underline">Flip through</span> <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-                    </Link>
-                  </Reveal>
-                </figure>
-              );
-            })}
-          </div>
+          <Reveal delay={150} className="hidden sm:block">
+            <EditorDemo page={demoPage} size={demoT.doc.size} photos={demoT.photos} thumbs={demoThumbs} />
+          </Reveal>
         </div>
       </section>
 
       {/* ───────────── V. Keeping it — the price list ───────────── */}
-      <section className="bg-paper py-20 lg:py-28">
+      <section className="bg-paper py-14 lg:py-28">
         <div className="container-page">
-          <RunningHead chapter={5} title="Keeping it" aside="Designing is always free" />
-          <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_1.35fr] lg:gap-20">
-            <Reveal as="h2" className="font-serif text-[2.9rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-7xl">
-              Hold it. Keep it. <span className="italic text-accent">Share it.</span>
+          <Label>Pricing</Label>
+          <div className="mt-4 grid gap-8 lg:mt-6 lg:grid-cols-[1fr_1.35fr] lg:gap-20">
+            <Reveal as="h2" className="font-serif text-[2.4rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-7xl">
+              Free to design. <span className="italic text-accent">Pay when it’s perfect.</span>
             </Reveal>
             <Reveal delay={120}>
               <ul className="border-t border-ink">
@@ -253,9 +160,9 @@ export default function HomePage() {
                 ]
                   .filter((o) => printOn || o.title !== 'Printed photobook')
                   .map((o) => (
-                  <li key={o.title} className="border-b border-line py-6">
+                  <li key={o.title} className="border-b border-line py-5 lg:py-6">
                     <div className="flex items-baseline gap-4">
-                      <span className="font-serif text-[1.75rem] leading-none text-ink">{o.title}</span>
+                      <span className="font-serif text-[1.5rem] leading-none text-ink lg:text-[1.75rem]">{o.title}</span>
                       <span className="leader" />
                       {o.price && <span className="font-serif text-[1.6rem] italic leading-none text-accent">{o.price}</span>}
                     </div>
@@ -263,30 +170,21 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/pricing" className="mt-6 inline-flex items-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink">
-                <span className="link-underline">Full price list</span> <ArrowRight size={13} />
-              </Link>
             </Reveal>
           </div>
         </div>
       </section>
 
-      {/* ───────────── Endpaper: final call ───────────── */}
-      <section className="cloth relative overflow-hidden py-28 text-center lg:py-36">
+      {/* ───────────── Final call ───────────── */}
+      <section className="cloth relative overflow-hidden py-20 text-center lg:py-32">
         <span aria-hidden className="ribbon absolute left-[9%] top-0 hidden h-[62%] w-7 md:block" />
         <div className="container-page relative">
-          <Reveal as="p" className="smallcaps !text-white/60">
-            The end — or the beginning
-          </Reveal>
-          <Reveal as="h2" delay={100} className="mx-auto mt-6 max-w-3xl font-serif text-5xl font-medium leading-[0.95] tracking-[-0.015em] md:text-[5.5rem]">
+          <Reveal as="h2" className="mx-auto max-w-3xl font-serif text-[2.6rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-[5.5rem]">
             Every story deserves <span className="whitespace-nowrap italic">a binding.</span>
           </Reveal>
-          <Reveal delay={200} className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
-            <Link href="/create" className="btn btn-light btn-lg text-[0.75rem] uppercase tracking-[0.2em]">
+          <Reveal delay={150} className="mt-10 flex justify-center">
+            <Link href="/create" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.2em] sm:h-auto sm:w-auto">
               Begin your book
-            </Link>
-            <Link href="/templates" className="text-[0.75rem] font-medium uppercase tracking-[0.2em] text-white">
-              <span className="link-underline">Browse the collection</span>
             </Link>
           </Reveal>
         </div>

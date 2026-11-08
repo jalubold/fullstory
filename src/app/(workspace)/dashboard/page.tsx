@@ -50,12 +50,12 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
       {sp.restored === '1' && <p className="mb-8 rounded-[4px] bg-success-soft px-5 py-3 text-sm text-success">Welcome back — your albums are open in this browser again.</p>}
       {sp.restore === 'invalid' && <p className="mb-8 rounded-[4px] bg-danger-soft px-5 py-3 text-sm text-danger">That album link isn’t valid. Check you copied the whole link.</p>}
 
-      <div className="border-b border-line pb-6">
-        <h1 className="font-serif text-5xl font-medium leading-none md:text-6xl">My albums</h1>
+      <div className="border-b border-line pb-5 sm:pb-6">
+        <h1 className="font-serif text-[2.6rem] font-medium leading-none md:text-6xl">My albums</h1>
         <p className="mt-3 text-ink-soft">Saved in this browser as you go — no account needed.</p>
       </div>
 
-      <div className="mt-10">
+      <div className="mt-6 sm:mt-10">
         <ProjectGrid projects={projects} extras={extras} />
       </div>
 

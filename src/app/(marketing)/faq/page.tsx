@@ -25,7 +25,6 @@ export default function FaqPage() {
     {
       title: 'Photos',
       items: [
-        ['Can guests scan a QR code to see the album?', 'Yes. Every shareable online album comes with a QR code you can download as PNG or SVG — print it on invitations, place cards or a frame, and anyone who scans it opens your album.'],
         ['Which file types can I upload?', 'JPEG, PNG, WebP and HEIC (iPhone) photos, up to 40 MB each — pick them straight from your camera roll.'],
         ['How many photos do I need?', 'Each template shows a recommended number of photos on its detail page. As a rough guide, plan for one to three photos per page.'],
         ['Will my photos look sharp?', `The editor marks any photo that’s too small for its frame (below about ${c.print.minDpi} DPI) with “Low resolution”, so you can swap it for a larger one. Your PDF is made from your full-size uploads, not from screen previews.`],
@@ -50,6 +49,7 @@ export default function FaqPage() {
       items: [
         ['What is included in the digital PDF?', 'A high-resolution PDF of your finished album — cover, every page and back cover — ready to keep, archive or print at home.'],
         ['How does a shareable album work?', 'You get a private link to an online, page-turning version of your album. You can protect it with a password, set an expiry date, or switch it off at any time.'],
+        ['Can guests scan a QR code to see the album?', 'Yes. Every shareable online album comes with a QR code you can download as PNG or SVG — print it on invitations, place cards or a frame, and anyone who scans it opens your album.'],
         ['What if I edit my album after buying?', 'Purchases are made for the version of the album at checkout, so the file you receive always matches what you approved. You can keep editing and order again later.'],
       ],
     },
@@ -58,18 +58,17 @@ export default function FaqPage() {
       items: [
         ['How do I pay?', 'Payments are handled securely by our payment provider. We never see or store your card details.'],
         ['When do I get access to my download?', 'Immediately after your payment is confirmed. If a payment is still processing, your order page will update automatically.'],
-        ['How do I get my albums on another device?', 'Open Settings in “My albums” and copy your private album link. Open it on any device to continue where you left off. Keep it private — anyone with the link can open your albums.'],
+        ['How do I get my albums on another device?', 'On “My albums”, copy your private album link and open it on any device to continue where you left off. Keep it private — anyone with the link can open your albums.'],
       ],
     },
   ];
   return (
-    <div className="container-page pb-24 pt-12">
+    <div className="container-page pb-16 pt-6 lg:pb-24 lg:pt-12">
       <header className="max-w-2xl">
-        <p className="eyebrow">Help</p>
-        <h1 className="mt-3 font-serif text-5xl font-medium md:text-6xl">Frequently asked questions</h1>
-        <p className="mt-4 text-lg text-ink-soft">Everything you need to know about making your album.</p>
+        <h1 className="font-serif text-[2.5rem] font-medium leading-none md:text-6xl">Questions</h1>
+        <p className="mt-3 text-ink-soft md:mt-4 md:text-lg">Quick answers about making your album.</p>
       </header>
-      <div className="mt-12 grid gap-12 lg:grid-cols-[14rem_1fr]">
+      <div className="mt-8 grid lg:mt-12 gap-12 lg:grid-cols-[14rem_1fr]">
         <nav aria-label="FAQ sections" className="hidden lg:block">
           <ul className="sticky top-24 space-y-2 text-sm">
             {groups.map((g) => (

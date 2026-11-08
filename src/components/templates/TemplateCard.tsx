@@ -35,31 +35,23 @@ export function TemplateCard({ demo, eager }: { demo: TemplateDemo; eager?: bool
   const style = styleById(t.style);
   return (
     <article className="group flex flex-col">
-      <Link href={`/templates/${t.id}`} className="relative block aspect-[1/0.92] overflow-hidden bg-paper-2" aria-label={`${t.name} — view design`}>
+      <Link href={`/templates/${t.id}`} className="relative block aspect-[1/0.92] overflow-hidden rounded-[4px] bg-paper-2 transition-transform active:scale-[0.98] sm:rounded-none" aria-label={`${t.name} — view design`}>
         <TemplateVisual demo={demo} eager={eager} />
-        {t.tier === 'premium' && <span className="smallcaps absolute left-4 top-4 !text-[0.625rem] !text-accent">Premium</span>}
-        <span className="folio absolute right-4 top-3.5 !text-muted">No. {String(no).padStart(2, '0')}</span>
+        {t.tier === 'premium' && <span className="smallcaps absolute left-2.5 top-2.5 !text-[0.5625rem] !text-accent sm:left-4 sm:top-4 sm:!text-[0.625rem]">Premium</span>}
+        <span className="folio absolute right-2.5 top-2 !text-[0.75rem] !text-muted sm:right-4 sm:top-3.5 sm:!text-[0.95rem]">No. {String(no).padStart(2, '0')}</span>
       </Link>
-      <div className="mt-4 flex items-baseline justify-between gap-3 border-b border-line pb-3">
-        <h3 className="font-serif text-[1.75rem] leading-none text-ink">
+      <div className="mt-2.5 flex items-baseline justify-between gap-3 sm:mt-4 sm:border-b sm:border-line sm:pb-3">
+        <h3 className="font-serif text-[1.3rem] leading-tight text-ink sm:text-[1.75rem] sm:leading-none">
           <Link href={`/templates/${t.id}`} className="transition-colors hover:text-accent">
             {t.name}
           </Link>
         </h3>
-        <span className="smallcaps shrink-0">{category?.label}</span>
+        <span className="smallcaps hidden shrink-0 sm:inline">{category?.label}</span>
       </div>
-      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-ink-soft">{t.summary}</p>
-      <p className="mt-1 text-xs text-muted">
-        {style?.label} · {stats.pageCount} pages
+      <p className="mt-0.5 text-xs text-muted sm:mt-1.5">
+        <span className="sm:hidden">{category?.label}</span>
+        <span className="hidden sm:inline">{style?.label}</span> · {stats.pageCount} pages
       </p>
-      <div className="mt-4 flex items-center gap-6 text-[0.6875rem] font-medium uppercase tracking-[0.2em]">
-        <Link href={`/create/new?template=${t.id}`} className="link-underline text-accent">
-          Use this design
-        </Link>
-        <Link href={`/templates/${t.id}/preview`} className="text-ink-soft transition-colors hover:text-ink">
-          Flip through
-        </Link>
-      </div>
     </article>
   );
 }

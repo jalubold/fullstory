@@ -11,18 +11,20 @@ export const metadata: Metadata = { title: 'Create a new album' };
 
 export default function CreatePage() {
   return (
-    <div className="container-page pb-24 pt-10">
-      <Steps current={0} />
-      <header className="mt-8 max-w-2xl">
-        <h1 className="font-serif text-5xl font-medium md:text-6xl">What story are you telling?</h1>
-        <p className="mt-4 text-lg text-ink-soft">Pick an occasion and we’ll show you designs made for it. You can change anything later.</p>
+    <div className="container-page pb-16 pt-6 lg:pb-24 lg:pt-10">
+      <div className="hidden lg:block">
+        <Steps current={0} />
+      </div>
+      <header className="max-w-2xl lg:mt-8">
+        <h1 className="font-serif text-[2.5rem] font-medium leading-none md:text-6xl">What story are you telling?</h1>
+        <p className="mt-3 text-ink-soft md:mt-4 md:text-lg">Pick an occasion — we’ll show the designs made for it.</p>
       </header>
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:mt-12 lg:grid-cols-4">
         {CATEGORIES.map((c) => {
           const t = TEMPLATES.find((x) => x.category === c.id);
           const d = t ? getTemplateDemo(t) : null;
           return (
-            <Link key={c.id} href={`/create/template?category=${c.id}`} className="group overflow-hidden rounded-[4px] border border-line bg-white transition hover:-translate-y-0.5 hover:shadow-card">
+            <Link key={c.id} href={`/create/template?category=${c.id}`} className="group overflow-hidden rounded-[10px] border border-line bg-white transition hover:-translate-y-0.5 hover:shadow-card active:scale-[0.98] sm:rounded-[4px]">
               <div className="grid aspect-[4/3] place-items-center bg-paper-2 transition-colors group-hover:bg-paper-3">
                 {d && (
                   <BookCover
@@ -34,20 +36,20 @@ export default function CreatePage() {
                   />
                 )}
               </div>
-              <div className="flex items-center justify-between p-4">
-                <div>
-                  <p className="font-serif text-2xl">{c.label}</p>
-                  <p className="text-xs text-muted">{c.tagline}</p>
+              <div className="flex items-center justify-between gap-2 px-3 py-2.5 sm:p-4">
+                <div className="min-w-0">
+                  <p className="font-serif text-[1.15rem] leading-tight sm:text-2xl">{c.label}</p>
+                  <p className="hidden text-xs text-muted sm:block">{c.tagline}</p>
                 </div>
-                <ArrowRight size={16} className="text-muted transition group-hover:translate-x-0.5 group-hover:text-ink" />
+                <ArrowRight size={16} className="hidden shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-ink sm:block" />
               </div>
             </Link>
           );
         })}
-        <div className="flex flex-col justify-between rounded-[4px] border border-dashed border-line-strong bg-white p-6">
+        <div className="col-span-2 flex flex-col justify-between rounded-[10px] border border-dashed border-line-strong bg-white p-5 sm:col-span-1 sm:rounded-[4px] sm:p-6">
           <div>
-            <FilePlus2 size={28} strokeWidth={1.3} className="text-accent" />
-            <p className="mt-4 font-serif text-2xl">Start from a blank book</p>
+            <FilePlus2 size={28} strokeWidth={1.3} className="hidden text-accent sm:block" />
+            <p className="font-serif text-2xl sm:mt-4">Start from a blank book</p>
             <p className="mt-1 text-sm text-muted">Simple, balanced layouts and plenty of room to make it your own.</p>
           </div>
           <div className="mt-5 grid grid-cols-3 gap-2">

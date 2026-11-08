@@ -12,7 +12,6 @@ export interface BrowserItem {
   tier: 'free' | 'premium';
   pageCount: number;
   photoSlots: number;
-  sizes: string[];
   text: string;
   rank: number;
   node: ReactNode;
@@ -27,7 +26,6 @@ interface Props {
   items: BrowserItem[];
   categories: Option[];
   styles: Option[];
-  sizes: Option[];
   lockedCategory?: string;
 }
 
@@ -36,8 +34,6 @@ type Filters = {
   category: string[];
   style: string[];
   orientation: string[];
-  size: string[];
-  pages: string[];
   tier: string;
   sort: string;
 };
@@ -47,13 +43,13 @@ const ORIENTATIONS: Option[] = [
   { id: 'landscape', label: 'Landscape' },
   { id: 'portrait', label: 'Portrait' },
 ];
-const PAGE_BUCKETS: Array<Option & { test: (n: number) => boolean }> = [
-  { id: 'short', label: 'Up to 20 pages', test: (n) => n <= 20 },
-  { id: 'medium', label: '22–28 pages', test: (n) => n > 20 && n <= 28 },
-  { id: 'long', label: '30+ pages', test: (n) => n >= 30 },
+const TIERS: Option[] = [
+  { id: 'all', label: 'All' },
+  { id: 'free', label: 'Free' },
+  { id: 'premium', label: 'Premium' },
 ];
-const EMPTY: Filters = { q: '', category: [], style: [], orientation: [], size: [], pages: [], tier: 'all', sort: 'featured' };
-const LIST_KEYS = ['category', 'style', 'orientation', 'size', 'pages'] as const;
+const EMPTY: Filters = { q: '', category: [], style: [], orientation: [], tier: 'all', sort: 'featured' };
+const LIST_KEYS = ['category', 'style', 'orientation'] as const;
 
 function parse(search: string): Filters {
   const p = new URLSearchParams(search);
@@ -72,7 +68,12 @@ function serialize(f: Filters): string {
   return s ? `?${s}` : '';
 }
 
-export function TemplateBrowser({ items, categories, styles, sizes, lockedCategory }: Props) {
+/**
+ * One calm toolbar for every screen: search, occasion chips, and a single
+ * "Filters" button for the rarer choices (style, shape, price). No sidebar,
+ * so the designs get the whole width.
+ */
+export function TemplateBrowser({ items, categories, styles, lockedCategory }: Props) {
   const [f, setF] = useState<Filters>(EMPTY);
   const [sheet, setSheet] = useState(false);
 
@@ -89,6 +90,18 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
     }
   }, [f]);
 
+  useEffect(() => {
+    if (!sheet) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSheet(false);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [sheet]);
+
   const toggle = (key: (typeof LIST_KEYS)[number], id: string) =>
     setF((prev) => ({ ...prev, [key]: prev[key].includes(id) ? prev[key].filter((x) => x !== id) : [...prev[key], id] }));
 
@@ -99,8 +112,6 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
       if (f.category.length && !f.category.includes(it.category)) return false;
       if (f.style.length && !f.style.includes(it.style)) return false;
       if (f.orientation.length && !f.orientation.includes(it.orientation)) return false;
-      if (f.size.length && !it.sizes.some((s) => f.size.includes(s))) return false;
-      if (f.pages.length && !PAGE_BUCKETS.filter((b) => f.pages.includes(b.id)).some((b) => b.test(it.pageCount))) return false;
       if (f.tier !== 'all' && it.tier !== f.tier) return false;
       return true;
     });
@@ -112,13 +123,11 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
     return sorted;
   }, [items, f]);
 
+  // Occasion is chosen with the chips; the rest live behind "Filters".
   const active: Array<{ key: keyof Filters; id: string; label: string }> = [];
   const label = (opts: Option[], id: string) => opts.find((o) => o.id === id)?.label ?? id;
-  f.category.forEach((id) => active.push({ key: 'category', id, label: label(categories, id) }));
   f.style.forEach((id) => active.push({ key: 'style', id, label: label(styles, id) }));
   f.orientation.forEach((id) => active.push({ key: 'orientation', id, label: label(ORIENTATIONS, id) }));
-  f.size.forEach((id) => active.push({ key: 'size', id, label: label(sizes, id) }));
-  f.pages.forEach((id) => active.push({ key: 'pages', id, label: label(PAGE_BUCKETS, id) }));
   if (f.tier !== 'all') active.push({ key: 'tier', id: f.tier, label: f.tier === 'free' ? 'Free' : 'Premium' });
 
   const removeActive = (a: (typeof active)[number]) => {
@@ -126,92 +135,57 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
     else toggle(a.key as (typeof LIST_KEYS)[number], a.id);
   };
 
-  const filterPanel = (
-    <div className="space-y-8">
-      {!lockedCategory && (
-        <FilterGroup title="Category">
-          {categories.map((c) => (
-            <Check key={c.id} checked={f.category.includes(c.id)} onChange={() => toggle('category', c.id)} label={c.label} count={items.filter((i) => i.category === c.id).length} />
-          ))}
-        </FilterGroup>
-      )}
-      <FilterGroup title="Design style">
-        <div className="flex flex-wrap gap-2">
-          {styles.map((s) => (
-            <button key={s.id} type="button" className="chip !px-3 !py-1.5 !text-xs" aria-pressed={f.style.includes(s.id)} onClick={() => toggle('style', s.id)}>
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </FilterGroup>
-      <FilterGroup title="Orientation">
-        {ORIENTATIONS.map((o) => (
-          <Check key={o.id} checked={f.orientation.includes(o.id)} onChange={() => toggle('orientation', o.id)} label={o.label} />
-        ))}
-      </FilterGroup>
-      <FilterGroup title="Book size">
-        {sizes.map((s) => (
-          <Check key={s.id} checked={f.size.includes(s.id)} onChange={() => toggle('size', s.id)} label={s.label} />
-        ))}
-      </FilterGroup>
-      <FilterGroup title="Page count">
-        {PAGE_BUCKETS.map((b) => (
-          <Check key={b.id} checked={f.pages.includes(b.id)} onChange={() => toggle('pages', b.id)} label={b.label} count={items.filter((i) => b.test(i.pageCount)).length} />
-        ))}
-      </FilterGroup>
-      <FilterGroup title="Price">
-        <div className="flex gap-2">
-          {[
-            ['all', 'All'],
-            ['free', 'Free'],
-            ['premium', 'Premium'],
-          ].map(([id, l]) => (
-            <button key={id} type="button" className="chip !px-3 !py-1.5 !text-xs" aria-pressed={f.tier === id} onClick={() => setF((p) => ({ ...p, tier: id }))}>
-              {l}
-            </button>
-          ))}
-        </div>
-      </FilterGroup>
-    </div>
-  );
+  const occasions = categories.filter((c) => items.some((i) => i.category === c.id));
+  const chip = (on: boolean) =>
+    `h-9 shrink-0 rounded-full border px-4 text-[13px] sm:px-3.5 font-medium transition-colors active:scale-95 ${on ? 'border-ink bg-ink text-paper' : 'border-line-strong bg-white text-ink-soft hover:border-ink hover:text-ink'}`;
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[15rem_1fr]">
-      <aside className="hidden lg:block" aria-label="Filters">
-        <div className="sticky top-24 max-h-[calc(100dvh-7rem)] overflow-y-auto pb-8 pr-2 scrollbar-thin">{filterPanel}</div>
-      </aside>
-      <div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <label className="relative flex-1">
-            <span className="sr-only">Search templates</span>
-            <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
-            <input
-              type="search"
-              value={f.q}
-              onChange={(e) => setF((p) => ({ ...p, q: e.target.value }))}
-              placeholder="Search by name, occasion or style…"
-              className="input !pl-10"
-            />
-          </label>
-          <div className="flex gap-2">
-            <button type="button" className="btn btn-secondary btn-sm lg:hidden" onClick={() => setSheet(true)}>
-              <SlidersHorizontal size={15} /> Filters{active.length ? ` (${active.length})` : ''}
-            </button>
-            <label className="flex items-center gap-2 text-sm text-muted">
-              <span className="hidden sm:inline">Sort</span>
-              <select value={f.sort} onChange={(e) => setF((p) => ({ ...p, sort: e.target.value }))} className="input input-sm !w-auto !py-2 !pr-8">
-                <option value="featured">Featured</option>
-                <option value="name">Name A–Z</option>
-                <option value="photos-asc">Fewest photos</option>
-                <option value="photos-desc">Most photos</option>
-              </select>
-            </label>
-          </div>
-        </div>
+    <div>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <label className="relative min-w-0 flex-1">
+          <span className="sr-only">Search designs</span>
+          <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            type="search"
+            value={f.q}
+            onChange={(e) => setF((p) => ({ ...p, q: e.target.value }))}
+            placeholder="Search designs"
+            className="input h-11 !pl-10"
+          />
+        </label>
+        <button type="button" className="btn btn-secondary h-11 shrink-0 gap-2 px-4" onClick={() => setSheet(true)} aria-haspopup="dialog" aria-label={active.length ? `Filters (${active.length})` : "Filters"}>
+          <SlidersHorizontal size={16} />
+          <span className="hidden sm:inline">Filters</span>
+          {active.length > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1.5 text-[11px] font-semibold text-white">{active.length}</span>}
+        </button>
+        <label className="hidden shrink-0 items-center sm:flex">
+          <span className="sr-only">Sort</span>
+          <select value={f.sort} onChange={(e) => setF((p) => ({ ...p, sort: e.target.value }))} className="input h-11 !w-auto !py-0 !pr-9">
+            <option value="featured">Featured first</option>
+            <option value="name">Name A–Z</option>
+            <option value="photos-asc">Fewest photos</option>
+            <option value="photos-desc">Most photos</option>
+          </select>
+        </label>
+      </div>
 
-        <div className="mt-5 flex min-h-8 flex-wrap items-center gap-2">
-          <p className="mr-2 text-sm text-muted" aria-live="polite">
-            {results.length} {results.length === 1 ? 'template' : 'templates'}
+      {!lockedCategory && occasions.length > 1 && (
+        <div className="no-scrollbar -mx-5 mt-4 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-label="Occasion">
+          {[{ id: '', label: 'All' }, ...occasions].map((c) => {
+            const on = c.id ? f.category.includes(c.id) : f.category.length === 0;
+            return (
+              <button key={c.id || 'all'} type="button" aria-pressed={on} onClick={() => setF((p) => ({ ...p, category: c.id && !on ? [c.id] : [] }))} className={chip(on)}>
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {(active.length > 0 || f.q) && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <p className="mr-1 text-sm text-muted" aria-live="polite">
+            {results.length} {results.length === 1 ? 'design' : 'designs'}
           </p>
           {active.map((a) => (
             <button key={`${a.key}-${a.id}`} type="button" onClick={() => removeActive(a)} className="badge border border-line-strong bg-white !py-1 text-ink-soft hover:border-ink">
@@ -219,43 +193,83 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
             </button>
           ))}
           {active.length > 0 && (
-            <button type="button" className="text-xs text-muted underline underline-offset-2 hover:text-ink" onClick={() => setF((p) => ({ ...EMPTY, q: p.q }))}>
-              Clear all
+            <button type="button" className="text-xs text-muted underline underline-offset-2 hover:text-ink" onClick={() => setF((p) => ({ ...p, style: [], orientation: [], tier: 'all' }))}>
+              Clear
             </button>
           )}
         </div>
+      )}
 
-        {results.length ? (
-          <div className="mt-6 grid gap-x-8 gap-y-14 sm:grid-cols-2 xl:grid-cols-3">
-            {results.map((it) => (
-              <div key={it.id}>{it.node}</div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-10 border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
-            <p className="font-serif text-2xl">No templates match those filters.</p>
-            <p className="mt-2 text-sm text-muted">Try removing a filter or searching for something broader.</p>
-            <button type="button" className="btn btn-secondary btn-sm mt-6" onClick={() => setF(EMPTY)}>
-              Clear filters
-            </button>
-          </div>
-        )}
-      </div>
+      {results.length ? (
+        <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 sm:mt-8 sm:gap-x-8 sm:gap-y-14 lg:grid-cols-3">
+          {results.map((it) => (
+            <div key={it.id}>{it.node}</div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-10 rounded-[12px] border border-dashed border-line-strong bg-white/60 px-6 py-14 text-center">
+          <p className="font-serif text-2xl">Nothing matches yet.</p>
+          <p className="mt-2 text-sm text-muted">Try fewer filters or a broader word.</p>
+          <button type="button" className="btn btn-secondary btn-sm mt-6" onClick={() => setF(EMPTY)}>
+            Show all designs
+          </button>
+        </div>
+      )}
 
       {sheet && (
-        <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Filters">
-          <button type="button" className="absolute inset-0 bg-ink/30" aria-label="Close filters" onClick={() => setSheet(false)} />
-          <div className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-paper p-6 animate-fade-up">
-            <div className="mb-6 flex items-center justify-between">
+        <div className="fixed inset-0 z-[70] lg:grid lg:place-items-center lg:p-6" role="dialog" aria-modal="true" aria-label="Filters">
+          <button type="button" className="animate-fade-in absolute inset-0 bg-ink/35" aria-label="Close filters" onClick={() => setSheet(false)} />
+          <div className="animate-sheet-up absolute inset-x-0 bottom-0 flex max-h-[85dvh] flex-col rounded-t-[18px] bg-paper shadow-pop lg:relative lg:inset-auto lg:w-full lg:max-w-md lg:rounded-[14px]">
+            <span aria-hidden className="mx-auto mt-2.5 block h-1 w-10 shrink-0 rounded-full bg-line-strong lg:hidden" />
+            <div className="flex shrink-0 items-center justify-between px-6 pb-2 pt-3 lg:pt-5">
               <p className="font-serif text-2xl">Filters</p>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSheet(false)} aria-label="Close">
-                <X size={18} />
+              <button type="button" className="-mr-2 grid h-10 w-10 place-items-center text-muted hover:text-ink" onClick={() => setSheet(false)} aria-label="Close">
+                <X size={20} />
               </button>
             </div>
-            {filterPanel}
-            <button type="button" className="btn btn-primary mt-8 w-full" onClick={() => setSheet(false)}>
-              Show {results.length} templates
-            </button>
+            <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 pb-4 pt-2">
+              <FilterGroup title="Style">
+                {styles.map((s) => (
+                  <button key={s.id} type="button" className={chip(f.style.includes(s.id))} aria-pressed={f.style.includes(s.id)} onClick={() => toggle('style', s.id)}>
+                    {s.label}
+                  </button>
+                ))}
+              </FilterGroup>
+              <FilterGroup title="Shape">
+                {ORIENTATIONS.map((o) => (
+                  <button key={o.id} type="button" className={chip(f.orientation.includes(o.id))} aria-pressed={f.orientation.includes(o.id)} onClick={() => toggle('orientation', o.id)}>
+                    {o.label}
+                  </button>
+                ))}
+              </FilterGroup>
+              <FilterGroup title="Price">
+                {TIERS.map((o) => (
+                  <button key={o.id} type="button" className={chip(f.tier === o.id)} aria-pressed={f.tier === o.id} onClick={() => setF((p) => ({ ...p, tier: o.id }))}>
+                    {o.label}
+                  </button>
+                ))}
+              </FilterGroup>
+              <FilterGroup title="Sort" className="sm:hidden">
+                {[
+                  ['featured', 'Featured'],
+                  ['name', 'A–Z'],
+                  ['photos-asc', 'Fewest photos'],
+                  ['photos-desc', 'Most photos'],
+                ].map(([id, l]) => (
+                  <button key={id} type="button" className={chip(f.sort === id)} aria-pressed={f.sort === id} onClick={() => setF((p) => ({ ...p, sort: id }))}>
+                    {l}
+                  </button>
+                ))}
+              </FilterGroup>
+            </div>
+            <div className="flex shrink-0 gap-3 border-t border-line px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 lg:pb-5">
+              <button type="button" className="btn btn-ghost h-12 px-4" onClick={() => setF((p) => ({ ...p, style: [], orientation: [], tier: 'all', sort: 'featured' }))}>
+                Reset
+              </button>
+              <button type="button" className="btn btn-primary h-12 flex-1" onClick={() => setSheet(false)}>
+                Show {results.length} {results.length === 1 ? 'design' : 'designs'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -263,21 +277,11 @@ export function TemplateBrowser({ items, categories, styles, sizes, lockedCatego
   );
 }
 
-function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+function FilterGroup({ title, children, className = '' }: { title: string; children: ReactNode; className?: string }) {
   return (
-    <fieldset>
-      <legend className="eyebrow mb-3">{title}</legend>
-      <div className="space-y-1.5">{children}</div>
+    <fieldset className={className}>
+      <legend className="smallcaps mb-3">{title}</legend>
+      <div className="flex flex-wrap gap-2">{children}</div>
     </fieldset>
-  );
-}
-
-function Check({ checked, onChange, label, count }: { checked: boolean; onChange: () => void; label: string; count?: number }) {
-  return (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-md py-1 text-sm text-ink-soft hover:text-ink">
-      <input type="checkbox" checked={checked} onChange={onChange} className="h-4 w-4 rounded border-line-strong accent-accent" />
-      <span className="flex-1">{label}</span>
-      {count !== undefined && <span className="text-xs text-faint">{count}</span>}
-    </label>
   );
 }

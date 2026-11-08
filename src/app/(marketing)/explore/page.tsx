@@ -30,13 +30,12 @@ export default function ExplorePage() {
   });
   return (
     <div className="pb-24">
-      <section className="container-page pt-12">
-        <p className="eyebrow">Explore</p>
-        <h1 className="mt-3 max-w-3xl font-serif text-5xl font-medium leading-[1.03] md:text-6xl">Inspiration for your next album</h1>
-        <p className="mt-4 max-w-2xl text-lg text-ink-soft">Spreads from across the FULLSTORY collection, and a few ideas for stories worth telling.</p>
+      <section className="container-page pt-6 lg:pt-12">
+        <h1 className="max-w-3xl font-serif text-[2.5rem] font-medium leading-[1.03] md:text-6xl">Inspiration</h1>
+        <p className="mt-3 max-w-2xl text-ink-soft md:mt-4 md:text-lg">Real spreads from the collection. Tap one to flip through it.</p>
       </section>
 
-      <section className="container-page mt-14 columns-1 gap-8 md:columns-2 xl:columns-3 [&>*]:mb-10 [&>*]:break-inside-avoid">
+      <section className="container-page mt-8 columns-1 lg:mt-14 gap-8 md:columns-2 xl:columns-3 [&>*]:mb-10 [&>*]:break-inside-avoid">
         {gallery.map(({ d, s }) => (
           <figure key={d.template.id} className="group">
             <Link href={`/templates/${d.template.id}/preview`} className="block rounded-[4px] bg-paper-2 p-6 transition-colors group-hover:bg-paper-3">
@@ -54,10 +53,10 @@ export default function ExplorePage() {
         ))}
       </section>
 
-      <section className="mt-12 bg-paper-2 py-20">
+      <section className="mt-4 bg-paper-2 py-12 md:mt-12 md:py-20">
         <div className="container-page">
-          <h2 className="font-serif text-4xl font-medium md:text-5xl">Story ideas</h2>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="font-serif text-[2rem] font-medium md:text-5xl">Story ideas</h2>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 sm:gap-5 md:mt-10 lg:grid-cols-3">
             {IDEAS.map((idea) => (
               <Link key={idea.title} href={idea.href} className="group card flex flex-col p-7 transition hover:shadow-card">
                 <h3 className="font-serif text-2xl">{idea.title}</h3>

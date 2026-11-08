@@ -2,13 +2,13 @@ import Link from 'next/link';
 import { Suspense, type ReactNode } from 'react';
 import { Logo } from '@/components/ui/Logo';
 import { HeaderShell } from './HeaderShell';
-import { MobileMenu, NavLinks } from './NavLinks';
+import { NavLinks } from './NavLinks';
 
 const side = 'text-[0.6875rem] font-medium uppercase tracking-[0.2em] transition-colors';
 
 function Inner() {
   return (
-    <div className="container-page flex h-16 items-center gap-4 md:h-[4.5rem]">
+    <div className="container-page flex h-14 items-center gap-4 lg:h-[4.5rem]">
       <Logo height={28} className="shrink-0 lg:[&_svg]:h-[30px] lg:[&_svg]:w-auto group-data-[dark=true]/header:text-white" />
       <div className="ml-12 hidden lg:block">
         <Suspense fallback={<nav aria-label="Main" className="hidden lg:flex" />}>
@@ -16,18 +16,12 @@ function Inner() {
         </Suspense>
       </div>
       <div className="ml-auto flex items-center justify-end gap-5">
-        <Link href="/dashboard" className={`${side} hidden text-ink-soft hover:text-accent sm:inline-flex group-data-[dark=true]/header:text-white/75 group-data-[dark=true]/header:hover:text-white`}>
+        <Link href="/dashboard" className={`${side} hidden text-ink-soft hover:text-accent lg:inline-flex group-data-[dark=true]/header:text-white/75 group-data-[dark=true]/header:hover:text-white`}>
           My albums
         </Link>
-        <Link href="/create" className="btn btn-primary btn-sm hidden uppercase tracking-[0.16em] !text-[0.6875rem] sm:inline-flex group-data-[dark=true]/header:bg-white group-data-[dark=true]/header:text-ink group-data-[dark=true]/header:hover:bg-ink group-data-[dark=true]/header:hover:text-white">
+        <Link href="/create" className="btn btn-primary btn-sm hidden uppercase tracking-[0.16em] !text-[0.6875rem] lg:inline-flex group-data-[dark=true]/header:bg-white group-data-[dark=true]/header:text-ink group-data-[dark=true]/header:hover:bg-ink group-data-[dark=true]/header:hover:text-white">
           Begin your book
         </Link>
-        <Suspense fallback={null}>
-          <MobileMenu>
-            <Link href="/create" className="btn btn-primary btn-lg">Begin your book</Link>
-            <Link href="/dashboard" className="btn btn-secondary btn-lg">My albums</Link>
-          </MobileMenu>
-        </Suspense>
       </div>
     </div>
   );

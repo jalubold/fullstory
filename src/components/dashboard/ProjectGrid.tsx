@@ -15,7 +15,7 @@ export function ProjectGrid({ projects, empty, extras }: { projects: ProjectSumm
     );
   }
   return (
-    <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid gap-3 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 xl:grid-cols-3">
       {projects.map((p) => (
         <ProjectCard key={p.id} extras={extras?.[p.id]} p={{ id: p.id, title: p.title, status: p.status, pageCount: p.pageCount, updatedAt: p.updatedAt, cover: p.cover, size: p.size, photos: p.photos }} />
       ))}

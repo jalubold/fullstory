@@ -66,14 +66,18 @@ export function ProjectCard({ p, extras }: { p: ProjectSummaryLite; extras?: Alb
 
   const ordered = !!extras?.orderId;
   return (
-    <article className="group relative">
-      <Link href={`/projects/${p.id}/edit`} className="relative grid aspect-[4/3.2] place-items-center overflow-hidden rounded-[4px] bg-paper-2 transition-colors hover:bg-paper-3">
-        <BookCover page={p.cover} size={p.size} photos={p.photos} renderWidth={240} style={{ width: p.size.widthMm > p.size.heightMm * 1.1 ? '68%' : p.size.heightMm > p.size.widthMm * 1.1 ? '42%' : '54%' }} />
+    <article className="group relative rounded-[10px] border border-line bg-white p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0">
+      <div className="flex gap-4 sm:block">
+      <Link href={`/projects/${p.id}/edit`} className="relative grid aspect-[1/1.1] w-[5.5rem] shrink-0 place-items-center overflow-hidden rounded-[6px] bg-paper-2 transition-colors hover:bg-paper-3 active:opacity-80 sm:aspect-[4/3.2] sm:w-auto sm:rounded-[4px]">
+        <div className="w-[78%] sm:w-[var(--cover-w)]" style={{ ['--cover-w' as string]: p.size.widthMm > p.size.heightMm * 1.1 ? '68%' : p.size.heightMm > p.size.widthMm * 1.1 ? '42%' : '54%' }}>
+          <BookCover page={p.cover} size={p.size} photos={p.photos} renderWidth={240} style={{ width: '100%' }} />
+        </div>
         {busy && <span className="absolute inset-0 grid place-items-center bg-paper/60"><Loader2 className="animate-spin" /></span>}
       </Link>
-      <div className="mt-3 flex items-start justify-between gap-2">
+      <div className="min-w-0 flex-1 sm:mt-3">
+      <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="truncate font-serif text-xl">{p.title}</h3>
+          <h3 className="truncate font-serif text-[1.2rem] leading-tight sm:text-xl">{p.title}</h3>
           <p className="mt-0.5 text-xs text-muted">
             {ordered && <span className="badge mr-1.5 bg-success-soft text-success">Ordered</span>}
             {p.pageCount} pages · edited {edited || '…'}
@@ -109,8 +113,10 @@ export function ProjectCard({ p, extras }: { p: ProjectSummaryLite; extras?: Alb
         </div>
       </div>
       <div className="mt-3 flex gap-2">
-        <Link href={`/projects/${p.id}/edit`} className="btn btn-primary btn-sm"><PenLine size={14} /> Continue</Link>
-        <Link href={`/projects/${p.id}/preview`} className="btn btn-secondary btn-sm"><Eye size={14} /> Preview</Link>
+        <Link href={`/projects/${p.id}/edit`} className="btn btn-primary btn-sm h-10 sm:h-auto"><PenLine size={14} /> Continue</Link>
+        <Link href={`/projects/${p.id}/preview`} className="btn btn-secondary btn-sm h-10 sm:h-auto"><Eye size={14} /> Preview</Link>
+      </div>
+      </div>
       </div>
       {(extras?.pdfOrderId || extras?.sharePath) && (
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3">

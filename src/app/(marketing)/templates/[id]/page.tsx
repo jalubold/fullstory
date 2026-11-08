@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, Check, Eye } from 'lucide-react';
-import { BookCover, FlatPage, OpenBook } from '@/components/album/Book';
+import { ArrowRight, Check, ChevronLeft, Eye } from 'lucide-react';
+import { BookCover, OpenBook } from '@/components/album/Book';
 import { TemplateCard } from '@/components/templates/TemplateCard';
 import { buildSpreads } from '@/lib/album/geometry';
 import { formatMoney, getCatalog, priceIn, sizesFor } from '@/lib/commerce/catalog';
@@ -42,8 +42,11 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
 
   return (
     <div className="pb-32 lg:pb-24">
-      <div className="container-page pt-8">
-        <nav aria-label="Breadcrumb" className="text-sm text-muted">
+      <div className="container-page pt-3 lg:pt-8">
+        <Link href="/templates" className="-ml-1 inline-flex h-10 items-center gap-1 text-[15px] text-ink-soft active:text-ink lg:hidden">
+          <ChevronLeft size={20} /> All designs
+        </Link>
+        <nav aria-label="Breadcrumb" className="hidden text-sm text-muted lg:block">
           <Link href="/templates" className="hover:text-ink">Templates</Link>
           <span className="mx-2">/</span>
           <Link href={`/templates/category/${category.id}`} className="hover:text-ink">{category.label}</Link>
@@ -52,7 +55,7 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
         </nav>
       </div>
 
-      <section className="container-page mt-8 grid gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
+      <section className="container-page mt-2 grid gap-8 lg:mt-8 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
         <div className="min-w-0">
           <div className="relative grid aspect-[1/0.86] place-items-center overflow-hidden rounded-[4px] bg-paper-2">
             <BookCover
@@ -64,24 +67,15 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
               style={{ width: t.orientation === 'landscape' ? '74%' : t.orientation === 'portrait' ? '50%' : '62%' }}
             />
           </div>
-          <div className="no-scrollbar mt-4 flex gap-3 overflow-x-auto pb-2">
-            {doc.pages.slice(0, 8).map((p, i) => (
-              <Link key={p.id} href={`/templates/${t.id}/preview`} className="w-24 shrink-0 transition hover:-translate-y-0.5" aria-label={`Preview page ${i + 1}`}>
-                <FlatPage page={p} size={doc.size} photos={photos} renderWidth={120} />
-              </Link>
-            ))}
-          </div>
         </div>
 
         <div className="min-w-0 lg:pt-4">
-          <div className="flex flex-wrap gap-2">
-            <Link href={`/templates/category/${category.id}`} className="badge bg-white text-ink-soft ring-1 ring-line-strong">{category.label}</Link>
-            <span className="badge bg-white text-ink-soft ring-1 ring-line-strong">{style.label}</span>
-            <span className={`badge ${t.tier === 'premium' ? 'bg-ink text-paper' : 'bg-success-soft text-success'}`}>{t.tier === 'premium' ? 'Premium' : 'Free design'}</span>
-          </div>
-          <h1 className="mt-5 font-serif text-5xl font-medium leading-none md:text-6xl">{t.name}</h1>
-          <p className="mt-5 text-lg leading-relaxed text-ink-soft">{t.summary}</p>
-          <p className="mt-4 leading-relaxed text-ink-soft/90">{t.description}</p>
+          <p className="smallcaps">
+            {category.label} · {style.label}
+            {t.tier === 'premium' && <span className="ml-2 !text-accent">· Premium</span>}
+          </p>
+          <h1 className="mt-3 font-serif text-[2.75rem] font-medium leading-none md:text-6xl">{t.name}</h1>
+          <p className="mt-4 text-lg leading-relaxed text-ink-soft">{t.summary}</p>
           <ul className="mt-6 space-y-2">
             {t.highlights.map((h) => (
               <li key={h} className="flex items-start gap-2.5 text-sm text-ink-soft">
@@ -91,15 +85,13 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
           </ul>
 
           <dl className="mt-8 divide-y divide-line rounded-[4px] border border-line bg-white text-sm">
-            <Spec label="Orientation" value={t.orientation[0].toUpperCase() + t.orientation.slice(1)} />
-            <Spec label="Available sizes" value={sizes.map((s) => `${s.label} (${s.metricLabel})`).join(' · ')} />
-            <Spec label="Formats" value={['Digital PDF', 'Shareable album', ...(catalog.print.enabled !== false ? catalog.covers.map((c) => c.label) : [])].join(' · ')} />
-            <Spec label="Designed pages" value={`${stats.pageCount} pages + cover`} />
-            <Spec label="Recommended photos" value={`${stats.photoSlots}–${stats.recommendedPhotos} photos`} />
+            <Spec label="Size" value={sizes.map((s) => s.label).join(' · ')} />
+            <Spec label="Pages" value={`${stats.pageCount} pages + cover`} />
+            <Spec label="Photos" value={`${stats.photoSlots}–${stats.recommendedPhotos}`} />
             {t.tier === 'premium' && premium !== null && <Spec label="Premium design" value={`${formatMoney(premium, catalog.defaultCurrency)} one-time, added at checkout`} />}
           </dl>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 hidden flex-wrap gap-3 lg:flex">
             <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-lg">
               Use this design <ArrowRight size={16} />
             </Link>
@@ -107,40 +99,27 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
               <Eye size={16} /> Preview full album
             </Link>
           </div>
-          <p className="mt-4 text-xs text-muted">Free to customise. You only pay when you order {catalog.print.enabled !== false ? 'a print, PDF or share link' : 'your PDF or share link'}.</p>
+          <p className="mt-4 text-xs text-muted">Free to design — you only pay when you order it.</p>
         </div>
       </section>
 
-      {/* Phones: the next step stays one tap away while browsing the pages */}
-      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-line bg-paper/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-serif text-lg leading-tight">{t.name}</p>
-          <p className="smallcaps !text-[0.5625rem]">Free to customise</p>
-        </div>
-        <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary btn-sm shrink-0" aria-label="Preview full album">
-          <Eye size={15} />
-        </Link>
-        <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-sm shrink-0 text-[0.6875rem] uppercase tracking-[0.16em]">
-          Use this design
-        </Link>
-      </div>
-
-      <section className="container-page mt-24">
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div>
-            <p className="eyebrow">Inside the album</p>
-            <h2 className="mt-3 font-serif text-4xl font-medium">Every page, ready for your photos</h2>
-            <p className="mt-3 max-w-xl text-ink-soft">
-              The complete demo album with sample photography. When you start your own project, frames are empty and waiting for your
-              pictures — and every text can be rewritten.
-            </p>
-          </div>
-          <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary">
-            <Eye size={16} /> Open interactive preview
+      {/* Phones & tablets: an app-style action bar — the next step is always one thumb-tap away. */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/92 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
+        <div className="mx-auto flex max-w-xl items-center gap-3 px-4">
+          <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary h-12 shrink-0 gap-2 px-4 text-[0.8125rem]" aria-label="Flip through the full album">
+            <Eye size={17} /> Preview
+          </Link>
+          <Link href={`/create/new?template=${t.id}`} className="btn btn-primary h-12 flex-1 text-[0.75rem] uppercase tracking-[0.16em]">
+            Use this design <ArrowRight size={16} />
           </Link>
         </div>
-        <div className="mt-12 grid gap-x-10 gap-y-14 md:grid-cols-2">
-          {spreads.map((s, i) => (
+      </div>
+
+      <section className="container-page mt-16 lg:mt-24">
+        <p className="smallcaps">Inside the album</p>
+        <h2 className="mt-3 font-serif text-[2rem] font-medium leading-tight md:text-4xl">Every page, ready for your photos</h2>
+        <div className="mt-8 grid gap-x-10 gap-y-10 md:mt-12 md:grid-cols-2 md:gap-y-14">
+          {spreads.slice(0, 4).map((s, i) => (
             <figure key={i}>
               <OpenBook
                 left={s.left !== null ? doc.pages[s.left] : null}
@@ -155,16 +134,21 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
             </figure>
           ))}
         </div>
-        <p className="mt-12 text-center text-xs text-muted">
+        <div className="mt-10 flex justify-center md:mt-14">
+          <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary btn-lg w-full sm:w-auto">
+            <Eye size={16} /> Flip through all {stats.pageCount} pages
+          </Link>
+        </div>
+        <p className="mt-10 hidden text-center text-xs text-muted sm:block">
           Sample photography by {credits.slice(0, 12).join(', ')}
           {credits.length > 12 ? ` and ${credits.length - 12} more` : ''} on Unsplash.
         </p>
       </section>
 
       {related.length > 0 && (
-        <section className="container-page mt-24">
-          <h2 className="font-serif text-3xl font-medium">You might also like</h2>
-          <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="container-page mt-16 lg:mt-24">
+          <h2 className="font-serif text-[1.75rem] font-medium md:text-3xl">You might also like</h2>
+          <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-8 sm:gap-y-12 lg:mt-8 lg:grid-cols-3">
             {related.map((r) => (
               <TemplateCard key={r.id} demo={getTemplateDemo(r)!} />
             ))}

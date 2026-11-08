@@ -1,34 +1,30 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Wordmark } from '@/components/ui/Logo';
-import { CATEGORIES } from '@/lib/templates/taxonomy';
 import { printEnabled } from '@/lib/commerce/catalog';
 
 const COLUMNS = [
   {
     title: 'Create',
     links: [
-      { href: '/create', label: 'Create an album' },
-      { href: '/templates', label: 'All templates' },
-      { href: '/templates/categories', label: 'Categories' },
-      { href: '/how-it-works', label: 'How it works' },
+      { href: '/create', label: 'Begin a new book' },
+      { href: '/templates', label: 'Designs' },
       { href: '/pricing', label: 'Pricing' },
     ],
   },
   {
-    title: 'Discover',
+    title: 'Help',
     links: [
-      { href: '/explore', label: 'Inspiration' },
-      ...CATEGORIES.slice(0, 4).map((c) => ({ href: `/templates/category/${c.id}`, label: `${c.label} albums` })),
+      { href: '/how-it-works', label: 'How it works' },
+      { href: '/faq', label: 'Questions' },
+      { href: '/dashboard', label: printEnabled() ? 'My albums & orders' : 'My albums' },
     ],
   },
   {
-    title: 'FULLSTORY',
+    title: 'Studio',
     links: [
+      { href: '/explore', label: 'Inspiration' },
       { href: '/about', label: 'About' },
-      { href: '/faq', label: 'FAQ' },
-      { href: '/dashboard', label: 'My albums' },
-      ...(printEnabled() ? [{ href: '/dashboard', label: 'Track an order' }] : []),
     ],
   },
 ];
@@ -36,8 +32,9 @@ const COLUMNS = [
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-line-strong bg-paper">
-      <div className="container-page pt-16 lg:pt-20">
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
+      <div className="container-page pt-10 lg:pt-20">
+        {/* Phones get every link from the tab bar and its "More" sheet, so the footer stays a quiet sign-off there. */}
+        <div className="hidden gap-12 sm:grid lg:grid-cols-[1.3fr_2fr]">
           <div>
             <Wordmark height={44} />
             <p className="mt-6 max-w-xs font-serif text-2xl leading-snug text-ink-soft">
@@ -66,9 +63,9 @@ export function SiteFooter() {
         </div>
 
         {/* Colophon — the closing page of the book */}
-        <div className="mt-16 grid gap-6 border-t border-line-strong py-8 text-xs leading-relaxed text-muted md:grid-cols-[auto_1fr_auto] md:items-baseline md:gap-10">
-          <p className="smallcaps !text-ink">Colophon</p>
-          <p className="max-w-2xl">
+        <div className="grid gap-3 py-6 text-xs leading-relaxed text-muted sm:mt-16 sm:gap-6 sm:border-t sm:border-line-strong sm:py-8 md:grid-cols-[auto_1fr_auto] md:items-baseline md:gap-10">
+          <p className="smallcaps hidden !text-ink sm:block">Colophon</p>
+          <p className="hidden max-w-2xl sm:block">
             FULLSTORY is a studio for making photobooks in your browser — no account, nothing to install. Set in Cormorant Garamond and Inter.
             Template sample photography courtesy of photographers on Unsplash.
           </p>

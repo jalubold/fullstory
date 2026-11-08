@@ -19,9 +19,9 @@ export default function AboutPage() {
   const covers = ['evermore', 'terra', 'little-wonders', 'ten-years', 'slow-days'].map((id) => getTemplateDemo(id)!);
   return (
     <div className="pb-24">
-      <section className="container-page pt-12 md:pt-20">
+      <section className="container-page pt-6 md:pt-20">
         <p className="eyebrow">About FULLSTORY</p>
-        <h1 className="mt-4 max-w-4xl font-serif text-5xl font-medium leading-[1.02] md:text-7xl">
+        <h1 className="mt-3 max-w-4xl font-serif text-[2.75rem] font-medium md:mt-4 leading-[1.02] md:text-7xl">
           We believe every life deserves a <span className="italic text-accent-dark">beautiful book.</span>
         </h1>
         <div className="mt-10 grid gap-8 text-lg leading-relaxed text-ink-soft md:grid-cols-2">
@@ -31,7 +31,7 @@ export default function AboutPage() {
           </p>
           <p>
             FULLSTORY exists to make that moment easy. Choose a design made by people who care about typography and white space, add your
-            photos and your words, and hold the result in your hands.
+            photos and your words, and keep the result for good.
           </p>
         </div>
       </section>

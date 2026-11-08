@@ -317,6 +317,26 @@
   }
 }
 
+/* Native-feeling touch: no grey tap flash, instant taps, a gentle press on buttons. */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+a,
+button,
+label,
+summary,
+[role='button'] {
+  touch-action: manipulation;
+}
+@media (hover: none) {
+  .btn {
+    transition: transform 0.12s ease, background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
 @keyframes fs-sheet-up {
   from {
     transform: translateY(100%);

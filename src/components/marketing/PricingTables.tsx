@@ -16,8 +16,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
   const printOn = catalog.print.enabled !== false;
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-muted">Prices include all design tools and premium layouts in free templates. Taxes are calculated at checkout where applicable.</p>
+      <div className="flex justify-center">
         <div className="flex rounded-[3px] border border-line-strong bg-white p-0.5" role="group" aria-label="Currency">
           {catalog.currencies.map((c) => (
             <button key={c} type="button" onClick={() => setCur(c)} aria-pressed={cur === c} className={`rounded-[3px] px-3.5 py-1.5 text-xs font-medium ${cur === c ? 'bg-ink text-paper' : 'text-ink-soft'}`}>
@@ -101,8 +100,14 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
       </div>
       )}
 
-      <div className={`mt-12 grid gap-5 ${printOn ? 'md:grid-cols-[1fr_1fr]' : ''}`}>
-        {printOn && (
+      {!printOn && (
+        <p className="mt-6 text-center text-sm text-muted">
+          <span className="font-medium text-accent">Premium</span> designs add a one-time {fmt(catalog.premiumTemplate.price[cur], cur)}. Everything else is free.
+        </p>
+      )}
+
+      {printOn && (
+      <div className="mt-12 grid gap-5 md:grid-cols-[1fr_1fr]">
         <div className="card p-7">
           <div className="flex items-center gap-3">
             <Truck size={20} strokeWidth={1.5} className="text-accent-dark" />
@@ -120,15 +125,14 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
           </ul>
           <p className="mt-3 text-xs text-muted">We currently ship to {catalog.shippingCountries.length} countries across North America, Europe and Oceania.</p>
         </div>
-        )}
         <div className="card p-7">
           <h3 className="font-serif text-2xl">Premium designs</h3>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">
             Most templates are free. Designs marked Premium add a one-time {fmt(catalog.premiumTemplate.price[cur], cur)} to your order, whichever format you choose.
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-ink-soft">Designing, saving and previewing your album is always free — you only pay when you order.</p>
         </div>
       </div>
+      )}
     </div>
   );
 }
