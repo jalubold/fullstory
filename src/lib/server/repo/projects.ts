@@ -39,14 +39,23 @@ export interface ProjectSummary {
 
 const iso = (v: unknown) => (v instanceof Date ? v.toISOString() : String(v));
 
-export async function createProject(userId: string, title: string, doc: AlbumDocument): Promise<ProjectRow> {
+/**
+ * Creates an album. With a clientKey the call is idempotent per guest: a
+ * retried or duplicated request returns the album the first one created.
+ */
+export async function createProject(userId: string, title: string, doc: AlbumDocument, clientKey?: string | null): Promise<ProjectRow> {
   const id = crypto.randomUUID();
   const rows = await sql<ProjectRow>(
-    `insert into projects (id, user_id, title, template_id, document, page_count, size_id)
-     values ($1,$2,$3,$4,$5,$6,$7) returning *`,
-    [id, userId, title.slice(0, 120), doc.templateId, JSON.stringify(doc), doc.pages.length, doc.size.id],
+    `insert into projects (id, user_id, title, template_id, document, page_count, size_id, client_key)
+     values ($1,$2,$3,$4,$5,$6,$7,$8)
+     on conflict (user_id, client_key) where client_key is not null do nothing
+     returning *`,
+    [id, userId, title.slice(0, 120), doc.templateId, JSON.stringify(doc), doc.pages.length, doc.size.id, clientKey ?? null],
   );
-  return rows[0];
+  if (rows[0]) return rows[0];
+  const existing = await sqlOne<ProjectRow>('select * from projects where user_id = $1 and client_key = $2', [userId, clientKey]);
+  if (!existing) throw new Error('Could not create the album.');
+  return existing;
 }
 
 /** Returns the project only if it belongs to the user. */

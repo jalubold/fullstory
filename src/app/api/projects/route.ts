@@ -11,6 +11,8 @@ const createSchema = z.object({
   sizeId: z.string().max(64),
   title: z.string().trim().min(1).max(120),
   pageCount: z.number().int().optional(),
+  /** Random key from the browser so retries of the same start don't create duplicates. */
+  clientKey: z.string().regex(/^[A-Za-z0-9-]{8,64}$/).optional(),
 });
 
 export const GET = authed(async (_req, { user }) => json({ projects: await listProjects(user.id) }));
@@ -35,6 +37,6 @@ export const POST = authed(async (req, { user }) => {
     });
     doc.spineText = body.title;
   }
-  const project = await createProject(user.id, body.title, doc);
+  const project = await createProject(user.id, body.title, doc, body.clientKey);
   return json({ id: project.id }, 201);
 }, { create: true });

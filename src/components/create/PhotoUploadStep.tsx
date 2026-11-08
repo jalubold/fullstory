@@ -46,13 +46,13 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
 
   return (
     <div>
-      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => { if (e.target.files?.length) void uploadFiles([...e.target.files]); e.target.value = ''; }} />
+      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => { if (e.target.files?.length) void uploadFiles([...e.target.files], { autoPlace: autofillOn }); e.target.value = ''; }} />
       <button
         type="button"
         onClick={() => input.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setOver(true); }}
         onDragLeave={() => setOver(false)}
-        onDrop={(e) => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) void uploadFiles([...e.dataTransfer.files]); }}
+        onDrop={(e) => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) void uploadFiles([...e.dataTransfer.files], { autoPlace: autofillOn }); }}
         className={`group relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-[4px] border border-dashed px-6 py-16 text-center transition duration-500 ${over ? 'border-accent bg-accent-soft' : 'border-line-strong bg-white hover:border-accent'}`}
       >
         <span aria-hidden className="ribbon absolute left-1/2 top-0 h-12 w-4 -translate-x-1/2 transition-[height] duration-500 group-hover:h-16" />

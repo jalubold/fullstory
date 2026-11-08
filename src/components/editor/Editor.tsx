@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ImagePlus, Monitor, X } from 'lucide-react';
 import { duplicateElement, pageAt, removeElement } from '@/lib/album/ops';
 import type { AlbumDocument, PageSize, PhotoAsset } from '@/lib/album/types';
@@ -192,7 +192,8 @@ export function Editor(props: EditorProps) {
       )}
       <div className="relative flex min-h-0 flex-1">
         <EditorSidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          <AddPhotosPrompt />
           <AlbumCanvas safeMarginMm={props.safeMarginMm} />
           <PageNavigator />
         </div>
@@ -230,6 +231,35 @@ function ConflictBar({ onKeepMine }: { onKeepMine: () => void }) {
       <button type="button" className="btn btn-sm bg-danger text-white" onClick={onKeepMine}>
         Keep my version
       </button>
+    </div>
+  );
+}
+
+/** Shown over the canvas until the album has photos: one obvious way to begin. */
+function AddPhotosPrompt() {
+  const empty = useEditor((s) => s.photos.length === 0 && s.uploads.length === 0);
+  const input = useRef<HTMLInputElement>(null);
+  if (!empty) return null;
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-4 z-20 flex justify-center px-4">
+      <div className="pointer-events-auto flex items-center gap-4 rounded-[4px] border border-line-strong bg-card py-2.5 pl-4 pr-2.5 shadow-[0_18px_40px_-20px_rgb(19_12_13/.45)] animate-fade-up">
+        <span className="hidden text-sm text-ink-soft sm:inline">Start with your photos — drop them anywhere, they fill the pages for you.</span>
+        <span className="text-sm text-ink-soft sm:hidden">Start with your photos.</span>
+        <input
+          ref={input}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          hidden
+          onChange={(e) => {
+            if (e.target.files?.length) void uploadFiles([...e.target.files]);
+            e.target.value = '';
+          }}
+        />
+        <button type="button" onClick={() => input.current?.click()} className="btn btn-primary btn-sm shrink-0 uppercase tracking-[0.16em] !text-[0.6875rem]">
+          <ImagePlus size={14} /> Add photos
+        </button>
+      </div>
     </div>
   );
 }

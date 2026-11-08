@@ -17,8 +17,11 @@ function Inner() {
           <Logo height={28} className="group-data-[dark=true]/header:text-white" />
         </div>
       </div>
-      <div className="hidden lg:block">
-        <Logo height={30} className="group-data-[dark=true]/header:text-white" />
+      {/* Always rendered so the right-hand group stays in the third column on small screens. */}
+      <div className="flex justify-center">
+        <div className="hidden lg:block">
+          <Logo height={30} className="group-data-[dark=true]/header:text-white" />
+        </div>
       </div>
       <div className="flex items-center justify-end gap-5">
         <Link href="/dashboard" className={`${side} hidden text-ink-soft hover:text-accent sm:inline-flex group-data-[dark=true]/header:text-white/75 group-data-[dark=true]/header:hover:text-white`}>

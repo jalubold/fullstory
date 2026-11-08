@@ -163,4 +163,11 @@ alter table orders add column if not exists print_options jsonb
     name: 'guest-profiles',
     sql: `alter table profiles alter column email drop not null`,
   },
+  {
+    id: 4,
+    name: 'project-client-key',
+    // Lets the browser retry "start my album" safely: the same key returns the same album.
+    sql: `alter table projects add column if not exists client_key text;
+create unique index if not exists projects_user_client_key on projects (user_id, client_key) where client_key is not null`,
+  },
 ];
