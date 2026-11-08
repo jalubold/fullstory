@@ -108,8 +108,8 @@ export function ShareManager({ share, origin, canDownload }: ShareProps) {
         <fieldset>
           <legend className="label">Who can view</legend>
           <div className="space-y-2 text-sm">
-            <label className="flex items-center gap-2"><input type="radio" checked={access === 'link'} onChange={() => setAccess('link')} className="accent-[#3a47ff]" /> Anyone with the link</label>
-            <label className="flex items-center gap-2"><input type="radio" checked={access === 'password'} onChange={() => setAccess('password')} className="accent-[#3a47ff]" /> People with the password</label>
+            <label className="flex items-center gap-2"><input type="radio" checked={access === 'link'} onChange={() => setAccess('link')} className="accent-accent" /> Anyone with the link</label>
+            <label className="flex items-center gap-2"><input type="radio" checked={access === 'password'} onChange={() => setAccess('password')} className="accent-accent" /> People with the password</label>
           </div>
           {access === 'password' && (
             <input type="password" className="input input-sm mt-3" placeholder={share.hasPassword ? 'Leave blank to keep current password' : 'Choose a password'} value={password} onChange={(e) => setPassword(e.target.value)} minLength={4} />
@@ -121,8 +121,8 @@ export function ShareManager({ share, origin, canDownload }: ShareProps) {
             <input type="date" className="input input-sm" value={expires} onChange={(e) => setExpires(e.target.value)} />
             <span className="mt-1 block text-xs text-muted">Leave empty to keep the link active.</span>
           </label>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="accent-[#3a47ff]" /> Link is active</label>
-          {canDownload && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={allowDownload} onChange={(e) => setAllowDownload(e.target.checked)} className="accent-[#3a47ff]" /> Let viewers download the PDF</label>}
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="accent-accent" /> Link is active</label>
+          {canDownload && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={allowDownload} onChange={(e) => setAllowDownload(e.target.checked)} className="accent-accent" /> Let viewers download the PDF</label>}
         </div>
       </div>
       <div className="flex items-center gap-3">

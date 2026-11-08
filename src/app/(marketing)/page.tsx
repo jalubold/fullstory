@@ -54,12 +54,12 @@ export default function HomePage() {
           <div className="aurora absolute -left-[15%] -top-[35%] h-[85%] w-[70%] rounded-full bg-accent/35 blur-[140px]" />
           <div className="aurora absolute -bottom-[40%] right-[-10%] h-[80%] w-[55%] rounded-full bg-violet/25 blur-[140px]" style={{ animationDelay: '-6s' }} />
           <div className="aurora absolute bottom-[-20%] left-[30%] h-[50%] w-[40%] rounded-full bg-rose/15 blur-[140px]" style={{ animationDelay: '-11s' }} />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,#08080c_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,#0d0809_100%)]" />
         </div>
         <div className="container-page grid min-h-[calc(100svh-4rem)] items-center gap-12 py-14 md:min-h-[calc(100svh-4.5rem)] lg:grid-cols-[0.95fr_1.15fr] lg:gap-10 lg:py-20">
           <div>
             <p className="rise inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs tracking-wide text-white/80 backdrop-blur" style={{ animationDelay: '0.05s' }}>
-              <Sparkles size={13} className="text-[#a9b0ff]" /> Premium photobooks, designed by you
+              <Sparkles size={13} className="text-[#f4a7b3]" /> Premium photobooks, designed by you
             </p>
             <h1 className="mt-7 font-serif text-[3.3rem] font-medium leading-[0.95] tracking-[-0.02em] sm:text-[4.6rem] lg:text-[5.6rem]">
               <span className="rise block" style={{ animationDelay: '0.15s' }}>Your photos.</span>
@@ -81,7 +81,7 @@ export default function HomePage() {
             <ul className="rise mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/60" style={{ animationDelay: '0.8s' }}>
               {['Free to design', 'No account needed', 'Print, PDF or share'].map((t) => (
                 <li key={t} className="flex items-center gap-2">
-                  <Check size={14} className="text-[#a9b0ff]" /> {t}
+                  <Check size={14} className="text-[#f4a7b3]" /> {t}
                 </li>
               ))}
             </ul>
@@ -192,7 +192,7 @@ export default function HomePage() {
               ].map(({ icon: Icon, t }) => (
                 <li key={t} className="flex items-center gap-3 text-sm text-white/80">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5">
-                    <Icon size={16} className="text-[#a9b0ff]" />
+                    <Icon size={16} className="text-[#f4a7b3]" />
                   </span>
                   {t}
                 </li>

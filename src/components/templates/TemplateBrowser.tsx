@@ -275,7 +275,7 @@ function FilterGroup({ title, children }: { title: string; children: ReactNode }
 function Check({ checked, onChange, label, count }: { checked: boolean; onChange: () => void; label: string; count?: number }) {
   return (
     <label className="flex cursor-pointer items-center gap-2.5 rounded-md py-1 text-sm text-ink-soft hover:text-ink">
-      <input type="checkbox" checked={checked} onChange={onChange} className="h-4 w-4 rounded border-line-strong accent-[#3a47ff]" />
+      <input type="checkbox" checked={checked} onChange={onChange} className="h-4 w-4 rounded border-line-strong accent-accent" />
       <span className="flex-1">{label}</span>
       {count !== undefined && <span className="text-xs text-faint">{count}</span>}
     </label>

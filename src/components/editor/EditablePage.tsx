@@ -256,7 +256,7 @@ export const EditablePage = memo(function EditablePage({ pageRef, page, widthPx,
         {isActive && (
           <div
             aria-hidden
-            className="pointer-events-none absolute border border-dashed border-[#3a47ff]/40"
+            className="pointer-events-none absolute border border-dashed border-accent/40"
             style={{ left: `${safeX}%`, right: `${safeX}%`, top: `${safeY}%`, bottom: `${safeY}%` }}
           />
         )}
@@ -292,10 +292,10 @@ export const EditablePage = memo(function EditablePage({ pageRef, page, widthPx,
           </div>
         ))}
         {guides.x.map((x, i) => (
-          <div key={`gx${i}`} className="pointer-events-none absolute inset-y-0 w-px bg-[#ff3d8b]" style={{ left: `${x * 100}%` }} />
+          <div key={`gx${i}`} className="pointer-events-none absolute inset-y-0 w-px bg-[#e0566b]" style={{ left: `${x * 100}%` }} />
         ))}
         {guides.y.map((y, i) => (
-          <div key={`gy${i}`} className="pointer-events-none absolute inset-x-0 h-px bg-[#ff3d8b]" style={{ top: `${y * 100}%` }} />
+          <div key={`gy${i}`} className="pointer-events-none absolute inset-x-0 h-px bg-[#e0566b]" style={{ top: `${y * 100}%` }} />
         ))}
         {selected && editingTextId !== selected.id && croppingId !== selected.id && (
           <SelectionFrame el={selected} onResize={startResize} onRotate={startRotate} />
@@ -471,7 +471,7 @@ function CropOverlay({ el, pageRef, widthPx, heightPx, Wpt }: { el: PhotoElement
         style={{ transform: `translateX(-50%) rotate(${-el.rotation}deg)` }}
       >
         <ZoomIn size={14} />
-        <input type="range" min={1} max={5} step={0.01} value={el.crop.zoom} onChange={(e) => setZoom(+e.target.value)} className="w-28 accent-[#3a47ff]" aria-label="Zoom photo" />
+        <input type="range" min={1} max={5} step={0.01} value={el.crop.zoom} onChange={(e) => setZoom(+e.target.value)} className="w-28 accent-accent" aria-label="Zoom photo" />
         <button type="button" className="rounded-full px-2 py-0.5 text-xs hover:bg-white/10" onClick={() => st().updateElement(pageRef, el.id, { crop: { zoom: 1, fx: 0.5, fy: 0.5 } } as Partial<PhotoElement>)}>
           Reset
         </button>

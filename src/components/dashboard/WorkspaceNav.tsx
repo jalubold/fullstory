@@ -12,7 +12,7 @@ export const WORKSPACE_NAV = [
   { href: '/dashboard/downloads', label: 'My Downloads', icon: Download },
   { href: '/dashboard/shared', label: 'Shared Albums', icon: Share2 },
   { href: '/dashboard/orders', label: 'Print Orders', icon: Package },
-  { href: '/dashboard/settings', label: 'Account Settings', icon: Settings },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
 ];
 

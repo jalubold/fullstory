@@ -68,7 +68,7 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
           <span className="font-medium">{photos.length}</span> {photos.length === 1 ? 'photo' : 'photos'} uploaded · your design has <span className="font-medium">{frames.frames}</span> photo frames
         </p>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={autofillOn} onChange={(e) => setAutofillOn(e.target.checked)} className="accent-[#3a47ff]" />
+          <input type="checkbox" checked={autofillOn} onChange={(e) => setAutofillOn(e.target.checked)} className="accent-accent" />
           Place my photos into the layouts automatically
         </label>
       </div>

@@ -9,7 +9,7 @@ export function EditorDemo({ page, size, photos, thumbs }: { page: Page; size: P
   const empty: Page = { ...page, elements: page.elements.map((e) => (e.type === 'photo' ? { ...e, photoId: null } : e)) };
   const target = page.elements.find((e) => e.type === 'photo');
   return (
-    <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#111118] p-3 shadow-[0_40px_120px_-40px_rgb(58_71_255/.6)] sm:p-4">
+    <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#150d0f] p-3 shadow-[0_40px_120px_-40px_rgb(142_17_38/.6)] sm:p-4">
       <div className="mb-3 flex items-center gap-1.5 px-1">
         <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
         <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
@@ -27,7 +27,7 @@ export function EditorDemo({ page, size, photos, thumbs }: { page: Page; size: P
             </div>
           ))}
         </div>
-        <div className="relative grid place-items-center rounded-2xl bg-[#1a1a23] p-4 sm:p-6">
+        <div className="relative grid place-items-center rounded-2xl bg-[#1d1315] p-4 sm:p-6">
           <div className="relative w-full max-w-[22rem] shadow-[0_20px_50px_-20px_rgb(0_0_0/.7)]">
             <PageView page={empty} size={size} photos={photos} renderWidth={360} emptyFrames="drop-target" />
             <div className="demo-fill absolute inset-0">

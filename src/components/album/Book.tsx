@@ -27,8 +27,8 @@ export function BookCover({ page, size, photos, renderWidth = 400, className = '
           left: '1.5%',
           right: '-1.4%',
           bottom: '-1.4%',
-          background: 'repeating-linear-gradient(90deg,#f7f7f9 0 1px,#e4e4ea 1px 2px)',
-          boxShadow: '0 22px 46px -16px rgb(10 10 15 / .5), 0 4px 10px -4px rgb(10 10 15 / .25)',
+          background: 'repeating-linear-gradient(90deg,#f9f7f7 0 1px,#e7e1e1 1px 2px)',
+          boxShadow: '0 22px 46px -16px rgb(19 8 10 / .5), 0 4px 10px -4px rgb(19 8 10 / .25)',
         }}
       />
       <div className="relative overflow-hidden rounded-[1px_3px_3px_1px]" style={{ boxShadow: '0 1px 1px rgb(0 0 0 / .08)' }}>
@@ -50,7 +50,7 @@ export function OpenBook({
   renderWidth = 900,
   className = '',
   style,
-  endpaper = '#E9E9EE',
+  endpaper = '#7A1020',
   eager,
 }: BaseProps & { left: Page | null; right: Page | null; endpaper?: string }) {
   const half = renderWidth / 2;
@@ -61,8 +61,8 @@ export function OpenBook({
         className="absolute rounded-[3px]"
         style={{
           inset: '0.8% -0.9% -1.6% -0.9%',
-          background: 'linear-gradient(90deg,#dedee5,#f5f5f8 3%,#f5f5f8 97%,#dedee5)',
-          boxShadow: '0 36px 70px -26px rgb(10 10 15 / .55), 0 8px 18px -8px rgb(10 10 15 / .3)',
+          background: 'linear-gradient(90deg,#4a0711,#7a1020 3%,#7a1020 97%,#4a0711)',
+          boxShadow: '0 36px 70px -26px rgb(19 8 10 / .55), 0 8px 18px -8px rgb(19 8 10 / .3)',
         }}
       />
       <div className="relative flex overflow-hidden rounded-[2px]">

@@ -17,7 +17,7 @@ function Inner() {
         <Link href="/dashboard" className="hidden rounded-full px-3 py-2 text-sm text-ink-soft transition-colors hover:text-ink group-data-[dark=true]/header:text-white/75 group-data-[dark=true]/header:hover:text-white sm:inline-flex">
           My albums
         </Link>
-        <Link href="/create" className="btn btn-primary btn-sm hidden group-data-[dark=true]/header:bg-white group-data-[dark=true]/header:text-ink sm:inline-flex">
+        <Link href="/create" className="btn btn-primary btn-sm hidden sm:inline-flex">
           Create Album
         </Link>
         <Suspense fallback={null}>

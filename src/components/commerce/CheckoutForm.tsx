@@ -134,7 +134,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
               <div className="grid gap-2 sm:grid-cols-2">
                 {sizes.map((s) => (
                   <label key={s.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm ${size === s.id ? 'border-ink' : 'border-line-strong'}`}>
-                    <input type="radio" name="size" checked={size === s.id} onChange={() => setSize(s.id)} className="accent-[#3a47ff]" />
+                    <input type="radio" name="size" checked={size === s.id} onChange={() => setSize(s.id)} className="accent-accent" />
                     <span>
                       {s.label} <span className="text-muted">· {s.metricLabel}</span>
                       {s.id === sizeId && <span className="ml-1 text-xs text-accent-dark">(designed size)</span>}
@@ -149,7 +149,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
                 {catalog.covers.map((c) => (
                   <label key={c.id} className={`cursor-pointer rounded-xl border p-4 text-sm ${cover === c.id ? 'border-ink' : 'border-line-strong'}`}>
                     <span className="flex items-center gap-2">
-                      <input type="radio" name="cover" checked={cover === c.id} onChange={() => setCover(c.id)} className="accent-[#3a47ff]" />
+                      <input type="radio" name="cover" checked={cover === c.id} onChange={() => setCover(c.id)} className="accent-accent" />
                       <span className="font-medium">{c.label}</span>
                     </span>
                     <span className="mt-1.5 block text-xs text-muted">{c.description}</span>
@@ -178,7 +178,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
                 {catalog.shipping.map((s) => (
                   <label key={s.id} className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm ${shipping === s.id ? 'border-ink' : 'border-line-strong'}`}>
                     <span className="flex items-center gap-3">
-                      <input type="radio" name="shipping" checked={shipping === s.id} onChange={() => setShipping(s.id)} className="accent-[#3a47ff]" />
+                      <input type="radio" name="shipping" checked={shipping === s.id} onChange={() => setShipping(s.id)} className="accent-accent" />
                       <span>
                         {s.label}
                         <span className="block text-xs text-muted">{s.estimate}</span>
@@ -267,7 +267,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
 function Option({ icon: Icon, title, text, price, currency, checked, onChange }: { icon: typeof Download; title: string; text: string; price: number | undefined; currency: Currency; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <label className={`flex cursor-pointer gap-4 rounded-2xl border bg-white p-5 transition ${checked ? 'border-ink shadow-card' : 'border-line hover:border-line-strong'}`}>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 h-4 w-4 accent-[#3a47ff]" />
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 h-4 w-4 accent-accent" />
       <Icon size={22} strokeWidth={1.4} className="mt-0.5 shrink-0 text-accent-dark" />
       <span className="flex-1">
         <span className="flex items-baseline justify-between gap-3">

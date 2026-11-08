@@ -25,15 +25,15 @@ const mark = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s / 40})">
   <path d="M20 12.2C23.4 10.3 27.8 9.7 31.8 10.5V28.6C27.8 27.8 23.4 28.4 20 30.3Z" fill="#fff" opacity=".72"/>
   <path d="M24.6 10.05 27.9 9.85V33.2L26.25 31.5 24.6 33.2Z" fill="url(#ribbon)"/></g>`;
 const defs = `<defs>
-  <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2a37"/><stop offset="1" stop-color="#07070b"/></linearGradient>
-  <linearGradient id="ribbon" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5B66FF"/><stop offset="1" stop-color="#2A35F0"/></linearGradient>
-  <radialGradient id="g1" cx="0.2" cy="0.1" r="0.7"><stop offset="0" stop-color="#3a47ff" stop-opacity=".55"/><stop offset="1" stop-color="#3a47ff" stop-opacity="0"/></radialGradient>
-  <radialGradient id="g2" cx="0.95" cy="0.95" r="0.6"><stop offset="0" stop-color="#ff4d8d" stop-opacity=".35"/><stop offset="1" stop-color="#ff4d8d" stop-opacity="0"/></radialGradient>
-  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7b85ff"/><stop offset=".55" stop-color="#b48cff"/><stop offset="1" stop-color="#ff8db8"/></linearGradient>
+  <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8192f"/><stop offset="1" stop-color="#5a0814"/></linearGradient>
+  <linearGradient id="ribbon" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0509"/><stop offset="1" stop-color="#120204"/></linearGradient>
+  <radialGradient id="g1" cx="0.2" cy="0.1" r="0.7"><stop offset="0" stop-color="#9e1730" stop-opacity=".6"/><stop offset="1" stop-color="#9e1730" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g2" cx="0.95" cy="0.95" r="0.6"><stop offset="0" stop-color="#d8465c" stop-opacity=".3"/><stop offset="1" stop-color="#d8465c" stop-opacity="0"/></radialGradient>
+  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffc2ca"/><stop offset=".5" stop-color="#f2687d"/><stop offset="1" stop-color="#d02a46"/></linearGradient>
 </defs>`;
 
 // Apple touch icon
-const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">${defs}<rect width="180" height="180" fill="#0a0a0f"/>${mark(0, 0, 180)}</svg>`;
+const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">${defs}<rect width="180" height="180" fill="#5a0814"/>${mark(0, 0, 180)}</svg>`;
 await sharp(Buffer.from(icon)).png().toFile('src/app/apple-icon.png');
 
 // Open Graph image
@@ -45,7 +45,7 @@ const l1 = textPath(serif, 'Your photos. Your story.', 92, 600, 330, { anchor: '
 const l2 = textPath(serifItalic, 'Your book.', 104, 600, 440, { anchor: 'middle' });
 const tag = textPath(sans, 'PREMIUM PHOTOBOOKS, DESIGNED BY YOU', 17, 600, 540, { tracking: 0.22, anchor: 'middle' });
 const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">${defs}
-  <rect width="1200" height="630" fill="#08080c"/><rect width="1200" height="630" fill="url(#g1)"/><rect width="1200" height="630" fill="url(#g2)"/>
+  <rect width="1200" height="630" fill="#0d0809"/><rect width="1200" height="630" fill="url(#g1)"/><rect width="1200" height="630" fill="url(#g2)"/>
   ${mark(600 - word.width / 2 - 70, 128, 54)}
   <g fill="#ffffff" transform="translate(35 0)">${word.d}</g>
   <g fill="#ffffff">${l1.d}</g>
@@ -53,5 +53,6 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" vi
   <g fill="#ffffff" fill-opacity=".55">${tag.d}</g>
 </svg>`;
 await sharp(Buffer.from(og)).png().toFile('src/app/opengraph-image.png');
+fs.copyFileSync('src/app/opengraph-image.png', 'src/app/twitter-image.png');
 fs.writeFileSync('public/brand-mark.svg', fs.readFileSync('src/app/icon.svg'));
 console.log('brand assets written');

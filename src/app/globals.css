@@ -2,39 +2,39 @@
 @import "./fonts.css";
 
 @theme {
-  /* Cool gallery whites + deep ink + one vivid ultramarine accent. */
-  --color-paper: #fafafb;
-  --color-paper-2: #f2f2f5;
-  --color-paper-3: #e8e8ee;
+  /* Clean gallery whites, deep ink and one deep red accent. */
+  --color-paper: #fbfafa;
+  --color-paper-2: #f5f2f2;
+  --color-paper-3: #ece7e7;
   --color-card: #ffffff;
-  --color-ink: #0a0a0f;
-  --color-ink-soft: #2a2a35;
-  --color-muted: #6b6b79;
-  --color-faint: #a2a2af;
-  --color-accent: #3a47ff;
-  --color-accent-dark: #2533e8;
-  --color-accent-soft: #eceeff;
-  --color-rose: #ff4d8d;
-  --color-violet: #8a3ffc;
-  --color-night: #08080c;
-  --color-night-2: #121219;
-  --color-line: #e6e6ec;
-  --color-line-strong: #d2d2db;
+  --color-ink: #130c0d;
+  --color-ink-soft: #352a2c;
+  --color-muted: #786b6d;
+  --color-faint: #ad9fa2;
+  --color-accent: #8e1126;
+  --color-accent-dark: #6d0a1b;
+  --color-accent-soft: #f8eaec;
+  --color-rose: #d8465c;
+  --color-violet: #4d0914;
+  --color-night: #0d0809;
+  --color-night-2: #1a1012;
+  --color-line: #ece5e6;
+  --color-line-strong: #dacfd1;
   --color-success: #1f8a5b;
   --color-success-soft: #e6f4ec;
   --color-warning: #b26a12;
   --color-warning-soft: #fbf1e1;
-  --color-danger: #d6334a;
-  --color-danger-soft: #fce8eb;
-  --color-editor: #ededf2;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdeceb;
+  --color-editor: #efeaea;
 
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-book: 0 1px 2px rgb(10 10 15 / 0.08), 0 12px 28px -8px rgb(10 10 15 / 0.22), 0 40px 80px -24px rgb(10 10 15 / 0.32);
-  --shadow-card: 0 1px 2px rgb(10 10 15 / 0.04), 0 10px 30px -14px rgb(10 10 15 / 0.18);
-  --shadow-pop: 0 4px 14px rgb(10 10 15 / 0.08), 0 24px 48px -16px rgb(10 10 15 / 0.28);
-  --shadow-glow: 0 10px 40px -10px rgb(58 71 255 / 0.55);
+  --shadow-book: 0 1px 2px rgb(19 12 13 / 0.08), 0 12px 28px -8px rgb(19 12 13 / 0.22), 0 40px 80px -24px rgb(19 12 13 / 0.32);
+  --shadow-card: 0 1px 2px rgb(19 12 13 / 0.04), 0 10px 30px -14px rgb(19 12 13 / 0.18);
+  --shadow-pop: 0 4px 14px rgb(19 12 13 / 0.08), 0 24px 48px -16px rgb(19 12 13 / 0.28);
+  --shadow-glow: 0 10px 40px -10px rgb(142 17 38 / 0.55);
 
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -52,7 +52,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
   ::selection {
-    background: rgb(58 71 255 / 0.18);
+    background: rgb(142 17 38 / 0.16);
   }
   :focus-visible {
     outline: 2px solid var(--color-accent);
@@ -109,12 +109,13 @@
     cursor: not-allowed;
   }
   .btn-primary {
-    background: var(--color-ink);
-    color: var(--color-paper);
+    background: linear-gradient(180deg, #9e1730, var(--color-accent) 55%, #7f0d21);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px rgb(77 9 20 / 0.25);
   }
   .btn-primary:hover:not(:disabled) {
-    background: #23232c;
-    box-shadow: 0 8px 24px -10px rgb(10 10 15 / 0.45);
+    background: linear-gradient(180deg, #8e1126, var(--color-accent-dark) 60%, #5c0816);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-glow);
     transform: translateY(-1px);
   }
   .btn-accent {
@@ -140,7 +141,7 @@
     color: var(--color-ink);
   }
   .btn-ghost:hover:not(:disabled) {
-    background: rgb(10 10 15 / 0.05);
+    background: rgb(19 12 13 / 0.05);
   }
   .btn-danger {
     background: var(--color-danger);
@@ -168,7 +169,7 @@
   .input:focus {
     outline: none;
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 4px rgb(58 71 255 / 0.14);
+    box-shadow: 0 0 0 4px rgb(142 17 38 / 0.14);
   }
   .input-sm {
     padding: 0.45rem 0.6rem;
@@ -222,13 +223,13 @@
 
   /* Album rendering helpers */
   .fs-empty-frame {
-    background: repeating-linear-gradient(135deg, #ececf1 0 10px, #e6e6ec 10px 20px);
-    color: #8e8e9b;
+    background: repeating-linear-gradient(135deg, #f0ecec 0 10px, #e9e3e3 10px 20px);
+    color: #9c8f91;
   }
   .fs-empty-frame--drop {
-    background: #eef0ff;
-    color: #3a47ff;
-    outline: 1.5px dashed rgb(58 71 255 / 0.55);
+    background: #f8eaec;
+    color: #8e1126;
+    outline: 1.5px dashed rgb(142 17 38 / 0.55);
     outline-offset: -6px;
   }
   .book-shadow {
@@ -279,7 +280,7 @@
   }
 }
 .skeleton {
-  background: linear-gradient(90deg, #efeff3 0px, #f8f8fa 120px, #efeff3 240px);
+  background: linear-gradient(90deg, #f2eeee 0px, #faf8f8 120px, #f2eeee 240px);
   background-size: 800px 100%;
   animation: fs-shimmer 1.4s linear infinite;
 }
@@ -425,7 +426,7 @@
 
 /* Gradient text & glowing CTA */
 .text-gradient {
-  background: linear-gradient(100deg, #8d96ff 0%, #b490ff 45%, #ff8fbb 100%);
+  background: linear-gradient(100deg, #ffc2ca 0%, #f2687d 48%, #d02a46 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -439,7 +440,7 @@
   inset: -2px;
   z-index: -1;
   border-radius: inherit;
-  background: linear-gradient(100deg, #3a47ff, #8a3ffc, #ff4d8d, #3a47ff);
+  background: linear-gradient(100deg, #8e1126, #e0566b, #5c0a17, #8e1126);
   background-size: 300% 100%;
   filter: blur(14px);
   opacity: 0.55;
@@ -652,7 +653,7 @@
     color: var(--color-ink);
   }
   .btn-light:hover:not(:disabled) {
-    background: #f1f1f6;
+    background: #f7f1f2;
     transform: translateY(-1px);
     box-shadow: 0 12px 30px -12px rgb(255 255 255 / 0.35);
   }
@@ -693,7 +694,7 @@
 }
 @keyframes fs-demo-thumb {
   0%, 10% { outline: 2px solid transparent; }
-  14%, 40% { outline: 2px solid #3a47ff; }
+  14%, 40% { outline: 2px solid var(--color-accent); }
   48%, 100% { outline: 2px solid transparent; }
 }
 .demo-ghost { animation: fs-demo-ghost 7s var(--ease-soft) infinite; }

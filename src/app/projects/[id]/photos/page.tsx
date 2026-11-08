@@ -14,7 +14,7 @@ async function Loader({ params }: { params: Promise<{ id: string }> }) {
     <>
       <h1 className="font-serif text-4xl font-medium md:text-5xl">Add your photos</h1>
       <p className="mb-8 mt-3 max-w-2xl text-ink-soft">
-        Upload the photos for <span className="text-ink">{project.title}</span>. They stay private to your account and can be used on any page.
+        Upload the photos for <span className="text-ink">{project.title}</span>. They stay private to this album and can be used on any page.
       </p>
       <PhotoUploadStep projectId={project.id} title={project.title} status={project.status} doc={project.document} version={Number(project.version)} photos={photos} />
     </>

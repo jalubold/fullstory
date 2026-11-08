@@ -50,7 +50,7 @@ function ItemView({ item, doc, photos, width, eager }: { item: ViewItem; doc: Al
     <OpenBook
       left={item.left !== null ? doc.pages[item.left] : null}
       right={item.right !== null ? doc.pages[item.right] : null}
-      endpaper="#E9E9EE"
+      endpaper="#7A1020"
       {...common}
     />
   );

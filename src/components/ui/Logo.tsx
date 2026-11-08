@@ -2,21 +2,21 @@ import Link from 'next/link';
 
 /**
  * FULLSTORY mark: an open book with a ribbon bookmark — the book, and the
- * place you keep in its story. Drawn on a deep-ink tile with an ultramarine ribbon.
+ * place you keep in its story. Drawn on a deep red tile with a dark ribbon.
  */
 export function LogoMark({ size = 32, tone = 'dark', className = '' }: { size?: number; tone?: 'dark' | 'light'; className?: string }) {
   const tile = tone === 'dark' ? 'url(#fs-tile)' : '#FFFFFF';
-  const page = tone === 'dark' ? '#FFFFFF' : '#0A0A0F';
+  const page = tone === 'dark' ? '#FFFFFF' : '#130C0D';
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden className={className}>
       <defs>
         <linearGradient id="fs-tile" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#23232E" />
-          <stop offset="1" stopColor="#07070B" />
+          <stop offset="0" stopColor="#A8192F" />
+          <stop offset="1" stopColor="#5A0814" />
         </linearGradient>
         <linearGradient id="fs-ribbon" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#5B66FF" />
-          <stop offset="1" stopColor="#2A35F0" />
+          <stop offset="0" stopColor="#2A0509" />
+          <stop offset="1" stopColor="#120204" />
         </linearGradient>
       </defs>
       <rect width="40" height="40" rx="11" fill={tile} />
