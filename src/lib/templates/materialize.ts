@@ -4,6 +4,7 @@ import type { AlbumDocument, OrnamentElement, Page, PageSize, PhotoElement } fro
 import { getCatalog, sizesFor } from '@/lib/commerce/catalog';
 import { SAMPLE_PHOTOS, sampleId, type SamplePhoto } from './samples';
 import type { TemplateDef, TemplatePage } from './types';
+import { contrast, mixHex } from '@/lib/album/color';
 
 export function defaultSizeFor(t: Pick<TemplateDef, 'orientation'>): PageSize {
   const size = sizesFor(t.orientation)[0] ?? getCatalog().sizes[0];
@@ -72,9 +73,19 @@ function materializePage(spec: TemplatePage, t: TemplateDef, size: PageSize, pic
     (el as PhotoElement).photoId = explicit ? sampleId(explicit) : picker.pick(frameAspect);
   }
   if (spec.invert) {
+    // Light type on a dark page: secondary text becomes a softened inverse, and
+    // the accent is kept only where it still reads against the background.
+    const bg = page.background.color;
+    const { muted, accent, inverse, text } = t.theme.colors;
+    const soft = mixHex(inverse, bg, 0.32);
+    const accentOnBg = contrast(accent, bg) >= 3 ? accent : mixHex(inverse, bg, 0.15);
     for (const el of page.elements) {
-      if (el.type !== 'text') continue;
-      el.color = el.color === t.theme.colors.muted || el.color === t.theme.colors.accent ? t.theme.colors.accent : t.theme.colors.inverse;
+      if (el.type === 'text') el.color = el.color === accent ? accentOnBg : el.color === muted ? soft : inverse;
+      else if (el.type === 'shape') {
+        if (el.stroke === text) el.stroke = soft;
+        if (el.stroke === accent) el.stroke = accentOnBg;
+        if (el.fill === text) el.fill = inverse;
+      }
     }
   }
   for (const ex of spec.extras ?? []) {

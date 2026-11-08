@@ -23,6 +23,12 @@ const FAMILIES = {
   'Special Elite': [[400, 0]],
   'Fredoka': [[400, 0], [600, 0]],
   'Josefin Sans': [[300, 0], [600, 0]],
+  // Premium families used by the template collection
+  'EB Garamond': [[400, 0], [500, 0], [400, 1], [500, 1]],
+  'Bodoni Moda': [[400, 0], [500, 0], [400, 1]],
+  'Pinyon Script': [[400, 0]],
+  'Fraunces': [[300, 0], [400, 0], [600, 0], [400, 1]],
+  'Jost': [[300, 0], [400, 0], [500, 0]],
 };
 
 const slug = (f) => f.toLowerCase().replace(/\s+/g, '-');
@@ -32,6 +38,8 @@ await fs.mkdir(OUT_WOFF2, { recursive: true });
 
 for (const [family, variants] of Object.entries(FAMILIES)) {
   for (const [weight, italic] of variants) {
+    const existing = path.join(OUT_TTF, `${slug(family)}-${weight}${italic ? 'i' : ''}.ttf`);
+    if (process.env.ONLY_MISSING && (await fs.stat(existing).catch(() => null))) continue;
     const axis = `ital,wght@${italic}, ${weight}`.replace(' ', '');
     const url = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, '+')}:${axis}`;
     // A non-browser UA makes the API return a full-coverage TTF instance.

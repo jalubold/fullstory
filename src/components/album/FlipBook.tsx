@@ -17,7 +17,7 @@ interface Props {
   photos: PhotoMap;
   renderWidth: number;
   endpaper?: string;
-  board?: BookBoard;
+  board?: BookBoard | (string & {});
   duration?: number;
   className?: string;
   style?: CSSProperties;
@@ -61,7 +61,7 @@ export function FlipBook({ spread, dir, size, photos, renderWidth, endpaper = '#
       className="absolute rounded-[3px]"
       style={{
         inset: '0.8% -0.9% -1.6% -0.9%',
-        background: BOARDS[board],
+        background: board in BOARDS ? BOARDS[board as BookBoard] : board,
         boxShadow: '0 36px 70px -26px rgb(19 8 10 / .55), 0 8px 18px -8px rgb(19 8 10 / .3)',
       }}
     />

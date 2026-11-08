@@ -60,7 +60,7 @@ export function OpenBook({
   endpaper = '#7A1020',
   board = 'red',
   eager,
-}: BaseProps & { left: Page | null; right: Page | null; endpaper?: string; board?: BookBoard }) {
+}: BaseProps & { left: Page | null; right: Page | null; endpaper?: string; board?: BookBoard | (string & {}) }) {
   const half = renderWidth / 2;
   return (
     <div className={`${positioned(className)} ${className}`} style={style}>
@@ -69,7 +69,7 @@ export function OpenBook({
         className="absolute rounded-[3px]"
         style={{
           inset: '0.8% -0.9% -1.6% -0.9%',
-          background: BOARDS[board],
+          background: board in BOARDS ? BOARDS[board as BookBoard] : board,
           boxShadow: '0 36px 70px -26px rgb(19 8 10 / .55), 0 8px 18px -8px rgb(19 8 10 / .3)',
         }}
       />

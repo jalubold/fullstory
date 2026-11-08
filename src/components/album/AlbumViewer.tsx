@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, Columns2, Expand, Minimize, Minus, Plus, RectangleVertical } from 'lucide-react';
 import { buildViewItems, spreadIndexOfPage, type ViewItem } from '@/lib/album/geometry';
+import { bookFinish } from '@/lib/album/color';
 import { ANIMATIONS, presentationOf } from '@/lib/album/presentation';
 import type { AlbumDocument, PageAnimation, PhotoMap, Presentation } from '@/lib/album/types';
 import { BookCover, FlatPage, OpenBook } from './Book';
@@ -66,7 +67,7 @@ function ItemView({ item, doc, photos, width, eager }: { item: ViewItem; doc: Al
     <OpenBook
       left={item.left !== null ? doc.pages[item.left] : null}
       right={item.right !== null ? doc.pages[item.right] : null}
-      endpaper="#7A1020"
+      {...bookFinish(doc)}
       {...common}
     />
   );
@@ -303,6 +304,7 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
                   size={doc.size}
                   photos={photos}
                   renderWidth={displayW}
+                  {...bookFinish(doc)}
                   eager
                 />
               </div>

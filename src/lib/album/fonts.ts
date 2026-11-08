@@ -15,7 +15,12 @@ export type FontId =
   | 'caveat'
   | 'specialelite'
   | 'fredoka'
-  | 'josefin';
+  | 'josefin'
+  | 'garamond'
+  | 'bodoni'
+  | 'pinyon'
+  | 'fraunces'
+  | 'jost';
 
 export interface FontFace {
   weight: number;
@@ -137,6 +142,46 @@ export const FONTS: Record<FontId, FontDef> = {
     category: 'sans',
     fallback: 'system-ui, sans-serif',
     faces: [f('josefin-sans-300', 300), f('josefin-sans-600', 600)],
+  },
+  garamond: {
+    id: 'garamond',
+    label: 'EB Garamond',
+    family: 'EB Garamond',
+    category: 'serif',
+    fallback: 'Garamond, Georgia, serif',
+    faces: [f('eb-garamond-400', 400), f('eb-garamond-500', 500), f('eb-garamond-400i', 400, true), f('eb-garamond-500i', 500, true)],
+  },
+  bodoni: {
+    id: 'bodoni',
+    label: 'Bodoni Moda',
+    family: 'Bodoni Moda',
+    category: 'display',
+    fallback: 'Didot, Georgia, serif',
+    faces: [f('bodoni-moda-400', 400), f('bodoni-moda-500', 500), f('bodoni-moda-400i', 400, true)],
+  },
+  pinyon: {
+    id: 'pinyon',
+    label: 'Pinyon Script',
+    family: 'Pinyon Script',
+    category: 'script',
+    fallback: 'cursive',
+    faces: [f('pinyon-script-400', 400)],
+  },
+  fraunces: {
+    id: 'fraunces',
+    label: 'Fraunces',
+    family: 'Fraunces',
+    category: 'serif',
+    fallback: 'Georgia, serif',
+    faces: [f('fraunces-300', 300), f('fraunces-400', 400), f('fraunces-600', 600), f('fraunces-400i', 400, true)],
+  },
+  jost: {
+    id: 'jost',
+    label: 'Jost',
+    family: 'Jost',
+    category: 'sans',
+    fallback: 'Futura, system-ui, sans-serif',
+    faces: [f('jost-300', 300), f('jost-400', 400), f('jost-500', 500)],
   },
 };
 

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ImagePlus, Loader2, Trash2 } from 'lucide-react';
 import { BookCover, OpenBook } from '@/components/album/Book';
+import { bookFinish } from '@/lib/album/color';
 import { buildSpreads, countPhotoFrames } from '@/lib/album/geometry';
 import { allPages, autofill } from '@/lib/album/ops';
 import type { AlbumDocument, PhotoAsset, PhotoMap } from '@/lib/album/types';
@@ -162,7 +163,7 @@ function LivePreview({ doc, photos }: { doc: AlbumDocument; photos: PhotoAsset[]
         </figure>
         {spreads.map((s, i) => (
           <figure key={i}>
-            <OpenBook left={s.left !== null ? doc.pages[s.left] : null} right={s.right !== null ? doc.pages[s.right] : null} size={doc.size} photos={photoMap} renderWidth={560} />
+            <OpenBook left={s.left !== null ? doc.pages[s.left] : null} right={s.right !== null ? doc.pages[s.right] : null} size={doc.size} photos={photoMap} renderWidth={560} {...bookFinish(doc)} />
             <figcaption className="folio mt-4 text-center">
               {s.left !== null ? s.left + 1 : ''}
               {s.left !== null && s.right !== null ? ' — ' : ''}

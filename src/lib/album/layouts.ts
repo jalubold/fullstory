@@ -79,8 +79,8 @@ export interface LayoutDef {
 
 function grid(ctx: LayoutCtx, marginScale = 1, gutterScale = 1) {
   const base = Math.min(ctx.W, ctx.H);
-  const M = base * 0.075 * marginScale;
-  const G = base * 0.022 * gutterScale;
+  const M = base * 0.084 * marginScale;
+  const G = base * 0.016 * gutterScale;
   return { mx: M / ctx.W, my: M / ctx.H, gx: G / ctx.W, gy: G / ctx.H, aspect: ctx.W / ctx.H };
 }
 
@@ -94,6 +94,9 @@ const T = (role: TextRole, x: number, y: number, w: number, h: number, extra: Pa
   h,
   ...extra,
 });
+
+/** A short hairline rule — the quiet divider used by premium book typography. */
+const RULE = (x: number, y: number, w: number, tone: Tone = 'accent'): ShapeSlot => ({ kind: 'shape', shape: 'line', x, y, w, h: 0.002, stroke: tone, strokeWidth: 0.5 });
 
 /** Evenly divides a span into n cells separated by a gutter. */
 function split(start: number, size: number, n: number, gutter: number): Array<[number, number]> {
@@ -158,6 +161,35 @@ export const LAYOUTS: LayoutDef[] = [
       T('title', 0.1, 0.36, 0.8, 0.2, { align: 'center', valign: 'middle', scale: 1.15 }),
       T('subtitle', 0.15, 0.58, 0.7, 0.06, { align: 'center', valign: 'top' }),
     ],
+  },
+  {
+    id: 'cover-linen',
+    name: 'Cloth cover, foil title',
+    group: 'cover',
+    photos: 0,
+    build: () => [
+      T('label', 0.15, 0.2, 0.7, 0.04, { align: 'center', valign: 'middle', tone: 'muted' }),
+      RULE(0.46, 0.355, 0.08),
+      T('title', 0.1, 0.38, 0.8, 0.2, { align: 'center', valign: 'middle', scale: 1.1 }),
+      RULE(0.46, 0.605, 0.08),
+      T('subtitle', 0.15, 0.64, 0.7, 0.06, { align: 'center', valign: 'top' }),
+    ],
+  },
+  {
+    id: 'cover-inset',
+    name: 'Cloth cover, tipped-in photo',
+    group: 'cover',
+    photos: 1,
+    build: (ctx) => {
+      const { aspect } = grid(ctx);
+      const w = aspect >= 1.1 ? 0.4 : aspect <= 0.9 ? 0.56 : 0.48;
+      const h = (w * aspect) / 1.25;
+      return [
+        P((1 - w) / 2, 0.14, w, h, { mat: 5, matColor: '#FFFFFF' }),
+        T('title', 0.1, 0.14 + h + 0.07, 0.8, 0.12, { align: 'center', valign: 'middle' }),
+        T('subtitle', 0.12, 0.14 + h + 0.2, 0.76, 0.05, { align: 'center', valign: 'top', tone: 'muted' }),
+      ];
+    },
   },
   {
     id: 'cover-band',
@@ -419,7 +451,8 @@ export const LAYOUTS: LayoutDef[] = [
     photos: 0,
     build: () => [
       T('heading', 0.16, 0.22, 0.68, 0.14, { align: 'center', valign: 'bottom' }),
-      T('body', 0.18, 0.4, 0.64, 0.4, { align: 'center', valign: 'top' }),
+      RULE(0.475, 0.38, 0.05),
+      T('body', 0.18, 0.41, 0.64, 0.4, { align: 'center', valign: 'top' }),
     ],
   },
   {
@@ -429,7 +462,8 @@ export const LAYOUTS: LayoutDef[] = [
     photos: 0,
     build: () => [
       T('heading', 0.14, 0.3, 0.72, 0.3, { align: 'center', valign: 'middle', scale: 1.2 }),
-      T('caption', 0.2, 0.63, 0.6, 0.06, { align: 'center', valign: 'top', tone: 'muted' }),
+      RULE(0.48, 0.625, 0.04),
+      T('caption', 0.2, 0.645, 0.6, 0.06, { align: 'center', valign: 'top', tone: 'muted' }),
     ],
   },
   {
@@ -498,6 +532,7 @@ export const LAYOUTS: LayoutDef[] = [
       return [
         T('label', mx, my, 0.3, 0.05, { align: 'left', valign: 'top', tone: 'accent' }),
         T('title', mx, my + 0.06, 0.42, 0.24, { align: 'left', valign: 'top' }),
+        RULE(mx, 0.555, 0.06),
         T('body', mx, 0.58, 0.36, 0.3, { align: 'left', valign: 'top' }),
         P(0.5, my, 0.5 - mx, 1 - 2 * my),
       ];
@@ -528,9 +563,9 @@ export const LAYOUTS: LayoutDef[] = [
       const { aspect } = grid(ctx);
       const wide = aspect >= 1.1;
       return [
-        P(wide ? 0.08 : 0.08, wide ? 0.1 : 0.08, wide ? 0.42 : 0.56, wide ? 0.62 : 0.44, { rotation: -4, mat: 9, matColor: '#FFFFFF' }),
-        P(wide ? 0.52 : 0.36, wide ? 0.24 : 0.46, wide ? 0.4 : 0.56, wide ? 0.56 : 0.4, { rotation: 3.5, mat: 9, matColor: '#FFFFFF' }),
-        T('caption', wide ? 0.08 : 0.08, wide ? 0.8 : 0.88, wide ? 0.42 : 0.6, 0.08, { align: 'left', valign: 'top', rotation: -2 }),
+        P(wide ? 0.08 : 0.08, wide ? 0.1 : 0.08, wide ? 0.42 : 0.56, wide ? 0.62 : 0.44, { rotation: -2, mat: 7, matColor: '#FFFFFF' }),
+        P(wide ? 0.52 : 0.36, wide ? 0.24 : 0.46, wide ? 0.4 : 0.56, wide ? 0.56 : 0.4, { rotation: 1.6, mat: 7, matColor: '#FFFFFF' }),
+        T('caption', wide ? 0.08 : 0.08, wide ? 0.8 : 0.88, wide ? 0.42 : 0.6, 0.08, { align: 'left', valign: 'top' }),
       ];
     },
   },
@@ -540,10 +575,10 @@ export const LAYOUTS: LayoutDef[] = [
     group: 'scrapbook',
     photos: 3,
     build: () => [
-      P(0.07, 0.08, 0.46, 0.4, { rotation: -3, mat: 8, matColor: '#FFFFFF' }),
-      P(0.5, 0.14, 0.42, 0.36, { rotation: 4, mat: 8, matColor: '#FFFFFF' }),
-      P(0.2, 0.52, 0.5, 0.36, { rotation: -1.5, mat: 8, matColor: '#FFFFFF' }),
-      T('caption', 0.62, 0.62, 0.32, 0.2, { align: 'left', valign: 'top', rotation: 3 }),
+      P(0.07, 0.08, 0.46, 0.4, { rotation: -1.6, mat: 6, matColor: '#FFFFFF' }),
+      P(0.5, 0.14, 0.42, 0.36, { rotation: 2, mat: 6, matColor: '#FFFFFF' }),
+      P(0.2, 0.52, 0.5, 0.36, { rotation: -0.8, mat: 6, matColor: '#FFFFFF' }),
+      T('caption', 0.62, 0.62, 0.32, 0.2, { align: 'left', valign: 'top' }),
     ],
   },
   {
@@ -556,8 +591,8 @@ export const LAYOUTS: LayoutDef[] = [
       const w = d / ctx.W;
       const h = d / ctx.H;
       return [
-        P((1 - w) / 2, 0.12, w, h, { rotation: -2, mat: 12, matColor: '#FFFFFF' }),
-        T('caption', (1 - w) / 2, 0.14 + h + 0.03, w, 0.1, { align: 'center', valign: 'top', rotation: -2 }),
+        P((1 - w) / 2, 0.12, w, h, { rotation: -1, mat: 10, matColor: '#FFFFFF' }),
+        T('caption', (1 - w) / 2, 0.14 + h + 0.03, w, 0.1, { align: 'center', valign: 'top' }),
       ];
     },
   },

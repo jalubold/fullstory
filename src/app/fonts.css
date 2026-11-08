@@ -31,3 +31,18 @@
 @font-face{font-family:"Fredoka";src:url(/fonts/fredoka-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
 @font-face{font-family:"Josefin Sans";src:url(/fonts/josefin-sans-300.woff2) format("woff2");font-weight:300;font-style:normal;font-display:swap;}
 @font-face{font-family:"Josefin Sans";src:url(/fonts/josefin-sans-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:"EB Garamond";src:url(/fonts/eb-garamond-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"EB Garamond";src:url(/fonts/eb-garamond-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap;}
+@font-face{font-family:"EB Garamond";src:url(/fonts/eb-garamond-400i.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+@font-face{font-family:"EB Garamond";src:url(/fonts/eb-garamond-500i.woff2) format("woff2");font-weight:500;font-style:italic;font-display:swap;}
+@font-face{font-family:"Bodoni Moda";src:url(/fonts/bodoni-moda-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Bodoni Moda";src:url(/fonts/bodoni-moda-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap;}
+@font-face{font-family:"Bodoni Moda";src:url(/fonts/bodoni-moda-400i.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+@font-face{font-family:"Pinyon Script";src:url(/fonts/pinyon-script-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Fraunces";src:url(/fonts/fraunces-300.woff2) format("woff2");font-weight:300;font-style:normal;font-display:swap;}
+@font-face{font-family:"Fraunces";src:url(/fonts/fraunces-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Fraunces";src:url(/fonts/fraunces-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:"Fraunces";src:url(/fonts/fraunces-400i.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap;}
+@font-face{font-family:"Jost";src:url(/fonts/jost-300.woff2) format("woff2");font-weight:300;font-style:normal;font-display:swap;}
+@font-face{font-family:"Jost";src:url(/fonts/jost-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Jost";src:url(/fonts/jost-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap;}
