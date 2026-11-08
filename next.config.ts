@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   // Loaded natively by Node (WASM / native bindings must not be bundled).
-  serverExternalPackages: ["@electric-sql/pglite", "pg", "sharp", "pdf-lib", "fontkit"],
+  serverExternalPackages: ["@electric-sql/pglite", "pg", "sharp", "pdf-lib", "fontkit", "heic-decode", "libheif-js"],
   // Fonts are read from disk by the PDF renderer.
   outputFileTracingIncludes: {
     "/api/**/*": ["./src/assets/fonts/**/*"],

@@ -3,8 +3,10 @@
  *
  *  1. preview — decode, then make the screen-size and thumbnail JPEGs. The
  *     photo can be shown and placed as soon as this is done.
- *  2. master — only for HEIC and very large files: a full-size JPEG for the
- *     PDF, made afterwards at low priority (previews always go first).
+ *  2. master — only for very large JPEG/PNG/WebP files: a full-size JPEG for
+ *     the PDF, made afterwards at low priority (previews always go first).
+ *     HEIC is never converted here: the original goes up as is and our server
+ *     makes the JPEG, so phones do as little as possible.
  *
  * Everything heavy runs in a small pool of Workers. If a worker can't decode a
  * file (HEIC in some Safari workers), the main thread decodes it — one at a
@@ -17,7 +19,7 @@ export interface PreparedImage {
   height: number;
   display: Blob;
   thumb: Blob;
-  /** True when a JPEG master replaces the original (HEIC, or very large files). */
+  /** True when a JPEG master replaces the original (very large files only; never HEIC). */
   reencode: boolean;
   /** The JPEG master, ready later; resolves to null when the original is uploaded as is. */
   master: Promise<Blob | null>;
@@ -48,7 +50,7 @@ async function decode(file) {
   catch (e) { return await createImageBitmap(file); }
 }
 self.onmessage = async (e) => {
-  const { id, kind, file, bitmap: given, size, forceMaster, displayEdge, thumbEdge, masterEdge, masterMaxBytes } = e.data;
+  const { id, kind, file, bitmap: given, size, keepOriginal, displayEdge, thumbEdge, masterEdge, masterMaxBytes } = e.data;
   let bitmap = given || null;
   try {
     if (!bitmap) {
@@ -56,7 +58,7 @@ self.onmessage = async (e) => {
       catch (err) { self.postMessage({ id, ok: false, decodeFailed: true }); return; }
     }
     const W = bitmap.width, H = bitmap.height;
-    const reencode = !!forceMaster || Math.max(W, H) > masterEdge || size > masterMaxBytes;
+    const reencode = !keepOriginal && (Math.max(W, H) > masterEdge || size > masterMaxBytes);
     const [mw, mh] = reencode ? fit(W, H, masterEdge) : [W, H];
     if (kind === 'preview') {
       const [dw, dh] = fit(W, H, displayEdge);
@@ -163,7 +165,7 @@ class WorkerPool {
   }
 
   private async send(w: Worker, job: Job) {
-    const base = { id: job.id, kind: job.kind, size: job.file.size, forceMaster: isHeicFile(job.file), displayEdge: DISPLAY_EDGE, thumbEdge: THUMB_EDGE, masterEdge: MASTER_EDGE, masterMaxBytes: MASTER_MAX_BYTES };
+    const base = { id: job.id, kind: job.kind, size: job.file.size, keepOriginal: isHeicFile(job.file), displayEdge: DISPLAY_EDGE, thumbEdge: THUMB_EDGE, masterEdge: MASTER_EDGE, masterMaxBytes: MASTER_MAX_BYTES };
     if (!job.mainDecode) {
       w.postMessage({ ...base, file: job.file });
       return;
@@ -301,7 +303,7 @@ async function prepareOnMainThread(file: File): Promise<PreparedImage> {
     try {
       const W = bitmap.width;
       const H = bitmap.height;
-      const reencode = isHeicFile(file) || Math.max(W, H) > MASTER_EDGE || file.size > MASTER_MAX_BYTES;
+      const reencode = !isHeicFile(file) && (Math.max(W, H) > MASTER_EDGE || file.size > MASTER_MAX_BYTES);
       const [mw, mh] = reencode ? fit(W, H, MASTER_EDGE) : [W, H];
       const [dw, dh] = fit(W, H, DISPLAY_EDGE);
       const [tw, th] = fit(W, H, THUMB_EDGE);

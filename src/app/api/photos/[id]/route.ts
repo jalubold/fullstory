@@ -1,6 +1,7 @@
 import { sqlOne } from '@/lib/server/db';
 import { deletePhotoRow, getPhoto, variantKey } from '@/lib/server/repo/photos';
 import { authed, HttpError, json } from '@/lib/server/http';
+import { heicExtraKeys } from '@/lib/server/heic';
 import { storage } from '@/lib/server/storage';
 
 export const DELETE = authed<{ id: string }>(async (_req, { params, user }) => {
@@ -11,7 +12,7 @@ export const DELETE = authed<{ id: string }>(async (_req, { params, user }) => {
   const shared = await sqlOne('select 1 from photos where storage_prefix = $1 limit 1', [photo.storage_prefix]);
   const ordered = await sqlOne(`select 1 from orders where project_id = $1 and document_snapshot::text like $2 limit 1`, [photo.project_id, `%${photo.id}%`]);
   if (!shared && !ordered) {
-    await storage().remove((['original', 'display', 'thumb'] as const).map((v) => variantKey(photo, v))).catch(() => {});
+    await storage().remove([...(['original', 'display', 'thumb'] as const).map((v) => variantKey(photo, v)), ...heicExtraKeys(photo.storage_prefix, photo.original_ext)]).catch(() => {});
   }
   return json({ ok: true });
 });

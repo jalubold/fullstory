@@ -170,7 +170,7 @@ class VercelBlobStore implements BlobStore {
       pathname: safeKey(key),
       allowOverwrite: true,
       maximumSizeInBytes: 45 * 1024 * 1024,
-      allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp'],
+      allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'],
       validUntil: Date.now() + 3600_000,
     });
     return { mode: 'blob', key, url: '', token };

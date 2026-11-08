@@ -23,6 +23,8 @@ export const ALLOWED_TYPES: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
+  'image/heic': 'heic',
+  'image/heif': 'heif',
 };
 export const MAX_ORIGINAL_BYTES = 40 * 1024 * 1024;
 export const MAX_DERIVATIVE_BYTES = 8 * 1024 * 1024;

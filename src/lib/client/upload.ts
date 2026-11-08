@@ -12,6 +12,8 @@ export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
  */
 export const ACCEPT_ATTR = 'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif';
 export const isHeic = (f: File) => /hei[cf]/i.test(f.type) || /\.hei[cf]$/i.test(f.name);
+/** The type the original is stored as (some browsers leave HEIC's type empty). */
+const originalType = (f: File) => (isHeic(f) ? (/heif/i.test(f.type) ? 'image/heif' : 'image/heic') : f.type || 'image/jpeg');
 export const MAX_BYTES = 40 * 1024 * 1024;
 
 export interface Target {
@@ -93,7 +95,7 @@ export function registerPhoto(projectId: string, file: File, img: PreparedImage)
     method: 'POST',
     body: JSON.stringify({
       filename: file.name,
-      contentType: img.reencode ? 'image/jpeg' : file.type,
+      contentType: img.reencode ? 'image/jpeg' : originalType(file),
       size: Math.max(1, file.size),
       width: img.width,
       height: img.height,
@@ -115,7 +117,7 @@ export async function sendPreview(img: PreparedImage, reg: Registered, onProgres
 /** Sends the full-size file used for the PDF: the JPEG master when one was made, otherwise the original. */
 export async function sendOriginal(file: File, master: Blob | null, reg: Registered, onProgress?: (fraction: number) => void): Promise<void> {
   const body = master ?? file;
-  await put(reg.targets.original, body, master ? 'image/jpeg' : file.type, (n) => onProgress?.(n / Math.max(1, body.size)));
+  await put(reg.targets.original, body, master ? 'image/jpeg' : originalType(file), (n) => onProgress?.(n / Math.max(1, body.size)));
 }
 
 export async function completePhoto(photoId: string): Promise<PhotoAsset> {

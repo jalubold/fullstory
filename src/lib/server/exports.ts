@@ -3,6 +3,7 @@ import { resizeDocument } from '@/lib/album/build';
 import { getCatalog, getSize } from '@/lib/commerce/catalog';
 import { renderDigitalPdf, renderPrintCover, renderPrintInterior, type LoadedPhoto } from './pdf/render';
 import { getExport, upsertExport, type ExportKind, type OrderRow } from './repo/orders';
+import { printableOriginal } from './heic';
 import { storage } from './storage';
 
 export const exportKey = (order: OrderRow, kind: ExportKind) => `u/${order.user_id}/orders/${order.id}/${kind}.pdf`;
@@ -13,11 +14,10 @@ export function exportFilename(order: OrderRow, kind: ExportKind) {
 }
 
 function photoLoader(order: OrderRow) {
-  const store = storage();
   return async (photoId: string): Promise<LoadedPhoto | null> => {
     const m = order.photo_manifest?.[photoId];
     if (!m) return null;
-    const data = await store.get(`${m.storage_prefix}/original.${m.original_ext}`);
+    const data = await printableOriginal(m.storage_prefix, m.original_ext);
     return data ? { data, width: m.width, height: m.height } : null;
   };
 }
