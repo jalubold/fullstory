@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, Columns2, Expand, Minimize, Minus, Plus, RectangleVertical } from 'lucide-react';
 import { buildViewItems, spreadIndexOfPage, type ViewItem } from '@/lib/album/geometry';
-import type { AlbumDocument, PhotoMap } from '@/lib/album/types';
+import { ANIMATIONS, presentationOf } from '@/lib/album/presentation';
+import type { AlbumDocument, PageAnimation, PhotoMap, Presentation } from '@/lib/album/types';
 import { BookCover, FlatPage, OpenBook } from './Book';
 import { FlipBook } from './FlipBook';
 
@@ -17,6 +18,21 @@ export interface AlbumViewerProps {
   backLabel?: string;
   actions?: ReactNode;
   banner?: ReactNode;
+  /** Overrides the document's own presentation (e.g. the latest settings on a share link). */
+  presentation?: Presentation;
+  /** Let visitors try the page animations (template demos). */
+  animationPicker?: boolean;
+}
+
+/** Ramps an audio element's volume for a gentle start. */
+function fadeIn(a: HTMLAudioElement, to = 0.85, ms = 1600) {
+  const steps = 24;
+  let i = 0;
+  const t = window.setInterval(() => {
+    i++;
+    a.volume = Math.min(to, (to * i) / steps);
+    if (i >= steps) window.clearInterval(t);
+  }, ms / steps);
 }
 
 const ZOOMS = [1, 1.5, 2, 3];
@@ -56,7 +72,15 @@ function ItemView({ item, doc, photos, width, eager }: { item: ViewItem; doc: Al
   );
 }
 
-export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel = 'Back', actions, banner }: AlbumViewerProps) {
+export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel = 'Back', actions, banner, presentation, animationPicker }: AlbumViewerProps) {
+  const show = presentation ?? presentationOf(doc);
+  const music = show.musicUrl;
+  const [anim, setAnim] = useState<PageAnimation>(show.animation);
+  const [opened, setOpened] = useState(!music);
+  const [opening, setOpening] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [musicError, setMusicError] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [mode, setMode] = useState<'spread' | 'single'>('spread');
   const items = useMemo(() => buildViewItems(doc.pages.length, mode), [doc.pages.length, mode]);
   const [index, setIndex] = useState(0);
@@ -142,6 +166,30 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
     setZoom(1);
   };
 
+  /** The opening click is what lets the browser start the music. */
+  const openAlbum = () => {
+    const a = audioRef.current;
+    if (a && !musicError) {
+      a.volume = 0;
+      a.play().then(() => fadeIn(a)).catch(() => {});
+    }
+    setOpening(true);
+    window.setTimeout(() => {
+      setOpened(true);
+      setDir(1);
+      setIndex((i) => (i === 0 && items.length > 1 ? 1 : i));
+    }, 1300);
+  };
+
+  const toggleMusic = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) {
+      a.volume = 0;
+      a.play().then(() => fadeIn(a, 0.85, 700)).catch(() => setMusicError(true));
+    } else a.pause();
+  };
+
   const toggleFullscreen = () => {
     if (document.fullscreenElement) document.exitFullscreen();
     else rootRef.current?.requestFullscreen?.();
@@ -189,6 +237,39 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
             <Plus size={16} />
           </button>
         </div>
+        {animationPicker && (
+          <label className="hidden items-center gap-2 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-white/55 md:flex">
+            Animation
+            <select
+              value={anim}
+              onChange={(e) => setAnim(e.target.value as PageAnimation)}
+              className="rounded-[2px] border border-white/15 bg-white/5 px-2 py-1.5 text-xs normal-case tracking-normal text-white outline-none focus:border-white/40"
+            >
+              {ANIMATIONS.map((a) => (
+                <option key={a.id} value={a.id} className="text-ink">
+                  {a.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {music && (
+          <button
+            type="button"
+            onClick={toggleMusic}
+            disabled={musicError}
+            aria-label={playing ? 'Pause music' : 'Play music'}
+            title={musicError ? 'This music link can’t be played' : undefined}
+            className="btn btn-ghost btn-sm !px-2.5 disabled:opacity-40"
+          >
+            <span className="eq flex h-3 items-end gap-[2px]" data-playing={playing}>
+              <span />
+              <span />
+              <span />
+            </span>
+            <span className="hidden text-xs sm:inline">{musicError ? 'Music unavailable' : playing ? 'Music' : 'Music off'}</span>
+          </button>
+        )}
         <button type="button" className="btn btn-ghost btn-sm hidden !px-2 sm:inline-flex" onClick={toggleFullscreen} aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}>
           {fullscreen ? <Minimize size={17} /> : <Expand size={17} />}
         </button>
@@ -200,7 +281,7 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
       <div className="relative z-[1] min-h-0 flex-1">
         <div
           ref={stageRef}
-          className={`absolute inset-0 ${zoom > 1 ? 'overflow-auto' : 'overflow-hidden'}`}
+          className={`absolute inset-0 ${zoom > 1 ? 'overflow-auto' : 'overflow-hidden'} ${show.livingPhotos ? 'living' : ''}`}
           onPointerDown={(e) => {
             if (zoom === 1) swipe.current = { x: e.clientX, y: e.clientY };
           }}
@@ -214,7 +295,7 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
           onDoubleClick={() => setZoom((z) => (z === 1 ? 2 : 1))}
         >
           <div className="flex min-h-full min-w-full items-center justify-center p-6" style={{ width: zoom > 1 ? width + pad * 2 : undefined }}>
-            {item.kind === 'spread' ? (
+            {item.kind === 'spread' && anim === 'flip' ? (
               <div key="spread-book" className="viewer-turn" data-dir={dir} style={{ width: displayW }}>
                 <FlipBook
                   spread={{ left: item.left !== null ? doc.pages[item.left] : null, right: item.right !== null ? doc.pages[item.right] : null }}
@@ -226,7 +307,7 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
                 />
               </div>
             ) : (
-              <div key={`${mode}-${index}`} className="viewer-turn" data-dir={dir} style={{ width: displayW }}>
+              <div key={`${mode}-${index}-${anim}`} className={anim === 'flip' ? 'viewer-turn' : `pa pa-${anim}`} data-dir={dir} style={{ width: displayW }}>
                 <ItemView item={item} doc={doc} photos={photos} width={displayW} eager />
               </div>
             )}
@@ -283,6 +364,55 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
       <span className="sr-only">
         <BookOpen /> Use the left and right arrow keys to turn pages.
       </span>
+
+      {music && (
+        <audio
+          ref={audioRef}
+          src={music}
+          loop
+          preload="auto"
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onError={() => {
+            setMusicError(true);
+            setPlaying(false);
+          }}
+        />
+      )}
+
+      {/* Overture: the closed book on cloth; opening it starts the music */}
+      {!opened && (
+        <div className={`cloth absolute inset-0 z-50 grid place-items-center overflow-hidden px-6 text-center ${opening ? 'overture-out' : ''}`}>
+          <div>
+            <div className="mx-auto w-[min(17rem,62vw)]">
+              <div className={opening ? 'cover-opening' : 'book-in'}>
+                <div className="shadow-[0_40px_60px_-30px_rgb(0_0_0/.65)]">
+                  <BookCover page={doc.cover} size={doc.size} photos={photos} renderWidth={320} eager />
+                </div>
+              </div>
+            </div>
+            <p className="smallcaps mt-10 !text-white/60">{subtitle ?? 'A FULLSTORY album'}</p>
+            <h1 className="mt-3 font-serif text-4xl font-medium leading-tight md:text-5xl">{title}</h1>
+            <button
+              type="button"
+              autoFocus
+              onClick={openAlbum}
+              disabled={opening}
+              className="btn btn-light btn-lg mt-9 text-[0.75rem] uppercase tracking-[0.2em]"
+            >
+              Open the album
+            </button>
+            <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/55">
+              <span className="eq flex h-3 items-end gap-[2px]" data-playing="true">
+                <span />
+                <span />
+                <span />
+              </span>
+              Best with sound on
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { buildSpreads, spreadIndexOfPage } from '@/lib/album/geometry';
 import type { AlbumDocument, AlbumElement, Page, PageRef, PageSize, PhotoAsset, PhotoMap } from '@/lib/album/types';
 
 export type SaveState = 'saved' | 'dirty' | 'saving' | 'error' | 'conflict';
-export type PanelId = 'pages' | 'photos' | 'layouts' | 'text' | 'backgrounds' | 'elements';
+export type PanelId = 'pages' | 'photos' | 'layouts' | 'text' | 'backgrounds' | 'elements' | 'motion';
 
 export interface UploadItem {
   id: string;

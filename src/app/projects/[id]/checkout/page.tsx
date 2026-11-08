@@ -36,8 +36,8 @@ async function Checkout({ params, searchParams }: { params: Promise<{ id: string
   const template = doc.templateId ? getTemplate(doc.templateId) : null;
   const checks = [
     { ok: frames.filled > 0, text: frames.filled > 0 ? `${frames.filled} photos placed` : 'No photos placed yet' },
-    { ok: frames.empty === 0, text: frames.empty === 0 ? 'No empty photo frames' : `${frames.empty} empty photo ${frames.empty === 1 ? 'frame prints' : 'frames print'} as blank space` },
-    { ok: lowRes === 0, text: lowRes === 0 ? 'All photos are sharp enough to print' : `${lowRes} ${lowRes === 1 ? 'photo is' : 'photos are'} below ${catalog.print.minDpi} dpi and may look soft in print` },
+    { ok: frames.empty === 0, text: frames.empty === 0 ? 'No empty photo frames' : `${frames.empty} empty photo ${frames.empty === 1 ? 'frame shows' : 'frames show'} as blank space` },
+    { ok: lowRes === 0, text: lowRes === 0 ? 'All photos are sharp at full size' : `${lowRes} ${lowRes === 1 ? 'photo is' : 'photos are'} below ${catalog.print.minDpi} dpi and may look soft in print` },
   ];
 
   return (

@@ -131,6 +131,18 @@ export interface Theme {
   palette: string[];
 }
 
+/** How pages change in the online album (preview and share link). */
+export type PageAnimation = 'flip' | 'fade' | 'slide' | 'zoom' | 'reveal';
+
+/** Settings for viewing the album on screen. They never affect the PDF. */
+export interface Presentation {
+  animation: PageAnimation;
+  /** Photos drift slowly while the album is open, like a film. */
+  livingPhotos: boolean;
+  /** Background music: a direct link to an audio file, played when the album opens. */
+  musicUrl: string | null;
+}
+
 export interface AlbumDocument {
   schemaVersion: 1;
   templateId: string | null;
@@ -141,6 +153,7 @@ export interface AlbumDocument {
   backCover: Page;
   pages: Page[];
   spineText: string;
+  presentation?: Presentation;
 }
 
 /** A page reference within a document. */

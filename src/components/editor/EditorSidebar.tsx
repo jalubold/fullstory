@@ -17,6 +17,7 @@ import {
   Upload,
   Wand2,
   X,
+  Clapperboard,
 } from 'lucide-react';
 import { PageView } from '@/components/album/PageView';
 import { applyLayout, buildPage, resizeDocument, roleStyle } from '@/lib/album/build';
@@ -29,6 +30,7 @@ import type { BackgroundPattern, Page, PageSize, PhotoAsset, PhotoElement, TextR
 import { PHOTO_MIME } from './EditablePage';
 import { refLabel, useEditor, type PanelId } from './store';
 import { uploadFiles } from './uploads';
+import { MotionPanel } from './MotionPanel';
 
 const TABS: Array<{ id: PanelId; label: string; icon: typeof Files }> = [
   { id: 'pages', label: 'Pages', icon: Files },
@@ -37,6 +39,7 @@ const TABS: Array<{ id: PanelId; label: string; icon: typeof Files }> = [
   { id: 'text', label: 'Text', icon: Type },
   { id: 'backgrounds', label: 'Backgrounds', icon: Paintbrush },
   { id: 'elements', label: 'Elements', icon: Shapes },
+  { id: 'motion', label: 'Motion', icon: Clapperboard },
 ];
 
 export function EditorSidebar() {
@@ -73,6 +76,7 @@ export function EditorSidebar() {
             {panel === 'text' && <TextPanel />}
             {panel === 'backgrounds' && <BackgroundsPanel />}
             {panel === 'elements' && <ElementsPanel />}
+            {panel === 'motion' && <MotionPanel />}
           </div>
         </div>
       )}

@@ -25,7 +25,7 @@ async function Preview({ params }: { params: Promise<{ id: string }> }) {
       banner={
         frames.empty > 0 ? (
           <div className="flex items-center justify-center gap-2 bg-warning-soft px-4 py-2 text-xs text-warning">
-            <AlertTriangle size={14} /> {frames.empty} photo {frames.empty === 1 ? 'frame is' : 'frames are'} still empty. Empty frames print as blank space.
+            <AlertTriangle size={14} /> {frames.empty} photo {frames.empty === 1 ? 'frame is' : 'frames are'} still empty. Empty frames show as blank space.
           </div>
         ) : undefined
       }

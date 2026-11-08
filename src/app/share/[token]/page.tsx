@@ -9,6 +9,8 @@ import { usedPhotoIds } from '@/lib/album/geometry';
 import type { PhotoMap } from '@/lib/album/types';
 import { bumpShareViews, getShareByToken, hasItem } from '@/lib/server/repo/orders';
 import { shareAccess } from '@/lib/server/shares';
+import { presentationOf } from '@/lib/album/presentation';
+import { getProjectPresentation } from '@/lib/server/repo/projects';
 
 export const metadata: Metadata = { title: 'Shared album', robots: { index: false, follow: false } };
 
@@ -50,6 +52,7 @@ async function Shared({ params }: { params: Promise<{ token: string }> }) {
   await bumpShareViews(share!.id);
   const order = access.order;
   const doc = order.document_snapshot;
+  const presentation = presentationOf({ presentation: (await getProjectPresentation(order.project_id)) ?? doc.presentation });
   const photos: PhotoMap = {};
   for (const id of usedPhotoIds(doc)) {
     const m = order.photo_manifest[id];
@@ -61,6 +64,7 @@ async function Shared({ params }: { params: Promise<{ token: string }> }) {
       photos={photos}
       title={share!.title}
       subtitle="A FULLSTORY album"
+      presentation={presentation}
       actions={
         share!.allow_download && hasItem(order, 'digital_pdf') ? (
           <a href={`/api/share/${token}/download`} className="btn btn-secondary btn-sm">

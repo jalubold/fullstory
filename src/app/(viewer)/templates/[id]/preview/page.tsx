@@ -26,6 +26,7 @@ export default async function TemplatePreviewPage({ params }: PageProps<'/templa
   const t = demo.template;
   return (
     <AlbumViewer
+      animationPicker
       doc={demo.doc}
       photos={demo.photos}
       title={t.name}

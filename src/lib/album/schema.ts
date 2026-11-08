@@ -108,4 +108,11 @@ export const documentSchema = z.object({
   backCover: page,
   pages: z.array(page).min(1).max(200),
   spineText: z.string().max(120),
+  presentation: z
+    .object({
+      animation: z.enum(['flip', 'fade', 'slide', 'zoom', 'reveal']),
+      livingPhotos: z.boolean(),
+      musicUrl: z.string().max(2000).regex(/^https?:\/\//i).nullable(),
+    })
+    .optional(),
 });

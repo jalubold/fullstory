@@ -1,7 +1,7 @@
 import 'server-only';
 import crypto from 'node:crypto';
 import { usedPhotoIds } from '@/lib/album/geometry';
-import type { AlbumDocument, Page, PageSize, PhotoMap } from '@/lib/album/types';
+import type { AlbumDocument, Page, PageSize, PhotoMap, Presentation } from '@/lib/album/types';
 import { sql, sqlOne, transaction } from '../db';
 import { photoMapFor } from './photos';
 import { NO_GUEST_ID } from '../auth/guest-id';
@@ -162,4 +162,11 @@ export async function listProjects(userId: string, status?: ProjectStatus): Prom
 
 export async function documentPhotoMap(doc: AlbumDocument, base?: string): Promise<PhotoMap> {
   return photoMapFor([...usedPhotoIds(doc)], base);
+}
+
+/** The album's current motion & music settings (used by share links, so owners can change the music later). */
+export async function getProjectPresentation(projectId: string): Promise<Presentation | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(projectId)) return null;
+  const row = await sqlOne<{ p: Presentation | null }>(`select document->'presentation' as p from projects where id = $1 and deleted_at is null`, [projectId]);
+  return row?.p ?? null;
 }
