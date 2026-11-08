@@ -11,7 +11,7 @@ import { appUrl } from '@/lib/server/env';
 import { listOrders } from '@/lib/server/repo/orders';
 import { listProjects } from '@/lib/server/repo/projects';
 
-export const metadata: Metadata = { title: 'Dashboard', robots: { index: false } };
+export const metadata: Metadata = { title: 'My albums', robots: { index: false } };
 
 async function Content({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;

@@ -73,8 +73,22 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
         <span className="relative mt-8 grid h-14 w-14 place-items-center rounded-full border border-line-strong text-accent transition duration-500 group-hover:border-accent">
           <ImagePlus size={24} strokeWidth={1.5} />
         </span>
-        <span className="relative font-serif text-3xl">{photos.length ? 'Add more photos' : 'Drop your photos here'}</span>
-        <span className="relative text-sm text-muted">or <span className="font-medium text-accent">browse your files</span> · JPEG, PNG or WebP up to 40 MB · add more any time</span>
+        <span className="relative font-serif text-3xl">
+          {photos.length ? (
+            'Add more photos'
+          ) : (
+            <>
+              <span className="hidden sm:inline">Drop your photos here</span>
+              <span className="sm:hidden">Tap to choose your photos</span>
+            </>
+          )}
+        </span>
+        <span className="relative text-sm text-muted">
+          <span className="hidden sm:inline">
+            or <span className="font-medium text-accent">browse your files</span> ·{' '}
+          </span>
+          JPEG, PNG or WebP up to 40 MB · add more any time
+        </span>
       </button>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-y border-line px-1 py-4 text-sm">

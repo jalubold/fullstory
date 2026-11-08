@@ -56,7 +56,7 @@ export default function HowItWorksPage() {
         <ol className="grid gap-px overflow-hidden rounded-[4px] border border-line bg-line md:grid-cols-5">
           {STEPS.map((s, i) => (
             <li key={s.title} className="bg-paper p-7">
-              <p className="font-serif text-4xl italic text-accent">{String(i + 1).padStart(2, '0')}</p>
+              <p className="numeral text-4xl">{['I', 'II', 'III', 'IV', 'V'][i]}.</p>
               <h2 className="mt-4 font-serif text-2xl leading-tight">{s.title}</h2>
               <p className="mt-3 text-sm leading-relaxed text-ink-soft">{s.text}</p>
             </li>

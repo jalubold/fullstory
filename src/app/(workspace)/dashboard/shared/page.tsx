@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/dashboard/ProjectGrid';
 import { requireUser } from '@/lib/server/auth';
 import { listShares } from '@/lib/server/repo/orders';
 
-export const metadata: Metadata = { title: 'Shared Albums', robots: { index: false } };
+export const metadata: Metadata = { title: 'Share links', robots: { index: false } };
 
 async function List() {
   const user = await requireUser('/dashboard/shared');
@@ -52,7 +52,7 @@ async function List() {
 export default function SharedPage() {
   return (
     <>
-      <PageHeader title="Shared Albums" text="Private links to online versions of your albums." />
+      <PageHeader title="Share links" text="Private links to online versions of your albums." />
       <Suspense fallback={<div className="h-60 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>

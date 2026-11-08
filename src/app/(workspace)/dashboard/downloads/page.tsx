@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/dashboard/ProjectGrid';
 import { requireUser } from '@/lib/server/auth';
 import { listOrders } from '@/lib/server/repo/orders';
 
-export const metadata: Metadata = { title: 'My Downloads', robots: { index: false } };
+export const metadata: Metadata = { title: 'Downloads', robots: { index: false } };
 
 async function List() {
   const user = await requireUser('/dashboard/downloads');
@@ -41,7 +41,7 @@ async function List() {
 export default function DownloadsPage() {
   return (
     <>
-      <PageHeader title="My Downloads" text="High-resolution PDFs of the albums you’ve purchased." />
+      <PageHeader title="Downloads" text="High-resolution PDFs of the albums you’ve purchased." />
       <Suspense fallback={<div className="h-60 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>

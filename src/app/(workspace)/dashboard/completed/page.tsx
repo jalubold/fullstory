@@ -6,7 +6,7 @@ import { PageHeader, ProjectGrid } from '@/components/dashboard/ProjectGrid';
 import { requireUser } from '@/lib/server/auth';
 import { listProjects } from '@/lib/server/repo/projects';
 
-export const metadata: Metadata = { title: 'Completed Albums', robots: { index: false } };
+export const metadata: Metadata = { title: 'Completed', robots: { index: false } };
 
 async function List() {
   const user = await requireUser('/dashboard/completed');
@@ -17,7 +17,7 @@ async function List() {
 export default function Page() {
   return (
     <>
-      <PageHeader title="Completed Albums" text="Albums you’ve bought as a PDF or shareable album." action={<Link href="/create" className="btn btn-primary btn-sm"><Plus size={15} /> Create New Album</Link>} />
+      <PageHeader title="Completed" text="Albums you’ve bought as a PDF or shareable album." action={<Link href="/create" className="btn btn-primary btn-sm"><Plus size={15} /> Create New Album</Link>} />
       <Suspense fallback={<div className="h-80 skeleton rounded-[4px]" />}>
         <List />
       </Suspense>

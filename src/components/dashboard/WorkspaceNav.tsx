@@ -5,12 +5,12 @@ import { usePathname } from 'next/navigation';
 import { BookOpen, CreditCard, Download, FileClock, FolderOpen, LayoutDashboard, Package, Settings, Share2 } from 'lucide-react';
 
 export const WORKSPACE_NAV = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/projects', label: 'My Projects', icon: FolderOpen },
-  { href: '/dashboard/drafts', label: 'Saved Drafts', icon: FileClock },
-  { href: '/dashboard/completed', label: 'Completed Albums', icon: BookOpen },
-  { href: '/dashboard/downloads', label: 'My Downloads', icon: Download },
-  { href: '/dashboard/shared', label: 'Shared Albums', icon: Share2 },
+  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+  { href: '/dashboard/projects', label: 'All albums', icon: FolderOpen },
+  { href: '/dashboard/drafts', label: 'Drafts', icon: FileClock },
+  { href: '/dashboard/completed', label: 'Completed', icon: BookOpen },
+  { href: '/dashboard/downloads', label: 'Downloads', icon: Download },
+  { href: '/dashboard/shared', label: 'Share links', icon: Share2 },
   { href: '/dashboard/orders', label: 'Print Orders', icon: Package },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
