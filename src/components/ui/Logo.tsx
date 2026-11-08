@@ -1,37 +1,52 @@
 import Link from 'next/link';
+import { WORDMARK } from './wordmark';
 
 /**
- * FULLSTORY mark: an open book with a ribbon bookmark — the book, and the
- * place you keep in its story. Drawn on a deep red tile with a dark ribbon.
+ * The FULLSTORY wordmark: "Fullstory" in Cormorant Garamond, with the second
+ * "l" drawn as a ribbon bookmark hanging below the line — the place you keep
+ * in a story. The letters take the current text colour; the ribbon is deep red
+ * (or ink on red backgrounds).
  */
-export function LogoMark({ size = 32, tone = 'dark', className = '' }: { size?: number; tone?: 'dark' | 'light'; className?: string }) {
-  const tile = tone === 'dark' ? 'url(#fs-tile)' : '#FFFFFF';
-  const page = tone === 'dark' ? '#FFFFFF' : '#130C0D';
+export function Wordmark({ height = 26, ribbon = 'var(--ribbon, var(--color-accent))', className = '' }: { height?: number; ribbon?: string; className?: string }) {
+  const [, , w, h] = WORDMARK.viewBox.split(' ').map(Number);
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden className={className}>
-      <defs>
-        <linearGradient id="fs-tile" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#A8192F" />
-          <stop offset="1" stopColor="#5A0814" />
-        </linearGradient>
-        <linearGradient id="fs-ribbon" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#2A0509" />
-          <stop offset="1" stopColor="#120204" />
-        </linearGradient>
-      </defs>
-      <rect width="40" height="40" rx="11" fill={tile} />
-      <path d="M20 12.2C16.6 10.3 12.2 9.7 8.2 10.5V28.6C12.2 27.8 16.6 28.4 20 30.3Z" fill={page} />
-      <path d="M20 12.2C23.4 10.3 27.8 9.7 31.8 10.5V28.6C27.8 27.8 23.4 28.4 20 30.3Z" fill={page} opacity="0.72" />
-      <path d="M24.6 10.05 27.9 9.85V33.2L26.25 31.5 24.6 33.2Z" fill="url(#fs-ribbon)" />
+    <svg viewBox={WORDMARK.viewBox} height={height} width={(height * w) / h} aria-hidden className={`block overflow-visible ${className}`}>
+      <path d={WORDMARK.text} fill="currentColor" />
+      <path d={WORDMARK.ribbon} fill={ribbon} style={{ transformBox: 'fill-box' }} className="origin-top transition-transform duration-500 ease-[var(--ease-soft)] group-hover:scale-y-[1.12]" />
     </svg>
   );
 }
 
-export function Logo({ href = '/', className = '', compact = false, tone = 'dark' }: { href?: string; className?: string; compact?: boolean; tone?: 'dark' | 'light' }) {
+/** The ribbon alone — used where the full wordmark doesn't fit (editor toolbar, favicon). */
+export function RibbonMark({ size = 28, className = '' }: { size?: number; className?: string }) {
   return (
-    <Link href={href} className={`group inline-flex items-center gap-2.5 ${tone === 'dark' ? 'text-ink' : 'text-white'} ${className}`} aria-label="FULLSTORY — home">
-      <LogoMark size={30} tone={tone} className="rounded-[9px] transition-transform duration-500 ease-[var(--ease-soft)] group-hover:-rotate-6 group-hover:scale-105 group-data-[dark=true]/header:ring-1 group-data-[dark=true]/header:ring-white/20" />
-      {!compact && <span className="font-serif text-[1.35rem] font-semibold leading-none tracking-[0.26em]">FULLSTORY</span>}
+    <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden className={className}>
+      <rect width="64" height="64" rx="14" fill="var(--color-card)" stroke="var(--color-line)" />
+      <path d="M24 0H40V51.2L32 43.5L24 51.2Z" fill="var(--color-accent)" style={{ transformBox: 'fill-box' }} className="origin-top transition-transform duration-500 group-hover:scale-y-110" />
+    </svg>
+  );
+}
+
+export function Logo({
+  href = '/',
+  className = '',
+  compact = false,
+  tone = 'dark',
+  height = 26,
+}: {
+  href?: string;
+  className?: string;
+  compact?: boolean;
+  tone?: 'dark' | 'light';
+  height?: number;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`group inline-flex items-center ${tone === 'dark' ? 'text-ink' : 'text-white'} ${className}`}
+      aria-label="FULLSTORY — home"
+    >
+      {compact ? <RibbonMark /> : <Wordmark height={height} ribbon={tone === 'light' ? 'var(--color-ink)' : undefined} />}
     </Link>
   );
 }

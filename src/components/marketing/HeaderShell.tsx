@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 
-/** Sticky header that goes dark while it sits over the homepage's dark hero. */
+/** Sticky header that turns transparent (white type, ink ribbon) while it sits over the homepage's red cloth cover. */
 export function HeaderShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [past, setPast] = useState(false);
@@ -17,7 +17,7 @@ export function HeaderShell({ children }: { children: ReactNode }) {
   return (
     <header
       data-dark={dark ? 'true' : 'false'}
-      className="group/header sticky top-0 z-50 border-b border-line/70 bg-paper/80 backdrop-blur-xl transition-colors duration-500 data-[dark=true]:border-white/10 data-[dark=true]:bg-night"
+      className="group/header sticky top-0 z-50 border-b border-line bg-paper/90 backdrop-blur-md transition-[background-color,border-color] duration-500 data-[dark=true]:border-white/15 data-[dark=true]:bg-transparent data-[dark=true]:backdrop-blur-none data-[dark=true]:[--ribbon:var(--color-ink)]"
     >
       {children}
     </header>

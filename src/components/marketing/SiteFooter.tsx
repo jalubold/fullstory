@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { LogoMark } from '@/components/ui/Logo';
+import { Wordmark } from '@/components/ui/Logo';
 import { CATEGORIES } from '@/lib/templates/taxonomy';
 
 const COLUMNS = [
@@ -34,43 +34,44 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="grain relative isolate mt-auto overflow-hidden bg-night text-white">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -left-40 top-0 h-96 w-96 rounded-full bg-accent/20 blur-[120px]" />
-        <div className="absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-rose/10 blur-[120px]" />
-      </div>
-      <div className="container-page grid gap-12 pb-12 pt-20 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-        <div className="max-w-sm">
-          <LogoMark size={40} className="rounded-[11px] ring-1 ring-white/15" />
-          <p className="mt-6 font-serif text-3xl leading-snug">
-            Your photos. Your story. <span className="italic text-gradient">Your book.</span>
-          </p>
-          <Link href="/create" className="btn btn-light btn-sm mt-7">
-            Start your album <ArrowRight size={14} />
-          </Link>
-        </div>
-        {COLUMNS.map((col) => (
-          <div key={col.title}>
-            <p className="eyebrow !text-white/40">{col.title}</p>
-            <ul className="mt-5 space-y-3">
-              {col.links.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-white/70 transition-colors hover:text-white">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+    <footer className="mt-auto border-t border-line-strong bg-paper">
+      <div className="container-page pt-16 lg:pt-20">
+        <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
+          <div>
+            <Wordmark height={44} />
+            <p className="mt-6 max-w-xs font-serif text-2xl leading-snug text-ink-soft">
+              Your photos. Your story. <span className="italic text-accent">Your book.</span>
+            </p>
+            <Link href="/create" className="mt-7 inline-flex items-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink">
+              <span className="link-underline">Begin your book</span> <ArrowRight size={14} />
+            </Link>
           </div>
-        ))}
-      </div>
-      <div className="container-page select-none overflow-hidden" aria-hidden>
-        <p className="translate-y-[18%] whitespace-nowrap text-center font-serif text-[clamp(4rem,17vw,15rem)] font-semibold leading-none tracking-[0.12em] text-white/[0.06]">FULLSTORY</p>
-      </div>
-      <div className="border-t border-white/10">
-        <div className="container-page flex flex-col gap-2 py-6 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 FULLSTORY. All rights reserved.</p>
-          <p>Template sample photography courtesy of photographers on Unsplash.</p>
+          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
+            {COLUMNS.map((col) => (
+              <div key={col.title}>
+                <p className="smallcaps border-b border-line pb-3">{col.title}</p>
+                <ul className="mt-4 space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l.href}>
+                      <Link href={l.href} className="text-sm text-ink-soft transition-colors hover:text-accent">
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Colophon — the closing page of the book */}
+        <div className="mt-16 grid gap-6 border-t border-line-strong py-8 text-xs leading-relaxed text-muted md:grid-cols-[auto_1fr_auto] md:items-baseline md:gap-10">
+          <p className="smallcaps !text-ink">Colophon</p>
+          <p className="max-w-2xl">
+            FULLSTORY is a studio for making photobooks in your browser — no account, nothing to install. Set in Cormorant Garamond and Inter.
+            Template sample photography courtesy of photographers on Unsplash.
+          </p>
+          <p className="folio not-italic">© 2026 FULLSTORY</p>
         </div>
       </div>
     </footer>

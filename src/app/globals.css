@@ -70,13 +70,76 @@
     font-weight: 500;
     letter-spacing: -0.01em;
   }
-  .eyebrow {
+  .eyebrow,
+  .smallcaps {
     font-family: var(--font-sans);
     font-size: 0.6875rem;
     font-weight: 500;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--color-muted);
+  }
+  /* Book furniture: running heads, folios and hairline rules */
+  .running-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-line-strong);
+    padding-bottom: 0.85rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .folio {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    color: var(--color-faint);
+  }
+  .numeral {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--color-accent);
+    line-height: 1;
+  }
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
+    transition: background-size 0.45s var(--ease-soft);
+  }
+  .link-underline:hover {
+    background-size: 0% 1px;
+    background-position: 100% 100%;
+  }
+  .leader {
+    flex: 1;
+    min-width: 2rem;
+    border-bottom: 1px dotted var(--color-line-strong);
+    transform: translateY(-0.3em);
+  }
+  /* Deep red book cloth */
+  .cloth {
+    --ribbon: var(--color-ink);
+    background-color: #7a1020;
+    background-image:
+      radial-gradient(120% 90% at 30% 20%, rgb(255 255 255 / 0.07), transparent 55%),
+      radial-gradient(140% 120% at 50% 50%, transparent 55%, rgb(0 0 0 / 0.38)),
+      repeating-linear-gradient(0deg, rgb(0 0 0 / 0.06) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.03) 0 1px, transparent 1px 3px);
+    color: #fff;
+  }
+  .stamp {
+    /* blind-stamped (debossed) lettering on cloth */
+    color: rgb(0 0 0 / 0.22);
+    text-shadow: 0 1px 0 rgb(255 255 255 / 0.12), 0 -1px 0 rgb(0 0 0 / 0.25);
   }
   .container-page {
     width: 100%;
@@ -95,11 +158,12 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 999px;
+    border-radius: 2px;
     font-size: 0.875rem;
     font-weight: 500;
+    letter-spacing: 0.01em;
     line-height: 1;
-    padding: 0.8rem 1.35rem;
+    padding: 0.85rem 1.4rem;
     transition: background-color 0.2s var(--ease-soft), color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
     white-space: nowrap;
     user-select: none;
@@ -109,14 +173,11 @@
     cursor: not-allowed;
   }
   .btn-primary {
-    background: linear-gradient(180deg, #9e1730, var(--color-accent) 55%, #7f0d21);
+    background: var(--color-accent);
     color: #fff;
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px rgb(77 9 20 / 0.25);
   }
   .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(180deg, #8e1126, var(--color-accent-dark) 60%, #5c0816);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-glow);
-    transform: translateY(-1px);
+    background: var(--color-accent-dark);
   }
   .btn-accent {
     background: var(--color-accent);
@@ -124,8 +185,6 @@
   }
   .btn-accent:hover:not(:disabled) {
     background: var(--color-accent-dark);
-    box-shadow: var(--shadow-glow);
-    transform: translateY(-1px);
   }
   .btn-secondary {
     background: transparent;
@@ -134,7 +193,7 @@
   }
   .btn-secondary:hover:not(:disabled) {
     border-color: var(--color-ink);
-    background: rgb(255 255 255 / 0.6);
+    background: #fff;
   }
   .btn-ghost {
     background: transparent;
@@ -148,17 +207,17 @@
     color: #fff;
   }
   .btn-sm {
-    padding: 0.55rem 0.95rem;
+    padding: 0.6rem 1rem;
     font-size: 0.8125rem;
   }
   .btn-lg {
-    padding: 1rem 1.75rem;
+    padding: 1.05rem 1.85rem;
     font-size: 0.9375rem;
   }
 
   .input {
     width: 100%;
-    border-radius: 0.625rem;
+    border-radius: 3px;
     border: 1px solid var(--color-line-strong);
     background: #fff;
     padding: 0.7rem 0.85rem;
@@ -174,7 +233,7 @@
   .input-sm {
     padding: 0.45rem 0.6rem;
     font-size: 0.8125rem;
-    border-radius: 0.5rem;
+    border-radius: 3px;
   }
   .label {
     display: block;
@@ -186,13 +245,13 @@
   .card {
     background: #fff;
     border: 1px solid var(--color-line);
-    border-radius: 1rem;
+    border-radius: 4px;
   }
   .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    border-radius: 999px;
+    border-radius: 2px;
     border: 1px solid var(--color-line-strong);
     padding: 0.45rem 0.9rem;
     font-size: 0.8125rem;
@@ -214,7 +273,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    border-radius: 999px;
+    border-radius: 2px;
     padding: 0.2rem 0.55rem;
     font-size: 0.6875rem;
     font-weight: 500;
@@ -653,12 +712,11 @@
     color: var(--color-ink);
   }
   .btn-light:hover:not(:disabled) {
-    background: #f7f1f2;
-    transform: translateY(-1px);
-    box-shadow: 0 12px 30px -12px rgb(255 255 255 / 0.35);
+    background: var(--color-ink);
+    color: #fff;
   }
   .btn-outline-light {
-    background: rgb(255 255 255 / 0.04);
+    background: transparent;
     color: #ffffff;
     border: 1px solid rgb(255 255 255 / 0.22);
   }
@@ -714,4 +772,23 @@
 @keyframes fs-progress {
   0% { transform: translateX(-120%); }
   100% { transform: translateX(320%); }
+}
+
+/* Satin ribbon bookmark (hero book, final chapter) */
+.ribbon {
+  background: linear-gradient(90deg, #6d0a1b 0%, #a3172e 38%, #c0283f 50%, #8e1126 64%, #5c0816 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 1.1vw), 0 100%);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.04);
+  filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.25));
+  transform-origin: top;
+  animation: fs-ribbon-sway 7s ease-in-out infinite;
+}
+@keyframes fs-ribbon-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(0.6deg);
+  }
 }

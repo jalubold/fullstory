@@ -2,6 +2,13 @@ import type { CSSProperties } from 'react';
 import type { Page, PageSize, PhotoMap } from '@/lib/album/types';
 import { PageView } from './PageView';
 
+/** Cloth colours for the hard cover board that frames an open spread. */
+export const BOARDS = {
+  red: 'linear-gradient(90deg,#4a0711,#7a1020 3%,#7a1020 97%,#4a0711)',
+  ink: 'linear-gradient(90deg,#070405,#1b1214 3%,#1b1214 97%,#070405)',
+} as const;
+export type BookBoard = keyof typeof BOARDS;
+
 /** Keep `relative` unless the caller positions the element itself. */
 const positioned = (cls: string) => (/\b(absolute|fixed|sticky)\b/.test(cls) ? '' : 'relative');
 
@@ -51,8 +58,9 @@ export function OpenBook({
   className = '',
   style,
   endpaper = '#7A1020',
+  board = 'red',
   eager,
-}: BaseProps & { left: Page | null; right: Page | null; endpaper?: string }) {
+}: BaseProps & { left: Page | null; right: Page | null; endpaper?: string; board?: BookBoard }) {
   const half = renderWidth / 2;
   return (
     <div className={`${positioned(className)} ${className}`} style={style}>
@@ -61,7 +69,7 @@ export function OpenBook({
         className="absolute rounded-[3px]"
         style={{
           inset: '0.8% -0.9% -1.6% -0.9%',
-          background: 'linear-gradient(90deg,#4a0711,#7a1020 3%,#7a1020 97%,#4a0711)',
+          background: BOARDS[board],
           boxShadow: '0 36px 70px -26px rgb(19 8 10 / .55), 0 8px 18px -8px rgb(19 8 10 / .3)',
         }}
       />

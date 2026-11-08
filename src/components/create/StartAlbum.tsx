@@ -36,16 +36,10 @@ export function StartAlbum({ request, visual, title }: { request: Record<string,
   }, []);
 
   return (
-    <div className="grain relative isolate grid min-h-[calc(100svh-4rem)] place-items-center overflow-hidden bg-night px-6 py-16 text-center text-white md:min-h-[calc(100svh-4.5rem)]">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="aurora absolute -left-[10%] -top-[30%] h-[70%] w-[60%] rounded-full bg-accent/30 blur-[140px]" />
-        <div className="aurora absolute -bottom-[30%] -right-[10%] h-[60%] w-[50%] rounded-full bg-rose/15 blur-[140px]" style={{ animationDelay: '-7s' }} />
-      </div>
+    <div className="cloth relative grid min-h-[calc(100svh-4rem)] place-items-center overflow-hidden px-6 py-16 text-center md:min-h-[calc(100svh-4.5rem)]">
       <div className="w-full max-w-md">
-        <div className="mx-auto w-[min(18rem,70vw)]">
-          <div className="drop-in float-slow" style={{ ['--r' as string]: '-3deg', ['--r-from' as string]: '-14deg' }}>
-            {visual}
-          </div>
+        <div className="mx-auto w-[min(17rem,66vw)]" style={{ perspective: '1600px' }}>
+          <div className="book-in shadow-[0_40px_60px_-30px_rgb(0_0_0/.6)]">{visual}</div>
         </div>
         {error ? (
           <>
@@ -61,11 +55,11 @@ export function StartAlbum({ request, visual, title }: { request: Record<string,
         ) : (
           <>
             <h1 className="rise mt-12 font-serif text-4xl font-medium md:text-5xl" style={{ animationDelay: '0.2s' }}>
-              Preparing <span className="italic text-gradient">{title}</span>
+              Binding <span className="italic">{title}</span>
             </h1>
-            <p className="rise mt-3 text-white/60" style={{ animationDelay: '0.35s' }}>Setting out every page for your photos…</p>
-            <div className="rise mx-auto mt-8 h-1 w-48 overflow-hidden rounded-full bg-white/10" style={{ animationDelay: '0.45s' }}>
-              <div className="h-full w-1/3 animate-[fs-progress_1.2s_ease-in-out_infinite] rounded-full bg-gradient-to-r from-accent via-violet to-rose" />
+            <p className="rise mt-3 text-white/65" style={{ animationDelay: '0.35s' }}>Setting out every page for your photos…</p>
+            <div className="rise mx-auto mt-9 h-px w-56 overflow-hidden bg-white/20" style={{ animationDelay: '0.45s' }}>
+              <div className="h-full w-1/3 animate-[fs-progress_1.2s_ease-in-out_infinite] bg-white" />
             </div>
           </>
         )}

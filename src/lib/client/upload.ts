@@ -4,7 +4,8 @@ export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const MAX_BYTES = 40 * 1024 * 1024;
 
 interface Target {
-  mode: 'supabase' | 'local';
+  mode: 'supabase' | 'blob' | 'local';
+  key: string;
   url: string;
   token?: string;
 }
@@ -50,7 +51,23 @@ export async function processImage(file: File) {
   }
 }
 
-function put(target: Target, body: Blob, contentType: string, onProgress?: (loaded: number) => void): Promise<void> {
+async function put(target: Target, body: Blob, contentType: string, onProgress?: (loaded: number) => void): Promise<void> {
+  if (target.mode === 'blob') {
+    // Vercel Blob: direct browser upload with a token scoped to this one file.
+    const { put: blobPut } = await import('@vercel/blob/client');
+    try {
+      await blobPut(target.key, body, {
+        access: 'private',
+        token: target.token!,
+        contentType,
+        multipart: body.size > 8 * 1024 * 1024,
+        onUploadProgress: (e) => onProgress?.(e.loaded),
+      });
+    } catch (e) {
+      throw new UploadError(e instanceof Error ? `Upload failed: ${e.message}` : 'Upload failed');
+    }
+    return;
+  }
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('PUT', target.url);

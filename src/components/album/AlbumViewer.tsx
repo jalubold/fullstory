@@ -155,13 +155,11 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
   const displayW = item.kind === 'spread' ? width : isCoverLike ? width : width;
 
   return (
-    <div ref={rootRef} className="relative flex h-dvh flex-col overflow-hidden bg-night text-white">
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="aurora absolute -left-[10%] -top-[30%] h-[70%] w-[60%] rounded-full bg-accent/25 blur-[120px]" />
-        <div className="aurora absolute -bottom-[30%] -right-[10%] h-[60%] w-[50%] rounded-full bg-rose/15 blur-[120px]" style={{ animationDelay: '-8s' }} />
-      </div>
+    <div ref={rootRef} className="relative flex h-dvh flex-col overflow-hidden bg-[#140d0e] text-white">
+      {/* a reading-room spotlight on the book, nothing more */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_45%,rgb(255_255_255/0.07),transparent_70%)]" />
       {/* Top bar */}
-      <div className="relative z-10 flex h-14 shrink-0 items-center gap-3 border-b border-white/10 bg-night/60 px-3 backdrop-blur-xl sm:px-5 [&_.btn-ghost]:text-white/80 [&_.btn-ghost:hover]:bg-white/10 [&_.btn-ghost:hover]:text-white">
+      <div className="relative z-10 flex h-14 shrink-0 items-center gap-3 border-b border-white/10 bg-[#140d0e]/80 px-3 backdrop-blur-md sm:px-5 [&_.btn-ghost]:text-white/80 [&_.btn-ghost:hover]:bg-white/10 [&_.btn-ghost:hover]:text-white">
         {backHref && (
           <Link href={backHref} className="btn btn-ghost btn-sm !px-2.5" aria-label={backLabel}>
             <ArrowLeft size={17} />

@@ -53,17 +53,17 @@ export function PhotoUploadStep(props: { projectId: string; title: string; statu
         onDragOver={(e) => { e.preventDefault(); setOver(true); }}
         onDragLeave={() => setOver(false)}
         onDrop={(e) => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) void uploadFiles([...e.dataTransfer.files]); }}
-        className={`group relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-[2rem] border-2 border-dashed px-6 py-16 text-center transition duration-500 ${over ? 'scale-[1.01] border-accent bg-accent-soft' : 'border-line-strong bg-white hover:border-accent hover:shadow-pop'}`}
+        className={`group relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-[4px] border border-dashed px-6 py-16 text-center transition duration-500 ${over ? 'border-accent bg-accent-soft' : 'border-line-strong bg-white hover:border-accent'}`}
       >
-        <span aria-hidden className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[60%] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl transition group-hover:bg-accent/20" />
-        <span className="relative grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-accent to-violet text-white shadow-glow transition duration-500 group-hover:-translate-y-1 group-hover:rotate-[-6deg]">
-          <ImagePlus size={28} strokeWidth={1.6} />
+        <span aria-hidden className="ribbon absolute left-1/2 top-0 h-12 w-4 -translate-x-1/2 transition-[height] duration-500 group-hover:h-16" />
+        <span className="relative mt-8 grid h-14 w-14 place-items-center rounded-full border border-line-strong text-accent transition duration-500 group-hover:border-accent">
+          <ImagePlus size={24} strokeWidth={1.5} />
         </span>
         <span className="relative font-serif text-3xl">Drop your photos here</span>
         <span className="relative text-sm text-muted">or <span className="font-medium text-accent">browse your files</span> · JPEG, PNG or WebP up to 40 MB · add more any time</span>
       </button>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-paper-2/70 px-5 py-4 text-sm">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-y border-line px-1 py-4 text-sm">
         <p>
           <span className="font-medium">{photos.length}</span> {photos.length === 1 ? 'photo' : 'photos'} uploaded · your design has <span className="font-medium">{frames.frames}</span> photo frames
         </p>

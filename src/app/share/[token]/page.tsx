@@ -76,7 +76,7 @@ async function Shared({ params }: { params: Promise<{ token: string }> }) {
 
 export default function SharePage({ params }: PageProps<'/share/[token]'>) {
   return (
-    <Suspense fallback={<div className="h-dvh bg-night" />}>
+    <Suspense fallback={<div className="h-dvh bg-[#140d0e]" />}>
       <Shared params={params} />
     </Suspense>
   );

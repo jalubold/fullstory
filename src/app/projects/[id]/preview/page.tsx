@@ -40,7 +40,7 @@ async function Preview({ params }: { params: Promise<{ id: string }> }) {
 
 export default function ProjectPreviewPage({ params }: PageProps<'/projects/[id]/preview'>) {
   return (
-    <Suspense fallback={<div className="h-dvh bg-night" />}>
+    <Suspense fallback={<div className="h-dvh bg-[#140d0e]" />}>
       <Preview params={params} />
     </Suspense>
   );

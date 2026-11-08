@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type CSSProperties } from 'react';
 import type { Page, PageSize, PhotoMap } from '@/lib/album/types';
-import { BookSide } from './Book';
+import { BookSide, type BookBoard, BOARDS } from './Book';
 
 export interface Spread {
   left: Page | null;
@@ -17,6 +17,7 @@ interface Props {
   photos: PhotoMap;
   renderWidth: number;
   endpaper?: string;
+  board?: BookBoard;
   duration?: number;
   className?: string;
   style?: CSSProperties;
@@ -30,7 +31,7 @@ const key = (s: Spread) => `${s.left?.id ?? '_'}|${s.right?.id ?? '_'}`;
  * lifts from the spine and rotates over, showing the next page on its back,
  * with light and shadow following the turn.
  */
-export function FlipBook({ spread, dir, size, photos, renderWidth, endpaper = '#7A1020', duration = 900, className = '', style, eager }: Props) {
+export function FlipBook({ spread, dir, size, photos, renderWidth, endpaper = '#7A1020', board = 'red', duration = 900, className = '', style, eager }: Props) {
   const [shown, setShown] = useState(spread);
   const [anim, setAnim] = useState<{ from: Spread; to: Spread; dir: 1 | -1 } | null>(null);
   const [reduced, setReduced] = useState(false);
@@ -60,7 +61,7 @@ export function FlipBook({ spread, dir, size, photos, renderWidth, endpaper = '#
       className="absolute rounded-[3px]"
       style={{
         inset: '0.8% -0.9% -1.6% -0.9%',
-        background: 'linear-gradient(90deg,#4a0711,#7a1020 3%,#7a1020 97%,#4a0711)',
+        background: BOARDS[board],
         boxShadow: '0 36px 70px -26px rgb(19 8 10 / .55), 0 8px 18px -8px rgb(19 8 10 / .3)',
       }}
     />

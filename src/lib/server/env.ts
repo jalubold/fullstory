@@ -21,12 +21,14 @@ export const supabaseUrl = env('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
 export const supabaseServiceKey = env('SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SECRET_KEY');
 export const databaseUrl = env('DATABASE_URL', 'POSTGRES_URL', 'POSTGRES_PRISMA_URL');
 export const storageBucket = env('SUPABASE_STORAGE_BUCKET') ?? 'fullstory';
+/** Vercel Blob (private store) — used for photos and exports when Supabase Storage isn't configured. */
+export const blobToken = env('BLOB_READ_WRITE_TOKEN');
 
 export type DbMode = 'postgres' | 'pglite' | 'none';
-export type StorageMode = 'supabase' | 'local' | 'none';
+export type StorageMode = 'supabase' | 'blob' | 'local' | 'none';
 
 export const dbMode: DbMode = databaseUrl ? 'postgres' : !isVercel ? 'pglite' : 'none';
-export const storageMode: StorageMode = supabaseUrl && supabaseServiceKey ? 'supabase' : !isVercel ? 'local' : 'none';
+export const storageMode: StorageMode = supabaseUrl && supabaseServiceKey ? 'supabase' : blobToken ? 'blob' : !isVercel ? 'local' : 'none';
 
 /**
  * True when albums can be saved. There are no user accounts: each browser gets

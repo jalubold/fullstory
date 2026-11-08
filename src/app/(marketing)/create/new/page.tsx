@@ -21,35 +21,33 @@ async function Start({ searchParams }: { searchParams: Promise<Record<string, st
   if (!platformReady) {
     const demo = template ? getTemplateDemo(template) : null;
     return (
-      <section className="grain relative isolate flex min-h-[calc(100svh-4.5rem)] items-center overflow-hidden bg-night text-white">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="aurora absolute -left-[15%] -top-[35%] h-[85%] w-[70%] rounded-full bg-accent/35 blur-[140px]" />
-          <div className="aurora absolute -bottom-[40%] right-[-10%] h-[80%] w-[55%] rounded-full bg-violet/25 blur-[140px]" style={{ animationDelay: '-6s' }} />
-        </div>
+      <section className="cloth relative flex min-h-[calc(100svh-4.5rem)] items-center overflow-hidden">
         <div className="container-page grid items-center gap-12 py-20 lg:grid-cols-[1fr_auto]">
           <div className="max-w-xl">
-            <p className="eyebrow text-white/50">Album studio</p>
-            <h1 className="rise mt-4 font-serif text-5xl leading-[1.05] sm:text-6xl">
-              Opening <span className="text-gradient italic">very soon.</span>
+            <p className="smallcaps !text-white/60">The studio</p>
+            <h1 className="rise mt-5 font-serif text-5xl font-medium leading-[0.95] sm:text-7xl">
+              Opening <span className="italic">very soon.</span>
             </h1>
-            <p className="rise mt-5 text-lg text-white/70" style={{ animationDelay: '120ms' }}>
-              Saving albums isn’t switched on for this site yet. Every template is ready to explore — flip through the demos and pick your favourite.
+            <p className="rise mt-6 text-lg text-white/75" style={{ animationDelay: '120ms' }}>
+              Saving albums isn’t switched on for this site yet. Every design is ready to explore — flip through the demos and choose your favourite.
             </p>
-            <div className="rise mt-9 flex flex-wrap gap-3" style={{ animationDelay: '220ms' }}>
+            <div className="rise mt-10 flex flex-wrap items-center gap-x-8 gap-y-4" style={{ animationDelay: '220ms' }}>
               {template ? (
-                <Link href={`/templates/${template.id}/preview`} className="btn btn-light">Flip through {template.name}</Link>
+                <Link href={`/templates/${template.id}/preview`} className="btn btn-light btn-lg text-[0.75rem] uppercase tracking-[0.2em]">
+                  Flip through {template.name}
+                </Link>
               ) : null}
-              <Link href="/templates" className={template ? 'btn btn-outline-light' : 'btn btn-light'}>Browse templates</Link>
+              <Link href="/templates" className={template ? 'text-[0.75rem] font-medium uppercase tracking-[0.2em] text-white' : 'btn btn-light btn-lg text-[0.75rem] uppercase tracking-[0.2em]'}>
+                {template ? <span className="link-underline">Browse the collection</span> : 'Browse the collection'}
+              </Link>
             </div>
-            <p className="mt-12 max-w-md border-t border-white/10 pt-5 text-xs leading-relaxed text-white/40">
+            <p className="mt-14 max-w-md border-t border-white/15 pt-5 text-xs leading-relaxed text-white/45">
               For the site owner: albums and photos need a place to be saved. Connect Supabase in Vercel → Storage, then redeploy. Visitors never need an account.
             </p>
           </div>
           {demo ? (
-            <div className="drop-in hidden w-[340px] lg:block" style={{ perspective: '1800px' }}>
-              <div className="float-slow" style={{ transform: 'rotateY(-14deg) rotateX(4deg)' }}>
-                <BookCover page={demo.doc.cover} size={demo.doc.size} photos={demo.photos} renderWidth={320} eager />
-              </div>
+            <div className="book-in hidden w-[320px] shadow-[0_40px_60px_-30px_rgb(0_0_0/.6)] lg:block">
+              <BookCover page={demo.doc.cover} size={demo.doc.size} photos={demo.photos} renderWidth={320} eager />
             </div>
           ) : null}
         </div>
@@ -82,7 +80,7 @@ async function Start({ searchParams }: { searchParams: Promise<Record<string, st
 
 export default function NewAlbumPage({ searchParams }: PageProps<'/create/new'>) {
   return (
-    <Suspense fallback={<div className="min-h-[calc(100svh-4.5rem)] bg-night" />}>
+    <Suspense fallback={<div className="cloth min-h-[calc(100svh-4.5rem)]" />}>
       <Start searchParams={searchParams} />
     </Suspense>
   );

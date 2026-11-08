@@ -25,26 +25,30 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
     <div className="space-y-14">
       {sp.restored === '1' && <p className="rounded-2xl bg-success-soft px-5 py-3 text-sm text-success">Welcome back — your albums are open in this browser again.</p>}
       {sp.restore === 'invalid' && <p className="rounded-2xl bg-danger-soft px-5 py-3 text-sm text-danger">That album link isn’t valid. Check you copied the whole link.</p>}
-      <div className="grain relative isolate overflow-hidden rounded-[2rem] bg-night px-6 py-12 text-white sm:px-10">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="aurora absolute -right-20 -top-24 h-80 w-80 rounded-full bg-accent/40 blur-[100px]" />
-          <div className="aurora absolute -bottom-24 left-10 h-64 w-64 rounded-full bg-rose/20 blur-[100px]" style={{ animationDelay: '-6s' }} />
-        </div>
-        <p className="eyebrow !text-white/50">{first ? `Welcome back, ${first}` : 'Your workspace'}</p>
-        <h1 className="mt-3 max-w-xl font-serif text-4xl font-medium leading-tight md:text-6xl">
-          Your stories, <span className="italic text-gradient">all in one place.</span>
+      <div className="cloth relative overflow-hidden px-6 py-12 sm:px-10 sm:py-14">
+        <span aria-hidden className="ribbon absolute right-[12%] top-0 hidden h-[78%] w-6 sm:block" />
+        <p className="smallcaps !text-white/60">{first ? `Welcome back, ${first}` : 'Your bookshelf'}</p>
+        <h1 className="mt-4 max-w-xl font-serif text-4xl font-medium leading-[0.95] md:text-6xl">
+          Your stories, <span className="italic">all in one place.</span>
         </h1>
-        <div className="mt-7 flex flex-wrap gap-8 text-sm text-white/60">
-          <span><span className="block font-serif text-4xl text-white">{projects.length}</span> albums</span>
-          <span><span className="block font-serif text-4xl text-white">{drafts.length}</span> drafts</span>
-          <span><span className="block font-serif text-4xl text-white">{orders.filter((o) => o.status === 'paid').length}</span> orders</span>
-        </div>
-        <Link href="/create" className="btn btn-light btn-lg btn-glow mt-9"><Plus size={16} /> Create New Album</Link>
+        <dl className="mt-9 flex flex-wrap gap-x-10 gap-y-4 border-t border-white/15 pt-5">
+          {[
+            [projects.length, 'albums'],
+            [drafts.length, 'drafts'],
+            [orders.filter((o) => o.status === 'paid').length, 'orders'],
+          ].map(([n, label]) => (
+            <div key={label}>
+              <dt className="smallcaps !text-white/55">{label}</dt>
+              <dd className="mt-1 font-serif text-4xl italic">{n}</dd>
+            </div>
+          ))}
+        </dl>
+        <Link href="/create" className="btn btn-light btn-lg mt-10 text-[0.75rem] uppercase tracking-[0.2em]"><Plus size={15} /> Begin a new book</Link>
       </div>
 
       <section>
         <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-serif text-3xl">Recent projects</h2>
+          <h2 className="font-serif text-3xl">Recent albums</h2>
           {projects.length > 3 && <Link href="/dashboard/projects" className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-ink">All projects <ArrowRight size={14} /></Link>}
         </div>
         <ProjectGrid projects={projects.slice(0, 3)} />
