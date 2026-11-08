@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { connection } from 'next/server';
 import { BookCover } from '@/components/album/Book';
 import { StartAlbum } from '@/components/create/StartAlbum';
 import { DEFAULT_THEME, buildPage } from '@/lib/album/build';
@@ -14,6 +15,8 @@ import { categoryById } from '@/lib/templates/taxonomy';
 export const metadata: Metadata = { title: 'Starting your album', robots: { index: false } };
 
 async function Start({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  // Starting an album is always per visit (and the blank-album preview builds pages with fresh ids).
+  await connection();
   const sp = await searchParams;
   const template = typeof sp.template === 'string' ? getTemplate(sp.template) : undefined;
   const orientation = (['square', 'landscape', 'portrait'] as const).includes(sp.orientation as Orientation) ? (sp.orientation as Orientation) : 'square';
