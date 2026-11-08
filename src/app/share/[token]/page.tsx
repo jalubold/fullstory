@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { connection } from 'next/server';
 import { Download } from 'lucide-react';
 import { AlbumViewer } from '@/components/album/AlbumViewer';
 import { ShareUnlock } from '@/components/commerce/ShareUnlock';
@@ -29,6 +30,8 @@ function Shell({ children }: { children: React.ReactNode }) {
 }
 
 async function Shared({ params }: { params: Promise<{ token: string }> }) {
+  // Access depends on the visitor's cookie and the link's expiry: always render per request.
+  await connection();
   const { token } = await params;
   const share = await getShareByToken(token);
   const access = await shareAccess(share);
