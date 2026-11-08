@@ -317,6 +317,25 @@
   }
 }
 
+@keyframes fs-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+.animate-sheet-up {
+  animation: fs-sheet-up 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fs-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.animate-fade-in {
+  animation: fs-fade-in 0.25s ease-out both;
+}
 @keyframes fs-fade-up {
   from {
     opacity: 0;

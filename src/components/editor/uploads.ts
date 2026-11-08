@@ -96,7 +96,14 @@ let seq = 0;
  * While the album has no photos placed yet, photos drop into the empty
  * frames as they arrive — one undo step for the whole batch.
  */
-export async function uploadFiles(files: File[], opts: { autoPlace?: boolean } = {}) {
+export async function uploadFiles(
+  files: File[],
+  opts: {
+    autoPlace?: boolean;
+    /** Called with each batch of photos as they become visible (after they're in the library). */
+    onShow?: (batch: PhotoAsset[]) => void;
+  } = {},
+) {
   const st = useEditor.getState;
   const projectId = st().projectId;
   if (!projectId) return;
@@ -126,6 +133,7 @@ export async function uploadFiles(files: File[], opts: { autoPlace?: boolean } =
       s.apply((d) => void (n = autofill(d as AlbumDocument, batch)), { key: historyKey });
       placed += n;
     }
+    opts.onShow?.(batch);
   };
   const show = (p: PhotoAsset) => {
     fresh.push(p);

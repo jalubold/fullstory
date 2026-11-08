@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { ImagePlus, Monitor, X } from 'lucide-react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { ImagePlus } from 'lucide-react';
 import { duplicateElement, pageAt, removeElement } from '@/lib/album/ops';
 import type { AlbumDocument, PageSize, PhotoAsset } from '@/lib/album/types';
 import { WelcomeTips } from './WelcomeTips';
+import { MobileEditor } from './mobile/MobileEditor';
 import { AlbumCanvas } from './AlbumCanvas';
 import { EditorSidebar } from './EditorSidebar';
 import { EditorToolbar } from './EditorToolbar';
@@ -27,6 +28,15 @@ export interface EditorProps {
   sizes: PageSize[];
 }
 
+/** Phones (and phones held sideways) get the simple editor: change photos, rewrite text, nothing moves. */
+const PHONE_QUERY = '(max-width: 767px), (pointer: coarse) and (max-height: 500px)';
+const subscribePhone = (cb: () => void) => {
+  const m = window.matchMedia(PHONE_QUERY);
+  m.addEventListener('change', cb);
+  return () => m.removeEventListener('change', cb);
+};
+const usePhone = () => useSyncExternalStore(subscribePhone, () => window.matchMedia(PHONE_QUERY).matches, () => false);
+
 const isTyping = (t: EventTarget | null) => {
   const el = t as HTMLElement | null;
   return !!el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
@@ -36,7 +46,7 @@ export function Editor(props: EditorProps) {
   const ready = useEditor((s) => s.projectId === props.projectId && !!s.doc);
   const [restore, setRestore] = useState<LocalBackup | null>(null);
   const [fileDrag, setFileDrag] = useState(false);
-  const [smallScreenOk, setSmallScreenOk] = useState(true);
+  const phone = usePhone();
   const propsOpen = useEditor((s) => s.propsOpen);
   const saveState = useEditor((s) => s.saveState);
   const toasts = useEditor((s) => s.toasts);
@@ -54,7 +64,6 @@ export function Editor(props: EditorProps) {
         else localStorage.removeItem(backupKey(props.projectId));
       }
     } catch {}
-    if (window.innerWidth < 768) setSmallScreenOk(false);
     if (window.innerWidth < 1024) useEditor.getState().setPanel(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.projectId]);
@@ -128,29 +137,10 @@ export function Editor(props: EditorProps) {
     );
   }
 
-  return (
-    <div
-      className="flex h-dvh flex-col overflow-hidden bg-editor text-ink"
-      onDragOver={(e) => {
-        if (e.dataTransfer.types.includes('Files')) {
-          e.preventDefault();
-          setFileDrag(true);
-        }
-      }}
-      onDragLeave={(e) => {
-        if (e.currentTarget === e.target) setFileDrag(false);
-      }}
-      onDrop={(e) => {
-        if (!e.dataTransfer.files.length) return;
-        e.preventDefault();
-        setFileDrag(false);
-        useEditor.getState().setPanel('photos');
-        void uploadFiles([...e.dataTransfer.files]);
-      }}
-    >
-      <EditorToolbar save={save} />
+  const banners = (
+    <>
       {restore && (
-        <div className="flex items-center gap-3 border-b border-warning/30 bg-warning-soft px-4 py-2 text-sm text-warning">
+        <div className="flex flex-wrap items-center gap-3 border-b border-warning/30 bg-warning-soft px-4 py-2 text-sm text-warning">
           <span className="flex-1">We found changes on this device that weren’t saved ({new Date(restore.at).toLocaleString()}).</span>
           <button
             type="button"
@@ -181,15 +171,33 @@ export function Editor(props: EditorProps) {
           void save();
         }
       }} />}
-      {!smallScreenOk && (
-        <div className="flex items-start gap-3 border-b border-line bg-paper px-4 py-3 text-sm">
-          <Monitor size={18} className="mt-0.5 shrink-0 text-accent-dark" />
-          <p className="flex-1 text-ink-soft">The editor works best on a tablet or computer. You can still make small changes here.</p>
-          <button type="button" aria-label="Dismiss" onClick={() => setSmallScreenOk(true)}>
-            <X size={16} />
-          </button>
-        </div>
-      )}
+    </>
+  );
+
+  if (phone) return <MobileEditor save={save} banners={banners} />;
+
+  return (
+    <div
+      className="flex h-dvh flex-col overflow-hidden bg-editor text-ink"
+      onDragOver={(e) => {
+        if (e.dataTransfer.types.includes('Files')) {
+          e.preventDefault();
+          setFileDrag(true);
+        }
+      }}
+      onDragLeave={(e) => {
+        if (e.currentTarget === e.target) setFileDrag(false);
+      }}
+      onDrop={(e) => {
+        if (!e.dataTransfer.files.length) return;
+        e.preventDefault();
+        setFileDrag(false);
+        useEditor.getState().setPanel('photos');
+        void uploadFiles([...e.dataTransfer.files]);
+      }}
+    >
+      <EditorToolbar save={save} />
+      {banners}
       <div className="relative flex min-h-0 flex-1">
         <EditorSidebar />
         <div className="relative flex min-w-0 flex-1 flex-col">
