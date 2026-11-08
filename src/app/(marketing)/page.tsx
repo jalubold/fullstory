@@ -4,8 +4,7 @@ import { EditorDemo } from '@/components/marketing/EditorDemo';
 import { HeroFlipBook } from '@/components/marketing/HeroFlipBook';
 import { Reveal } from '@/components/motion/Reveal';
 import { TemplateCard } from '@/components/templates/TemplateCard';
-import { formatMoney, getCatalog, priceIn, printEnabled } from '@/lib/commerce/catalog';
-import { lowestPrintPrice } from '@/lib/commerce/pricing';
+import { getCatalog, printEnabled } from '@/lib/commerce/catalog';
 import type { PhotoMap } from '@/lib/album/types';
 import { photoUrl } from '@/lib/album/photos';
 import { TEMPLATES } from '@/lib/templates';
@@ -29,11 +28,7 @@ function Label({ children }: { children: string }) {
 
 export default function HomePage() {
   const catalog = getCatalog();
-  const cur = catalog.defaultCurrency;
-  const printFrom = lowestPrintPrice(cur);
   const printOn = printEnabled(catalog);
-  const pdf = priceIn(catalog.digital.pdf.price, cur);
-  const share = priceIn(catalog.digital.share.price, cur);
 
   const hero = getTemplateDemo('evermore')!;
   const heroPages = hero.doc.pages.slice(1, 9);
@@ -140,38 +135,6 @@ export default function HomePage() {
           <Reveal delay={150} className="hidden sm:block">
             <EditorDemo page={demoPage} size={demoT.doc.size} photos={demoT.photos} thumbs={demoThumbs} />
           </Reveal>
-        </div>
-      </section>
-
-      {/* ───────────── V. Keeping it — the price list ───────────── */}
-      <section className="bg-paper py-14 lg:py-28">
-        <div className="container-page">
-          <Label>Pricing</Label>
-          <div className="mt-4 grid gap-8 lg:mt-6 lg:grid-cols-[1fr_1.35fr] lg:gap-20">
-            <Reveal as="h2" className="font-serif text-[2.4rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-7xl">
-              Free to design. <span className="italic text-accent">Pay when it’s perfect.</span>
-            </Reveal>
-            <Reveal delay={120}>
-              <ul className="border-t border-ink">
-                {[
-                  { title: 'Printed photobook', text: 'Softcover, hardcover or layflat — printed, bound and delivered.', price: printFrom !== null ? `from ${formatMoney(printFrom, cur)}` : null },
-                  { title: printOn ? 'Print-ready PDF' : 'Digital PDF', text: catalog.digital.pdf.description, price: pdf !== null ? formatMoney(pdf, cur) : null },
-                  { title: 'Private album link', text: catalog.digital.share.description, price: share !== null ? formatMoney(share, cur) : null },
-                ]
-                  .filter((o) => printOn || o.title !== 'Printed photobook')
-                  .map((o) => (
-                  <li key={o.title} className="border-b border-line py-5 lg:py-6">
-                    <div className="flex items-baseline gap-4">
-                      <span className="font-serif text-[1.5rem] leading-none text-ink lg:text-[1.75rem]">{o.title}</span>
-                      <span className="leader" />
-                      {o.price && <span className="font-serif text-[1.6rem] italic leading-none text-accent">{o.price}</span>}
-                    </div>
-                    <p className="mt-2 max-w-md text-sm text-ink-soft">{o.text}</p>
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </div>
         </div>
       </section>
 

@@ -87,9 +87,6 @@ export default function HowItWorksPage() {
           <Link href="/create" className="btn btn-primary btn-lg w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto">
             Begin your book — it’s free
           </Link>
-          <Link href="/pricing" className="text-sm text-muted underline underline-offset-4 hover:text-ink">
-            See pricing
-          </Link>
         </div>
       </section>
     </div>

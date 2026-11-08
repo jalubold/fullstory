@@ -119,12 +119,6 @@
     background-size: 0% 1px;
     background-position: 100% 100%;
   }
-  .leader {
-    flex: 1;
-    min-width: 2rem;
-    border-bottom: 1px dotted var(--color-line-strong);
-    transform: translateY(-0.3em);
-  }
   /* Deep red book cloth */
   .cloth {
     --ribbon: var(--color-ink);

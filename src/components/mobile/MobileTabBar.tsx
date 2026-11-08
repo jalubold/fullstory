@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { BookOpen, ChevronRight, HelpCircle, Home, Info, LayoutGrid, Menu, Plus, Sparkles, Tag, X } from 'lucide-react';
+import { BookOpen, ChevronRight, HelpCircle, Home, Info, LayoutGrid, Menu, Plus, Sparkles, X } from 'lucide-react';
 
 /**
  * The phone and tablet navigation: an app-style tab bar pinned to the bottom,
@@ -18,7 +18,6 @@ const isTemplateList = (p: string) => p === '/templates' || p.startsWith('/templ
 
 const MORE = [
   { href: '/explore', label: 'Inspiration', icon: Sparkles },
-  { href: '/pricing', label: 'Pricing', icon: Tag },
   { href: '/how-it-works', label: 'How it works', icon: BookOpen },
   { href: '/faq', label: 'Questions', icon: HelpCircle },
   { href: '/about', label: 'About Fullstory', icon: Info },

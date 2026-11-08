@@ -9,7 +9,6 @@ const COLUMNS = [
     links: [
       { href: '/create', label: 'Begin a new book' },
       { href: '/templates', label: 'Designs' },
-      { href: '/pricing', label: 'Pricing' },
     ],
   },
   {
