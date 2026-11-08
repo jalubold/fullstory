@@ -16,7 +16,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
   const printOn = catalog.print.enabled !== false;
   return (
     <div>
-      <div className="flex justify-center">
+      <div className="flex md:justify-center">
         <div className="flex rounded-[3px] border border-line-strong bg-white p-0.5" role="group" aria-label="Currency">
           {catalog.currencies.map((c) => (
             <button key={c} type="button" onClick={() => setCur(c)} aria-pressed={cur === c} className={`rounded-[3px] px-3.5 py-1.5 text-xs font-medium ${cur === c ? 'bg-ink text-paper' : 'text-ink-soft'}`}>
@@ -101,7 +101,7 @@ export function PricingTables({ catalog }: { catalog: Catalog }) {
       )}
 
       {!printOn && (
-        <p className="mt-6 text-center text-sm text-muted">
+        <p className="mt-6 text-sm text-muted md:text-center">
           <span className="font-medium text-accent">Premium</span> designs add a one-time {fmt(catalog.premiumTemplate.price[cur], cur)}. Everything else is free.
         </p>
       )}
