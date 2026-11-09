@@ -8,7 +8,7 @@ import { bookFinish } from '@/lib/album/color';
 import { ANIMATIONS, presentationOf } from '@/lib/album/presentation';
 import type { AlbumDocument, PageAnimation, PhotoMap, Presentation } from '@/lib/album/types';
 import { BookCover, FlatPage, OpenBook } from './Book';
-import { FlipBook } from './FlipBook';
+import { DragFlip, FlipBook, type DragFlipHandle, type Spread } from './FlipBook';
 
 export interface AlbumViewerProps {
   doc: AlbumDocument;
@@ -51,6 +51,11 @@ export function itemLabel(item: ViewItem, pageCount: number): string {
       if (item.right === null) return `Page ${item.left + 1}`;
       return `Pages ${item.left + 1}–${item.right + 1}`;
   }
+}
+
+function spreadOf(item: ViewItem, doc: AlbumDocument): Spread {
+  if (item.kind !== 'spread') return { left: null, right: null };
+  return { left: item.left !== null ? doc.pages[item.left] : null, right: item.right !== null ? doc.pages[item.right] : null };
 }
 
 function itemAspect(item: ViewItem, doc: AlbumDocument) {
@@ -108,15 +113,13 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
-  const swipe = useRef<{ x: number; y: number } | null>(null);
+  const swipe = useRef<{ x: number; y: number; dragging: boolean; dir: 1 | -1; p: number; lastX: number; lastT: number; vx: number } | null>(null);
+  // Turning a page with your finger: which way (null when not dragging), and the live turn.
+  const [dragDir, setDragDir] = useState<1 | -1 | null>(null);
+  const dragProgress = useRef(0);
+  const dragApi = useRef<DragFlipHandle | null>(null);
 
   const item = items[Math.min(index, items.length - 1)];
-
-  useEffect(() => {
-    // Narrow screens default to single pages.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (window.innerWidth < 700) setMode('single');
-  }, []);
 
   useEffect(() => {
     const el = stageRef.current;
@@ -213,7 +216,7 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
   };
 
   const aspect = itemAspect(item, doc);
-  const pad = stage.w < 640 ? 24 : 72;
+  const pad = stage.w < 640 ? (item.kind === 'spread' ? 6 : 24) : 72;
   const fitW = Math.max(120, Math.min(stage.w - pad * 2, (stage.h - 48) * aspect));
   const width = fitW * zoom;
   const isCoverLike = item.kind === 'cover' || item.kind === 'back' || item.kind === 'page';
@@ -235,12 +238,12 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
           <p className="truncate font-serif text-lg leading-tight">{title}</p>
           {subtitle && <p className="hidden truncate text-xs text-white/50 sm:block">{subtitle}</p>}
         </div>
-        <div className="hidden items-center rounded-full border border-white/15 bg-white/5 p-0.5 sm:flex" role="group" aria-label="View mode">
-          <button type="button" onClick={() => switchMode('spread')} aria-pressed={mode === 'spread'} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition ${mode === 'spread' ? 'bg-white text-ink' : 'text-white/70 hover:text-white'}`}>
-            <Columns2 size={14} /> Spreads
+        <div className="flex shrink-0 items-center rounded-full border border-white/15 bg-white/5 p-0.5" role="group" aria-label="View mode">
+          <button type="button" onClick={() => switchMode('spread')} aria-pressed={mode === 'spread'} aria-label="Spreads" className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs transition sm:px-3 ${mode === 'spread' ? 'bg-white text-ink' : 'text-white/70 hover:text-white'}`}>
+            <Columns2 size={14} /> <span className="hidden sm:inline">Spreads</span>
           </button>
-          <button type="button" onClick={() => switchMode('single')} aria-pressed={mode === 'single'} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition ${mode === 'single' ? 'bg-white text-ink' : 'text-white/70 hover:text-white'}`}>
-            <RectangleVertical size={14} /> Pages
+          <button type="button" onClick={() => switchMode('single')} aria-pressed={mode === 'single'} aria-label="Pages" className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs transition sm:px-3 ${mode === 'single' ? 'bg-white text-ink' : 'text-white/70 hover:text-white'}`}>
+            <RectangleVertical size={14} /> <span className="hidden sm:inline">Pages</span>
           </button>
         </div>
         <div className="hidden items-center gap-0.5 md:flex" role="group" aria-label="Zoom">
@@ -302,30 +305,84 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
         <div
           ref={stageRef}
           className={`absolute inset-0 ${zoom > 1 ? 'overflow-auto' : 'overflow-hidden'} ${show.livingPhotos ? 'living' : ''}`}
+          style={{ touchAction: zoom === 1 ? 'pan-y pinch-zoom' : undefined }}
           onPointerDown={(e) => {
-            if (zoom === 1) swipe.current = { x: e.clientX, y: e.clientY };
+            if (zoom !== 1 || dragDir !== null) return;
+            const now = performance.now();
+            swipe.current = { x: e.clientX, y: e.clientY, dragging: false, dir: 1, p: 0, lastX: e.clientX, lastT: now, vx: 0 };
+          }}
+          onPointerMove={(e) => {
+            const s = swipe.current;
+            if (!s) return;
+            const dx = e.clientX - s.x;
+            if (!s.dragging) {
+              if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(e.clientY - s.y)) return;
+              // The page follows the finger between open spreads; covers keep the quick swipe.
+              const d: 1 | -1 = dx < 0 ? 1 : -1;
+              if (anim !== 'flip' || item.kind !== 'spread' || items[index + d]?.kind !== 'spread') return;
+              s.dragging = true;
+              s.dir = d;
+              dragProgress.current = 0;
+              e.currentTarget.setPointerCapture?.(e.pointerId);
+              setDragDir(d);
+            }
+            const now = performance.now();
+            s.vx = (e.clientX - s.lastX) / Math.max(1, now - s.lastT);
+            s.lastX = e.clientX;
+            s.lastT = now;
+            s.p = Math.max(0, Math.min(1, (-dx * s.dir) / (displayW * 0.55)));
+            dragProgress.current = s.p;
+            dragApi.current?.set(s.p);
           }}
           onPointerUp={(e) => {
             const s = swipe.current;
             swipe.current = null;
             if (!s) return;
+            if (s.dragging) {
+              const towards = -s.vx * s.dir; // px/ms in the direction of the turn
+              const complete = towards > 0.35 || (towards > -0.25 && s.p > 0.4);
+              const n = index + s.dir;
+              const finish = () => {
+                if (complete) {
+                  setDir(s.dir);
+                  setIndex(n);
+                  setZoom(1);
+                }
+                setDragDir(null);
+              };
+              if (dragApi.current) dragApi.current.release(complete, finish);
+              else finish();
+              return;
+            }
             const dx = e.clientX - s.x;
             if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(e.clientY - s.y)) go(dx < 0 ? 1 : -1);
           }}
+          onPointerCancel={() => {
+            const s = swipe.current;
+            swipe.current = null;
+            if (s?.dragging) dragApi.current ? dragApi.current.release(false, () => setDragDir(null)) : setDragDir(null);
+          }}
           onDoubleClick={() => setZoom((z) => (z === 1 ? 2 : 1))}
         >
-          <div className="flex min-h-full min-w-full items-center justify-center p-6" style={{ width: zoom > 1 ? width + pad * 2 : undefined }}>
+          <div className="flex min-h-full min-w-full items-center justify-center p-1.5 pb-14 sm:p-6" style={{ width: zoom > 1 ? width + pad * 2 : undefined }}>
             {item.kind === 'spread' && anim === 'flip' ? (
               <div key="spread-book" className="viewer-turn" data-dir={dir} style={{ width: displayW }}>
-                <FlipBook
-                  spread={{ left: item.left !== null ? doc.pages[item.left] : null, right: item.right !== null ? doc.pages[item.right] : null }}
-                  dir={dir}
-                  size={doc.size}
-                  photos={photos}
-                  renderWidth={displayW}
-                  {...bookFinish(doc)}
-                  eager
-                />
+                {dragDir !== null && items[index + dragDir]?.kind === 'spread' ? (
+                  <DragFlip
+                    from={spreadOf(item, doc)}
+                    to={spreadOf(items[index + dragDir], doc)}
+                    dir={dragDir}
+                    size={doc.size}
+                    photos={photos}
+                    renderWidth={displayW}
+                    {...bookFinish(doc)}
+                    progressRef={dragProgress}
+                    handleRef={dragApi}
+                    eager
+                  />
+                ) : (
+                  <FlipBook spread={spreadOf(item, doc)} dir={dir} size={doc.size} photos={photos} renderWidth={displayW} {...bookFinish(doc)} eager />
+                )}
               </div>
             ) : item.kind === 'page' && anim === 'flip' ? (
               <div key="single-book" className="viewer-turn" data-dir={dir} style={{ width: displayW }}>
@@ -344,15 +401,23 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
             <ItemView key={i} item={it!} doc={doc} photos={photos} width={displayW} eager />
           ))}
         </div>
-        <button type="button" onClick={() => go(-1)} disabled={index === 0} aria-label="Previous" className="absolute left-2 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white hover:text-ink disabled:opacity-0 sm:left-6">
+        <button type="button" onClick={() => go(-1)} disabled={index === 0} aria-label="Previous" className="absolute left-6 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white hover:text-ink disabled:opacity-0 sm:grid">
           <ChevronLeft size={20} />
         </button>
-        <button type="button" onClick={() => go(1)} disabled={index === items.length - 1} aria-label="Next" className="absolute right-2 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white hover:text-ink disabled:opacity-0 sm:right-6">
+        <button type="button" onClick={() => go(1)} disabled={index === items.length - 1} aria-label="Next" className="absolute right-6 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white hover:text-ink disabled:opacity-0 sm:grid">
           <ChevronRight size={20} />
         </button>
-        <p aria-live="polite" className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1 text-xs tracking-wide text-white/80 backdrop-blur-md">
-          {itemLabel(item, doc.pages.length)}
-        </p>
+        <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+          <button type="button" onClick={() => go(-1)} disabled={index === 0} aria-label="Previous page" className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition active:scale-90 disabled:opacity-30 sm:hidden">
+            <ChevronLeft size={19} />
+          </button>
+          <p aria-live="polite" className="pointer-events-none whitespace-nowrap rounded-full border border-white/10 bg-white/10 px-3.5 py-1 text-xs tracking-wide text-white/80 backdrop-blur-md">
+            {itemLabel(item, doc.pages.length)}
+          </p>
+          <button type="button" onClick={() => go(1)} disabled={index === items.length - 1} aria-label="Next page" className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition active:scale-90 disabled:opacity-30 sm:hidden">
+            <ChevronRight size={19} />
+          </button>
+        </div>
       </div>
 
       {/* Thumbnails */}
