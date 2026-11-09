@@ -35,13 +35,13 @@ export function TemplateCard({ demo, eager }: { demo: TemplateDemo; eager?: bool
   const style = styleById(t.style);
   return (
     <article className="group flex flex-col">
-      <Link href={`/templates/${t.id}`} className="relative block aspect-[1/0.92] overflow-hidden rounded-[4px] bg-paper-2 transition-transform active:scale-[0.98] sm:rounded-none" aria-label={`${t.name} — view design`}>
+      <Link href={`/templates/${t.id}/preview`} className="relative block aspect-[1/0.92] overflow-hidden rounded-[4px] bg-paper-2 transition-transform active:scale-[0.98] sm:rounded-none" aria-label={`${t.name} — flip through the design`}>
         <TemplateVisual demo={demo} eager={eager} />
         <span className="folio absolute right-2.5 top-2 !text-[0.75rem] !text-muted sm:right-4 sm:top-3.5 sm:!text-[0.95rem]">No. {String(no).padStart(2, '0')}</span>
       </Link>
       <div className="mt-2.5 flex items-baseline justify-between gap-3 sm:mt-4 sm:border-b sm:border-line sm:pb-3">
         <h3 className="font-serif text-[1.3rem] leading-tight text-ink sm:text-[1.75rem] sm:leading-none">
-          <Link href={`/templates/${t.id}`} className="transition-colors hover:text-accent">
+          <Link href={`/templates/${t.id}/preview`} className="transition-colors hover:text-accent">
             {t.name}
           </Link>
         </h3>

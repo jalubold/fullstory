@@ -9,11 +9,11 @@ import { BookOpen, ChevronRight, HelpCircle, Home, Info, LayoutGrid, Menu, Plus,
 /**
  * The phone and tablet navigation: an app-style tab bar pinned to the bottom,
  * within thumb reach, with a plus button as the centre action. Secondary
- * pages live in a "More" sheet. Hidden on screens where a page brings its own
- * bottom action bar (a template's detail page, starting an album).
+ * pages live in a "More" sheet. Hidden on the sales page, which brings its own
+ * bottom buy bar.
  */
 
-const HIDE_ON = [/^\/templates\/[^/]+$/, /^\/create\/new/];
+const HIDE_ON = [/^\/create\/new/];
 const isTemplateList = (p: string) => p === '/templates' || p.startsWith('/templates/categor');
 
 const MORE = [

@@ -16,7 +16,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<'/templates/[id]/preview'>): Promise<Metadata> {
   const { id } = await params;
   const demo = getTemplateDemo(id);
-  return demo ? { title: `${demo.template.name} — album preview` } : {};
+  return demo ? { title: `${demo.template.name} — ${categoryById(demo.template.category)?.label} photo album`, description: demo.template.description } : {};
 }
 
 export default async function TemplatePreviewPage({ params }: PageProps<'/templates/[id]/preview'>) {
@@ -31,8 +31,8 @@ export default async function TemplatePreviewPage({ params }: PageProps<'/templa
       photos={demo.photos}
       title={t.name}
       subtitle={`${categoryById(t.category)?.label} · ${styleById(t.style)?.label} · Demo with sample photos — yours will hold your own`}
-      backHref={`/templates/${t.id}`}
-      backLabel="Template details"
+      backHref="/templates"
+      backLabel="All designs"
       actions={
         <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-sm h-9 shrink-0 whitespace-nowrap px-3.5">
           Create your own

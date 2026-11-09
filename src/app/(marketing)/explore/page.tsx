@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 };
 
 const IDEAS = [
-  { title: 'A year in review', text: 'Pick three favourite photos for every month. Twelve months later, you have a book.', href: '/templates/twelve-months' },
-  { title: 'The first year', text: 'One page per month, with a short note about what changed. Simple, and priceless.', href: '/templates/first-year' },
-  { title: 'Travel journal', text: 'Mix landscapes with tickets, menus and handwritten captions for a real diary feel.', href: '/templates/wanderlust-journal' },
-  { title: 'Recipes & rituals', text: 'Photograph family recipes and Sunday traditions — and write down the stories behind them.', href: '/templates/sunday-album' },
-  { title: 'A gift for two', text: 'Collect your favourite photos as a couple and add little notes only they will understand.', href: '/templates/two-of-us' },
-  { title: 'Everyday joys', text: 'Pets, coffee, sunsets on the way home. The camera roll deserves a book too.', href: '/templates/little-things' },
+  { title: 'A year in review', text: 'Pick three favourite photos for every month. Twelve months later, you have a book.', href: '/templates/twelve-months/preview' },
+  { title: 'The first year', text: 'One page per month, with a short note about what changed. Simple, and priceless.', href: '/templates/first-year/preview' },
+  { title: 'Travel journal', text: 'Mix landscapes with tickets, menus and handwritten captions for a real diary feel.', href: '/templates/wanderlust-journal/preview' },
+  { title: 'Recipes & rituals', text: 'Photograph family recipes and Sunday traditions — and write down the stories behind them.', href: '/templates/sunday-album/preview' },
+  { title: 'A gift for two', text: 'Collect your favourite photos as a couple and add little notes only they will understand.', href: '/templates/two-of-us/preview' },
+  { title: 'Everyday joys', text: 'Pets, coffee, sunsets on the way home. The camera roll deserves a book too.', href: '/templates/little-things/preview' },
 ];
 
 export default function ExplorePage() {
@@ -42,7 +42,7 @@ export default function ExplorePage() {
               <OpenBook left={d.doc.pages[s.left!]} right={d.doc.pages[s.right!]} size={d.doc.size} photos={d.photos} renderWidth={520} />
             </Link>
             <figcaption className="mt-3 flex items-baseline justify-between gap-3 px-1">
-              <Link href={`/templates/${d.template.id}`} className="font-serif text-xl hover:text-accent-dark">
+              <Link href={`/templates/${d.template.id}/preview`} className="font-serif text-xl hover:text-accent-dark">
                 {d.template.name}
               </Link>
               <span className="text-xs uppercase tracking-[0.14em] text-muted">

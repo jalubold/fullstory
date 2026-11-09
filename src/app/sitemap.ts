@@ -12,7 +12,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page('/templates', 0.9, 'weekly'),
     page('/templates/categories', 0.7),
     ...CATEGORIES.map((c) => page(`/templates/category/${c.id}`, 0.7)),
-    ...TEMPLATES.map((t) => page(`/templates/${t.id}`, 0.8)),
     ...TEMPLATES.map((t) => page(`/templates/${t.id}/preview`, 0.6)),
     page('/explore', 0.6),
     page('/how-it-works', 0.6),
