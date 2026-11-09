@@ -375,13 +375,13 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
       {/* Phones & tablets: the way to buy stays one thumb-tap away while the page is on screen, then makes way for the footer. */}
       <div className="sticky bottom-0 z-40 border-t border-line bg-paper/92 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
         <div className="mx-auto flex max-w-xl items-center gap-4 px-4">
-          <div className="min-w-0 flex-1 [&>div]:w-full">
-            <BuyButton target={target} label="Create your own" className="btn btn-primary h-12 w-full text-[0.75rem] uppercase tracking-[0.16em]" />
-          </div>
           <p className="shrink-0 font-serif text-2xl leading-none text-ink">
             <span className="mr-1 font-sans text-xs text-muted">Only</span>
             {price}
           </p>
+          <div className="min-w-0 flex-1 [&>div]:w-full">
+            <BuyButton target={target} label="Create your own" className="btn btn-primary h-12 w-full text-[0.75rem] uppercase tracking-[0.16em]" />
+          </div>
         </div>
       </div>
     </div>
