@@ -3,9 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowRight, Check, ChevronLeft, Eye } from 'lucide-react';
 import { BookCover, OpenBook } from '@/components/album/Book';
-import { AlbumPrice } from '@/components/commerce/AlbumPrice';
 import { TemplateCard } from '@/components/templates/TemplateCard';
-import { INCLUDED } from '@/lib/commerce/included';
 import { buildSpreads } from '@/lib/album/geometry';
 import { sizesFor } from '@/lib/commerce/catalog';
 import { TEMPLATES } from '@/lib/templates';
@@ -89,26 +87,13 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
             <Spec label="Photos" value={`${stats.photoSlots}–${stats.recommendedPhotos}`} />
           </dl>
 
-          <div className="mt-8 rounded-[6px] border border-line bg-white p-5 sm:p-6">
-            <p className="flex items-baseline gap-2">
-              <span className="font-serif text-3xl text-ink"><AlbumPrice /></span>
-              <span className="text-sm text-ink-soft">one-time · everything included</span>
-            </p>
-            <ul className="mt-4 grid gap-x-5 gap-y-2 sm:grid-cols-2">
-              {INCLUDED.map((f) => (
-                <li key={f.id} className="flex items-start gap-2 text-sm text-ink-soft">
-                  <Check size={15} className="mt-0.5 shrink-0 text-accent-dark" /> {f.title}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 hidden flex-wrap gap-3 lg:flex">
-              <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-lg">
-                Use this design — <AlbumPrice /> <ArrowRight size={16} />
-              </Link>
-              <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary btn-lg">
-                <Eye size={16} /> Preview full album
-              </Link>
-            </div>
+          <div className="mt-8 hidden flex-wrap gap-3 lg:flex">
+            <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-lg">
+              Create your own <ArrowRight size={16} />
+            </Link>
+            <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary btn-lg">
+              <Eye size={16} /> Preview
+            </Link>
           </div>
         </div>
       </section>
@@ -119,8 +104,8 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
           <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary h-12 shrink-0 gap-2 px-4 text-[0.8125rem]" aria-label="Flip through the full album">
             <Eye size={17} /> Preview
           </Link>
-          <Link href={`/create/new?template=${t.id}`} className="btn btn-primary h-12 flex-1 text-[0.75rem] uppercase tracking-[0.14em]">
-            Use this design · <AlbumPrice /> <ArrowRight size={16} />
+          <Link href={`/create/new?template=${t.id}`} className="btn btn-primary h-12 flex-1 text-[0.75rem] uppercase tracking-[0.16em]">
+            Create your own <ArrowRight size={16} />
           </Link>
         </div>
       </div>

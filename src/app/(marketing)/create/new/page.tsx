@@ -3,16 +3,18 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { connection } from 'next/server';
 import { BookCover } from '@/components/album/Book';
-import { StartAlbum } from '@/components/create/StartAlbum';
-import { DEFAULT_THEME, buildPage } from '@/lib/album/build';
+import { headers } from 'next/headers';
+import { SalesPage } from '@/components/sales/SalesPage';
 import type { Orientation } from '@/lib/album/types';
-import { getCatalog, sizesFor } from '@/lib/commerce/catalog';
-import { platformReady } from '@/lib/server/env';
+import { formatMoney, getCatalog, priceIn, sizesFor } from '@/lib/commerce/catalog';
+import { countryFromHeaders } from '@/lib/commerce/region';
+import { appUrl, platformReady } from '@/lib/server/env';
+import { checkoutCurrency } from '@/lib/server/orders';
 import { getTemplate } from '@/lib/templates';
 import { getTemplateDemo } from '@/lib/templates/demo';
 import { categoryById } from '@/lib/templates/taxonomy';
 
-export const metadata: Metadata = { title: 'Starting your album', robots: { index: false } };
+export const metadata: Metadata = { title: 'Make it yours — everything included', robots: { index: false } };
 
 async function Start({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   // Starting an album is always per visit (and the blank-album preview builds pages with fresh ids).
@@ -58,25 +60,34 @@ async function Start({ searchParams }: { searchParams: Promise<Record<string, st
     );
   }
 
+  // The sales page: what the album includes, with real pages from the chosen design, and one way to buy.
+  const catalog = getCatalog();
+  const currency = checkoutCurrency(countryFromHeaders(await headers()));
+  const amount = priceIn(catalog.album.price, currency);
+  const price = amount === null ? '' : formatMoney(amount, currency);
   if (template) {
     const demo = getTemplateDemo(template)!;
     const size = sizesFor(template.orientation)[0];
     return (
-      <StartAlbum
-        title={template.name}
-        request={{ templateId: template.id, sizeId: size.id, title: `My ${categoryById(template.category)?.label.toLowerCase()} album` }}
-        visual={<BookCover page={demo.doc.cover} size={demo.doc.size} photos={demo.photos} renderWidth={300} eager />}
+      <SalesPage
+        demo={demo}
+        name={template.name}
+        price={price}
+        siteUrl={appUrl()}
+        target={{ templateId: template.id, sizeId: size.id, title: `My ${categoryById(template.category)?.label.toLowerCase()} album` }}
       />
     );
   }
 
-  const size = sizesFor(orientation)[0] ?? getCatalog().sizes[0];
-  const cover = buildPage('cover-type', DEFAULT_THEME, size, { texts: ['A new album', 'Our Story', 'Every page is yours'] });
+  // A blank book: sold with the same promise, shown with a sample design.
+  const size = sizesFor(orientation)[0] ?? catalog.sizes[0];
   return (
-    <StartAlbum
-      title="your album"
-      request={{ templateId: null, sizeId: size.id, title: 'My photo album', pageCount: getCatalog().pages.default }}
-      visual={<BookCover page={cover} size={size} photos={{}} renderWidth={300} />}
+    <SalesPage
+      demo={getTemplateDemo('slow-days')!}
+      name="A blank book"
+      price={price}
+      siteUrl={appUrl()}
+      target={{ templateId: null, sizeId: size.id, title: 'My photo album', pageCount: catalog.pages.default }}
     />
   );
 }

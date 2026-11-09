@@ -83,16 +83,16 @@ export class CreemProvider implements PaymentProvider {
     }
     if (!res.ok) {
       const msg = typeof data === 'object' && data && 'message' in data ? String((data as { message: unknown }).message) : text.slice(0, 300);
-      throw new Error(`Creem ${method} ${path} failed (${res.status}): ${msg}`);
+      throw new CreemApiError(`Creem ${method} ${path} failed (${res.status}): ${msg}`, res.status);
     }
     return data as T;
   }
 
   /** The Creem product for this order's formats and currency; created once, then reused. */
-  private async productFor(order: OrderRow): Promise<string> {
+  private async productFor(order: OrderRow, fresh = false): Promise<string> {
     const spec = productSpec(order);
     const settingKey = `creem:${this.isTest ? 'test' : 'live'}:product:${order.currency}:${spec.key}`;
-    const known = await getSetting(settingKey);
+    const known = fresh ? null : await getSetting(settingKey);
     if (known) return known;
     const product = await this.api<{ id: string }>('POST', '/v1/products', {
       name: spec.name,
@@ -110,16 +110,25 @@ export class CreemProvider implements PaymentProvider {
   async createCheckout(order: OrderRow, { successUrl, email }: { successUrl: string; cancelUrl: string; email: string | null }) {
     if (!(CREEM_CURRENCIES as readonly string[]).includes(order.currency)) throw new Error(`Creem can't charge in ${order.currency}`);
     if (order.amount_total < 100) throw new Error('Order total is below the minimum charge');
-    const productId = await this.productFor(order);
-    const checkout = await this.api<CreemCheckout>('POST', '/v1/checkouts', {
-      product_id: productId,
-      request_id: order.id,
-      units: 1,
-      custom_price: order.amount_total,
-      ...(email ? { customer: { email } } : {}),
-      success_url: successUrl,
-      metadata: { orderId: order.id, orderNumber: order.number },
-    });
+    const open = async (productId: string) =>
+      this.api<CreemCheckout>('POST', '/v1/checkouts', {
+        product_id: productId,
+        request_id: order.id,
+        units: 1,
+        custom_price: order.amount_total,
+        ...(email ? { customer: { email } } : {}),
+        success_url: successUrl,
+        metadata: { orderId: order.id, orderNumber: order.number },
+      });
+    let checkout: CreemCheckout;
+    try {
+      checkout = await open(await this.productFor(order));
+    } catch (e) {
+      // The remembered product was deleted or archived in the Creem dashboard: make a new one and try once more.
+      if (!(e instanceof CreemApiError) || (e.status !== 404 && !/product/i.test(e.message))) throw e;
+      console.warn('[creem] product unavailable, creating a new one', e.message);
+      checkout = await open(await this.productFor(order, true));
+    }
     if (!checkout.checkout_url) throw new Error('Creem did not return a checkout URL');
     return { url: checkout.checkout_url, sessionId: checkout.id };
   }
@@ -188,6 +197,15 @@ export class CreemProvider implements PaymentProvider {
 }
 
 class WebhookSignatureError extends Error {}
+
+class CreemApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
 
 const safeEqual = (a: string, b: string) => {
   const x = Buffer.from(a);

@@ -3,17 +3,15 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { Check } from 'lucide-react';
-import { BookCover } from '@/components/album/Book';
-import { OpenAlbum, UnlockButton } from '@/components/commerce/UnlockClient';
+import { OpenAlbum } from '@/components/commerce/UnlockClient';
+import { SalesPage } from '@/components/sales/SalesPage';
 import { OrderStatusPoller } from '@/components/dashboard/OrderClient';
 import { Logo } from '@/components/ui/Logo';
 import { formatMoney, getCatalog, priceIn } from '@/lib/commerce/catalog';
-import { INCLUDED } from '@/lib/commerce/included';
 import { countryFromHeaders } from '@/lib/commerce/region';
 import { requireUser } from '@/lib/server/auth';
+import { appUrl } from '@/lib/server/env';
 import { checkoutCurrency, syncOrder } from '@/lib/server/orders';
-import { getPaymentProvider } from '@/lib/server/payments';
 import { getOwnedOrder } from '@/lib/server/repo/orders';
 import { listProjectPhotos } from '@/lib/server/repo/photos';
 import { getProject } from '@/lib/server/repo/projects';
@@ -71,49 +69,28 @@ async function Unlock({ params, searchParams }: { params: Promise<{ id: string }
   const amount = priceIn(catalog.album.price, currency);
   const price = amount === null ? '' : formatMoney(amount, currency);
   const template = project.template_id ? getTemplate(project.template_id) : null;
-  const demo = template ? getTemplateDemo(template) : null;
-  const provider = getPaymentProvider();
-  const doc = demo?.doc ?? project.document;
+  const demo = (template ? getTemplateDemo(template) : null) ?? getTemplateDemo('slow-days')!;
+  const failed = order && (order.status === 'failed' || order.status === 'cancelled');
 
   return (
-    <Screen wide>
-      <div className="grid items-center gap-10 text-left lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-        <div className="mx-auto w-[min(17rem,62vw)] lg:w-full lg:max-w-[22rem]">
-          <div className="book-in shadow-[0_40px_60px_-30px_rgb(0_0_0/.6)]">
-            <BookCover page={doc.cover} size={doc.size} photos={demo?.photos ?? {}} renderWidth={360} eager />
-          </div>
-        </div>
-        <div>
-          {order && (order.status === 'failed' || order.status === 'cancelled') && (
-            <p className="mb-5 rounded-[6px] bg-white/10 px-4 py-3 text-sm text-white/85">That payment didn’t go through — nothing was charged. You can try again below.</p>
-          )}
-          <p className="smallcaps !text-white/60">{template ? template.name : 'Your album'}</p>
-          <h1 className="mt-3 font-serif text-[2.6rem] font-medium leading-[1.02] md:text-6xl">
-            Make it <span className="italic">yours.</span>
-          </h1>
-          <p className="mt-4 text-white/75">
-            <span className="font-serif text-3xl text-white">{price}</span>
-            <span className="ml-2">one-time · everything included</span>
-          </p>
-          <ul className="mt-6 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
-            {INCLUDED.map((f) => (
-              <li key={f.id} className="flex items-start gap-2.5 text-sm text-white/85">
-                <Check size={16} className="mt-0.5 shrink-0 text-white" /> {f.title}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-8">
-            <UnlockButton projectId={project.id} label={`Unlock & start — ${price}`} />
-          </div>
-          <p className="mt-3 text-xs text-white/55">
-            {provider?.id === 'creem' ? 'Secure checkout by Creem · taxes included' : 'Secure checkout'} · No account needed
-          </p>
-          <Link href="/templates" className="mt-6 inline-block text-[0.75rem] font-medium uppercase tracking-[0.2em] text-white/80 hover:text-white">
-            <span className="link-underline">Back to the designs</span>
+    <div className="min-h-dvh bg-paper">
+      <header className="cloth">
+        <div className="container-page flex h-14 items-center justify-between lg:h-16">
+          <Logo tone="light" />
+          <Link href="/dashboard" className="text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-white/75 hover:text-white">
+            My albums
           </Link>
         </div>
-      </div>
-    </Screen>
+      </header>
+      <SalesPage
+        demo={demo}
+        name={template ? template.name : project.title}
+        price={price}
+        siteUrl={appUrl()}
+        target={{ projectId: project.id }}
+        notice={failed ? <p className="mb-6 rounded-[6px] bg-white/10 px-4 py-3 text-sm text-white/85">That payment didn’t go through — nothing was charged. You can try again below.</p> : undefined}
+      />
+    </div>
   );
 }
 
