@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, FilePlus2 } from 'lucide-react';
 import { BookCover } from '@/components/album/Book';
-import { Steps } from '@/components/create/Steps';
 import { TEMPLATES } from '@/lib/templates';
 import { getTemplateDemo } from '@/lib/templates/demo';
 import { CATEGORIES } from '@/lib/templates/taxonomy';
@@ -12,10 +11,7 @@ export const metadata: Metadata = { title: 'Create a new album' };
 export default function CreatePage() {
   return (
     <div className="container-page pb-16 pt-6 lg:pb-24 lg:pt-10">
-      <div className="hidden lg:block">
-        <Steps current={0} />
-      </div>
-      <header className="max-w-2xl lg:mt-8">
+      <header className="max-w-2xl">
         <h1 className="font-serif text-[2.5rem] font-medium leading-none md:text-6xl">What story are you telling?</h1>
         <p className="mt-3 text-ink-soft md:mt-4 md:text-lg">Pick an occasion — we’ll show the designs made for it.</p>
       </header>

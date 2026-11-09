@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { PhotoUploadStep } from '@/components/create/PhotoUploadStep';
-import { Steps } from '@/components/create/Steps';
 import { Logo } from '@/components/ui/Logo';
 import { loadOwnedProject } from '@/lib/server/project-loader';
 
@@ -25,9 +24,8 @@ export default function PhotosStepPage({ params }: PageProps<'/projects/[id]/pho
   return (
     <div className="min-h-dvh bg-paper">
       <header className="border-b border-line bg-white/70">
-        <div className="container-page flex h-16 items-center justify-between gap-4">
+        <div className="container-page flex h-16 items-center">
           <Logo href="/dashboard" />
-          <Steps current={1} />
         </div>
       </header>
       <main className="container-page max-w-5xl py-12">
