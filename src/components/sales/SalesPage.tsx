@@ -9,6 +9,7 @@ import { photoUrl } from '@/lib/album/photos';
 import { bookFinish } from '@/lib/album/color';
 import type { Page, PhotoMap } from '@/lib/album/types';
 import { LAYOUTS } from '@/lib/album/layouts';
+import { ANIMATIONS } from '@/lib/album/presentation';
 import { getCatalog } from '@/lib/commerce/catalog';
 import type { TemplateDemo } from '@/lib/templates/demo';
 import { BuyButton, type BuyTarget } from './BuyButton';
@@ -97,10 +98,21 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
         </>
       ),
       text: 'Your album opens like a real book — on phones and computers — with a page turn that feels like paper.',
-      points: ['A real 3D page turn, on every screen', 'Or choose Dissolve, Glide, Cinematic or Unveil', 'Swipe on a phone, click or use the keys on a computer'],
+      points: ['A real 3D page turn, on every screen', 'Five styles to choose from', 'Swipe on a phone, click or use the keys on a computer'],
       visual: (
-        <div className="cloth rounded-[10px] px-4 py-10 sm:px-10 sm:py-14">
-          <HeroFlipBook pages={flipPages} size={doc.size} photos={subset(photos, flipPages)} interval={3200} />
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
+          {ANIMATIONS.map((a, i) => {
+            const page = withPhotos[i % Math.max(1, withPhotos.length)] ?? doc.pages[i];
+            return (
+              <div key={a.id} className={`rounded-[8px] p-2 ${i === 0 ? 'bg-accent text-white shadow-pop' : 'bg-white ring-1 ring-line'}`}>
+                <div className={i === 0 ? '' : 'opacity-90'}>
+                  <FlatPage page={page} size={doc.size} photos={photos} renderWidth={160} />
+                </div>
+                <p className={`mt-2 text-center text-xs font-medium ${i === 0 ? 'text-white' : 'text-ink'}`}>{a.label}</p>
+                <p className={`text-center text-[10px] leading-tight ${i === 0 ? 'text-white/75' : 'text-muted'}`}>{a.hint}</p>
+              </div>
+            );
+          })}
         </div>
       ),
     },
@@ -180,52 +192,87 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
 
   return (
     <div className="pb-28 lg:pb-0">
-      {/* Hero */}
+      {/* Hero: the promise, everything that's included, the price and one button — all above the fold. */}
       <section className="cloth relative overflow-hidden">
-        <div className="container-page grid items-center gap-10 py-10 lg:grid-cols-[1fr_0.9fr] lg:gap-16 lg:py-20">
-          <div className="order-2 lg:order-1">
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_55%_at_75%_45%,rgb(255_255_255/0.10),transparent_70%)]" />
+        <div className="container-page relative grid items-center gap-6 pb-10 pt-7 lg:grid-cols-[1fr_1.05fr] lg:gap-x-14 lg:gap-y-7 lg:py-16">
+          <div className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 lg:self-end">
             {notice}
-            <p className="smallcaps !text-white/60">{name} · Everything included</p>
-            <h1 className="mt-4 font-serif text-[2.9rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-7xl">
+            <p className="smallcaps !text-white/65">{name} · Everything included</p>
+            <h1 className="mt-3 font-serif text-[2.75rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-[4.5rem]">
               Make it <span className="italic">yours.</span>
             </h1>
-            <p className="mt-5 max-w-lg text-[1.0625rem] leading-relaxed text-white/80">
-              Your photos in a professionally designed album — with your music, real page turns, a private link to share and a PDF to keep.
-            </p>
-            <p className="mt-7 flex items-baseline gap-3">
-              <span className="font-serif text-5xl leading-none">{price}</span>
-              <span className="text-white/70">one-time · no subscription</span>
-            </p>
-            <div className="mt-7">
-              <BuyButton target={target} label={buyLabel} className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
+            <p className="mt-4 max-w-lg text-white/80 md:text-[1.0625rem]">Your photos in a professionally designed album — ready to share in minutes.</p>
+          </div>
+
+          {/* The product, alive: pages turning, the song playing, a QR code and the PDF, around the open book. */}
+          <div className="relative order-3 mx-auto w-full max-w-[23rem] sm:max-w-[38rem] lg:order-none lg:col-start-2 lg:row-span-3 lg:row-start-1">
+            <div className="px-2 pb-11 pt-8 sm:px-8 sm:pb-14 sm:pt-10">
+              <HeroFlipBook pages={flipPages} size={doc.size} photos={subset(photos, flipPages)} interval={3000} />
             </div>
-            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/65">
+            <div className="absolute left-0 top-0 flex items-center gap-2.5 rounded-full bg-white py-1.5 pl-1.5 pr-4 text-ink shadow-pop sm:left-2 sm:top-1">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-accent text-white">
+                <Music2 size={15} />
+              </span>
+              <span className="text-xs font-medium leading-tight">
+                Your song
+                <span className="block text-[10px] font-normal text-muted">Now playing</span>
+              </span>
+              <span className="eq ml-1 flex h-3.5 items-end gap-[2px] text-accent" data-playing="true">
+                <span />
+                <span />
+                <span />
+              </span>
+            </div>
+            <div className="absolute bottom-0 right-0 w-[5.5rem] rounded-[8px] bg-white p-2 text-center shadow-pop sm:right-2 sm:w-[6.5rem]">
+              <div className="aspect-square" dangerouslySetInnerHTML={{ __html: qr }} />
+              <p className="mt-1 text-[9px] font-medium uppercase tracking-[0.14em] text-ink">Scan to open</p>
+            </div>
+            <span className="absolute bottom-3 left-0 flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-[11px] font-medium text-paper shadow-pop sm:left-2">
+              <Download size={13} /> album.pdf
+            </span>
+          </div>
+
+          <div className="order-2 lg:order-none lg:col-start-1 lg:row-start-2">
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-2.5 rounded-[12px] border border-white/15 bg-white/[0.07] p-3.5 backdrop-blur-sm sm:gap-x-5 sm:p-5">
+              {[
+                ['Unlimited pages', '25+ layouts to choose from'],
+                ['Your own music', 'Plays as the album opens'],
+                ['Real page turns', 'On phones and computers'],
+                ['Private link + QR code', 'Share it with anyone'],
+                ['High-resolution PDF', 'Download and keep it'],
+                ['Edit any time', 'Link and PDF stay up to date'],
+              ].map(([t, d]) => (
+                <li key={t} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-white text-accent sm:h-5 sm:w-5">
+                    <Check size={12} strokeWidth={3} />
+                  </span>
+                  <span className="min-w-0 leading-tight">
+                    <span className="block text-[13px] font-medium text-white sm:text-[15px]">{t}</span>
+                    <span className="hidden text-xs text-white/60 sm:block">{d}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="order-4 lg:order-none lg:col-start-1 lg:row-start-3 lg:self-start">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7">
+              <p className="flex items-baseline gap-2.5">
+                <span className="font-serif text-5xl leading-none">{price}</span>
+                <span className="text-sm leading-tight text-white/70">
+                  one-time
+                  <span className="block">no subscription</span>
+                </span>
+              </p>
+              <BuyButton target={target} label="Get started" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
+            </div>
+            <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/65">
               <li className="flex items-center gap-1.5"><ShieldCheck size={14} /> Secure checkout by Creem</li>
               <li className="flex items-center gap-1.5"><Check size={14} /> Taxes included</li>
               <li className="flex items-center gap-1.5"><Check size={14} /> No account needed</li>
             </ul>
           </div>
-          <div className="order-1 mx-auto w-[min(16rem,62vw)] lg:order-2 lg:w-full lg:max-w-[24rem]">
-            <div className="book-in shadow-[0_40px_60px_-30px_rgb(0_0_0/.6)]">
-              <BookCover page={doc.cover} size={doc.size} photos={photos} renderWidth={400} eager />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* What's included, at a glance */}
-      <section className="border-b border-line bg-card">
-        <div className="container-page py-8 lg:py-10">
-          <ul className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-6">
-            {features.map(({ icon: Icon, kicker }) => (
-              <li key={kicker} className="flex items-center gap-2.5 text-sm font-medium text-ink">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent-soft text-accent">
-                  <Icon size={17} />
-                </span>
-                {kicker === 'Pages' ? 'Unlimited pages' : kicker === 'Music' ? 'Your music' : kicker === 'Page turns' ? 'Page turns' : kicker === 'Share' ? 'Link + QR code' : kicker === 'PDF' ? 'HD PDF' : 'Edit any time'}
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
