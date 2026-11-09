@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import QRCode from 'qrcode';
-import { Check, Download, Layers, Link2, Lock, Music2, PenLine, QrCode, RotateCcw, ShieldCheck } from 'lucide-react';
+import { Check, Download, Layers, Link2, Lock, Music2, PenLine, QrCode, RotateCcw } from 'lucide-react';
 import { BookCover, FlatPage, OpenBook } from '@/components/album/Book';
 import { HeroFlipBook } from '@/components/marketing/HeroFlipBook';
 import { EditorDemo } from '@/components/marketing/EditorDemo';
@@ -261,11 +261,6 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
               <p className="font-serif text-5xl leading-none">{price}</p>
               <BuyButton target={target} label="Get started" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
             </div>
-            <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/65">
-              <li className="flex items-center gap-1.5"><ShieldCheck size={14} /> Secure checkout by Creem</li>
-              <li className="flex items-center gap-1.5"><Check size={14} /> Taxes included</li>
-              <li className="flex items-center gap-1.5"><Check size={14} /> No account needed</li>
-            </ul>
           </div>
         </div>
       </section>
