@@ -39,12 +39,20 @@ export function HeroFlipBook({ pages, size, photos, interval = 3800 }: { pages: 
 
   return (
     <div ref={box} className="relative" onPointerEnter={() => (paused.current = true)} onPointerLeave={() => (paused.current = false)}>
-      <FlipBook spread={spreads[i]} dir={dir} size={size} photos={photos} renderWidth={w} duration={1200} board="ink" endpaper="#1b1214" eager />
-      {/* satin ribbon bookmark lying in the gutter, hanging past the bottom edge */}
-      <span
-        aria-hidden
-        className="ribbon pointer-events-none absolute z-[25]"
-        style={{ left: 'calc(50% + 0.6%)', top: '-1.2%', width: '2.1%', height: '114%' }}
+      <FlipBook
+        spread={spreads[i]}
+        dir={dir}
+        size={size}
+        photos={photos}
+        renderWidth={w}
+        duration={1500}
+        board="ink"
+        endpaper="#1b1214"
+        eager
+        ornament={
+          // satin ribbon bookmark lying in the gutter, hanging past the bottom edge
+          <span aria-hidden className="ribbon pointer-events-none absolute z-[25]" style={{ left: 'calc(50% + 0.6%)', top: '-1.2%', width: '2.1%', height: '114%' }} />
+        }
       />
     </div>
   );
