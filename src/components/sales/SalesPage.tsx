@@ -258,13 +258,7 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
 
           <div className="order-4 lg:order-none lg:col-start-1 lg:row-start-3 lg:self-start">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7">
-              <p className="flex items-baseline gap-2.5">
-                <span className="font-serif text-5xl leading-none">{price}</span>
-                <span className="text-sm leading-tight text-white/70">
-                  one-time
-                  <span className="block">no subscription</span>
-                </span>
-              </p>
+              <p className="font-serif text-5xl leading-none">{price}</p>
               <BuyButton target={target} label="Get started" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
             </div>
             <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/65">
