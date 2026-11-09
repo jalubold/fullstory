@@ -50,7 +50,7 @@ export default function CreatePage() {
           </div>
           <div className="mt-5 grid grid-cols-3 gap-2">
             {(['square', 'landscape', 'portrait'] as const).map((o) => (
-              <Link key={o} href={`/create/new?blank=1&orientation=${o}`} className="group flex flex-col items-center gap-2 rounded-xl border border-line px-2 py-3 text-xs text-ink-soft transition hover:border-accent hover:text-accent">
+              <Link key={o} href={`/create/blank/${o}`} className="group flex flex-col items-center gap-2 rounded-xl border border-line px-2 py-3 text-xs text-ink-soft transition hover:border-accent hover:text-accent">
                 <span className="block rounded-[2px] bg-paper-3 transition group-hover:bg-accent/20" style={{ width: o === 'portrait' ? 18 : 26, height: o === 'landscape' ? 18 : 26 }} />
                 {o[0].toUpperCase() + o.slice(1)}
               </Link>

@@ -13,7 +13,7 @@ import { BookOpen, ChevronRight, HelpCircle, Home, Info, LayoutGrid, Menu, Plus,
  * bottom buy bar.
  */
 
-const HIDE_ON = [/^\/create\/new/];
+const HIDE_ON = [/^\/templates\/[^/]+\/start(\/|$)/, /^\/create\/blank(\/|$)/];
 const isTemplateList = (p: string) => p === '/templates' || p.startsWith('/templates/categor');
 
 const MORE = [

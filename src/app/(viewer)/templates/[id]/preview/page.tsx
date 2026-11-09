@@ -34,7 +34,7 @@ export default async function TemplatePreviewPage({ params }: PageProps<'/templa
       backHref="/templates"
       backLabel="All designs"
       actions={
-        <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-sm h-9 shrink-0 whitespace-nowrap px-3.5">
+        <Link href={`/templates/${t.id}/start`} className="btn btn-primary btn-sm h-9 shrink-0 whitespace-nowrap px-3.5">
           Create your own
         </Link>
       }

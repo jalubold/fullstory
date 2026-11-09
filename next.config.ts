@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
     return [
       { source: "/create/template", destination: "/templates", permanent: false },
       { source: "/pricing", destination: "/", permanent: true },
+      // The sales page moved to an address per design (and per blank-book orientation).
+      { source: "/create/new", has: [{ type: "query", key: "template", value: "(?<template>[a-z0-9-]+)" }], destination: "/templates/:template/start", permanent: false },
+      { source: "/create/new", has: [{ type: "query", key: "orientation", value: "(?<orientation>square|landscape|portrait)" }], destination: "/create/blank/:orientation", permanent: false },
+      { source: "/create/new", destination: "/create", permanent: false },
     ];
   },
   turbopack: {
