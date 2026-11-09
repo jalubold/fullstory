@@ -43,11 +43,6 @@ const ORIENTATIONS: Option[] = [
   { id: 'landscape', label: 'Landscape' },
   { id: 'portrait', label: 'Portrait' },
 ];
-const TIERS: Option[] = [
-  { id: 'all', label: 'All' },
-  { id: 'free', label: 'Free' },
-  { id: 'premium', label: 'Premium' },
-];
 const EMPTY: Filters = { q: '', category: [], style: [], orientation: [], tier: 'all', sort: 'featured' };
 const LIST_KEYS = ['category', 'style', 'orientation'] as const;
 
@@ -238,13 +233,6 @@ export function TemplateBrowser({ items, categories, styles, lockedCategory }: P
               <FilterGroup title="Shape">
                 {ORIENTATIONS.map((o) => (
                   <button key={o.id} type="button" className={chip(f.orientation.includes(o.id))} aria-pressed={f.orientation.includes(o.id)} onClick={() => toggle('orientation', o.id)}>
-                    {o.label}
-                  </button>
-                ))}
-              </FilterGroup>
-              <FilterGroup title="Price">
-                {TIERS.map((o) => (
-                  <button key={o.id} type="button" className={chip(f.tier === o.id)} aria-pressed={f.tier === o.id} onClick={() => setF((p) => ({ ...p, tier: o.id }))}>
                     {o.label}
                   </button>
                 ))}

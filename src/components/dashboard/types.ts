@@ -9,6 +9,8 @@ export interface ProjectSummaryLite {
   cover: Page;
   size: PageSize;
   photos: PhotoMap;
+  /** Paid for and open for editing. */
+  unlocked: boolean;
 }
 
 /** What a bought album offers right from its card. */

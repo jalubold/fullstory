@@ -106,7 +106,7 @@ export const documentSchema = z.object({
   }),
   cover: page,
   backCover: page,
-  pages: z.array(page).min(1).max(200),
+  pages: z.array(page).min(1).max(500),
   spineText: z.string().max(120),
   presentation: z
     .object({

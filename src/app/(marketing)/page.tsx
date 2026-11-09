@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { AlbumPrice } from '@/components/commerce/AlbumPrice';
 import { EditorDemo } from '@/components/marketing/EditorDemo';
 import { HeroFlipBook } from '@/components/marketing/HeroFlipBook';
 import { Reveal } from '@/components/motion/Reveal';
 import { TemplateCard } from '@/components/templates/TemplateCard';
-import { getCatalog, printEnabled } from '@/lib/commerce/catalog';
 import type { PhotoMap } from '@/lib/album/types';
 import { photoUrl } from '@/lib/album/photos';
 import { TEMPLATES } from '@/lib/templates';
@@ -27,8 +27,6 @@ function Label({ children }: { children: string }) {
 }
 
 export default function HomePage() {
-  const catalog = getCatalog();
-  const printOn = printEnabled(catalog);
 
   const hero = getTemplateDemo('evermore')!;
   const heroPages = hero.doc.pages.slice(1, 9);
@@ -53,7 +51,7 @@ export default function HomePage() {
               <span className="rise block italic" style={{ animationDelay: '0.41s' }}>Your book.</span>
             </h1>
             <p className="rise mt-8 max-w-md text-[1.0625rem] leading-relaxed text-white/75" style={{ animationDelay: '0.55s' }}>
-              Pick a design and add your photos. Get {printOn ? 'a printed book, a PDF or a private album to share.' : 'a high-resolution PDF and a private album to share.'}
+              Pick a design, add your photos and your song. Share it with a private link and QR code, and keep the high-resolution PDF.
             </p>
             <div className="rise mt-10 flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-5" style={{ animationDelay: '0.68s' }}>
               <Link href="/create" className="btn btn-light btn-lg h-14 text-[0.75rem] uppercase tracking-[0.2em] sm:h-auto">
@@ -65,7 +63,7 @@ export default function HomePage() {
               </Link>
             </div>
             <p className="rise mt-8 text-center text-sm text-white/55 sm:mt-14 sm:text-left" style={{ animationDelay: '0.8s' }}>
-              No account <span className="mx-2 text-white/30">·</span> Free to design <span className="mx-2 text-white/30">·</span> {printOn ? 'Print, PDF or private link' : 'PDF or private link'}
+              One-time <AlbumPrice /> <span className="mx-2 text-white/30">·</span> Everything included <span className="mx-2 text-white/30">·</span> No account
             </p>
           </div>
 
@@ -112,14 +110,14 @@ export default function HomePage() {
               Pick. Drop. <span className="italic text-accent">Done.</span>
             </Reveal>
             <Reveal delay={100} as="p" className="mt-4 max-w-md leading-relaxed text-ink-soft lg:mt-6 lg:text-lg">
-              Every layout, font and colour is already designed. You bring the photos and the words.
+              Every layout, font and colour is already designed. You bring the photos, the words and the song.
             </Reveal>
             <Reveal delay={160}>
               <ol className="mt-8 max-w-md divide-y divide-line border-y border-line">
                 {[
-                  ['Choose a design', 'Flip through every page before you begin.'],
-                  ['Add your photos', 'They fill the frames for you. Tap any photo to adjust it, any caption to rewrite it.'],
-                  ['Keep it', printOn ? 'Order it printed, download a PDF, or share a private link.' : 'Download a high-resolution PDF, or share a private link with a QR code.'],
+                  ['Choose a design', 'Flip through the demo, every page, before you decide.'],
+                  ['Make it yours', 'Your photos fill the frames. Add as many pages as you like, your music and a page-turn style.'],
+                  ['Share it', 'A private link with a QR code, and a high-resolution PDF to keep. Edit any time — they update too.'],
                 ].map(([t, d], i) => (
                   <li key={t} className="flex gap-4 py-4">
                     <span className="numeral w-6 shrink-0 text-xl">{i + 1}.</span>
@@ -145,10 +143,13 @@ export default function HomePage() {
           <Reveal as="h2" className="mx-auto max-w-3xl font-serif text-[2.6rem] font-medium leading-[0.95] tracking-[-0.015em] md:text-[5.5rem]">
             Every story deserves <span className="whitespace-nowrap italic">a binding.</span>
           </Reveal>
-          <Reveal delay={150} className="mt-10 flex justify-center">
+          <Reveal delay={150} className="mt-10 flex flex-col items-center gap-4">
             <Link href="/create" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.2em] sm:h-auto sm:w-auto">
               Begin your book
             </Link>
+            <p className="text-sm text-white/60">
+              One-time <AlbumPrice /> · everything included
+            </p>
           </Reveal>
         </div>
       </section>

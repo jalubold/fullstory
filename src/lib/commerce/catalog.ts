@@ -17,6 +17,8 @@ export interface Catalog {
   isSample: boolean;
   currencies: Currency[];
   defaultCurrency: Currency;
+  /** The one thing we sell: an album unlocked with everything included. */
+  album: { label: string; description: string; price: Money };
   pages: { min: number; max: number; step: number; default: number };
   sizes: CatalogSize[];
   covers: Array<{ id: string; label: string; description: string }>;

@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react';
 
-const STEPS = ['Design', 'Photos', 'Customize', 'Order'];
+const STEPS = ['Design', 'Photos', 'Customize', 'Share'];
 
 export function Steps({ current }: { current: number }) {
   return (

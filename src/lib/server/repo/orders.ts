@@ -64,6 +64,8 @@ export interface OrderRow {
   updated_at: string;
   paid_at: string | null;
   refunded_at: string | null;
+  /** For album orders: the project version the snapshot was taken from. */
+  snapshot_version?: number | null;
 }
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -72,7 +74,10 @@ export function orderNumber() {
   return 'FS-' + Array.from(bytes, (b) => ALPHABET[b % ALPHABET.length]).join('');
 }
 
-export const hasItem = (o: Pick<OrderRow, 'items'>, kind: OrderItemInput['kind']) => o.items.some((i) => i.kind === kind);
+/** Whether an order includes a product. An album purchase includes the PDF and the share link. */
+export const hasItem = (o: Pick<OrderRow, 'items'>, kind: OrderItemInput['kind']) =>
+  o.items.some((i) => i.kind === kind || (i.kind === 'album' && (kind === 'digital_pdf' || kind === 'digital_share')));
+export const isAlbumOrder = (o: Pick<OrderRow, 'items'>) => o.items.some((i) => i.kind === 'album');
 
 export async function insertOrder(o: {
   userId: string;
@@ -88,7 +93,7 @@ export async function insertOrder(o: {
   manifest: Record<string, PhotoManifestEntry>;
   address: ShippingAddress | null;
   print: PrintOptions | null;
-  email: string;
+  email: string | null;
 }): Promise<OrderRow> {
   const id = crypto.randomUUID();
   const rows = await sql<OrderRow>(

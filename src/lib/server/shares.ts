@@ -2,6 +2,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { isProduction } from './env';
 import { getOrder, type OrderRow, type ShareRow } from './repo/orders';
+import { refreshAlbumOrder } from './orders';
 import { sign, verify } from './auth/session';
 
 export type ShareAccess = { state: 'ok'; order: OrderRow } | { state: 'locked' } | { state: 'unavailable'; reason: string };
@@ -20,7 +21,7 @@ export async function shareAccess(share: ShareRow | null): Promise<ShareAccess> 
     // Changing the password invalidates earlier unlocks (v = hash fingerprint).
     if (!token || token.sid !== share.id || token.v !== (share.password_hash ?? '').slice(-12)) return { state: 'locked' };
   }
-  return { state: 'ok', order };
+  return { state: 'ok', order: await refreshAlbumOrder(order) };
 }
 
 export async function grantShareCookie(share: ShareRow) {

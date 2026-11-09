@@ -20,7 +20,7 @@ export interface PaymentProvider {
   label: string;
   /** Test providers never move real money; the UI labels them clearly. */
   isTest: boolean;
-  createCheckout(order: OrderRow, opts: { successUrl: string; cancelUrl: string; email: string }): Promise<{ url: string; sessionId: string }>;
+  createCheckout(order: OrderRow, opts: { successUrl: string; cancelUrl: string; email: string | null }): Promise<{ url: string; sessionId: string }>;
   /** Server-side verification of a checkout session's payment state. */
   getStatus(order: OrderRow): Promise<{ status: ProviderStatus; paymentId?: string | null; receiptUrl?: string | null }>;
   refund(order: OrderRow): Promise<void>;
@@ -39,11 +39,11 @@ class StripeProvider implements PaymentProvider {
     this.isTest = secret.startsWith('sk_test_');
   }
 
-  async createCheckout(order: OrderRow, { successUrl, cancelUrl, email }: { successUrl: string; cancelUrl: string; email: string }) {
+  async createCheckout(order: OrderRow, { successUrl, cancelUrl, email }: { successUrl: string; cancelUrl: string; email: string | null }) {
     const currency = order.currency.toLowerCase();
     const session = await this.stripe.checkout.sessions.create({
       mode: 'payment',
-      customer_email: email,
+      ...(email ? { customer_email: email } : {}),
       client_reference_id: order.id,
       metadata: { orderId: order.id, orderNumber: order.number },
       payment_intent_data: { metadata: { orderId: order.id, orderNumber: order.number } },

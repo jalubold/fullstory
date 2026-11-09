@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { headers } from 'next/headers';
 import { ArrowUpRight } from 'lucide-react';
 import { date, money, PAYMENT_LABEL } from '@/components/dashboard/format';
 import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
@@ -9,7 +10,10 @@ import { RecoveryLink } from '@/components/dashboard/RecoveryLink';
 import type { AlbumExtras } from '@/components/dashboard/types';
 import { recoveryToken, requireUser } from '@/lib/server/auth';
 import { appUrl } from '@/lib/server/env';
-import { listOrders, listShares } from '@/lib/server/repo/orders';
+import { formatMoney, getCatalog, priceIn } from '@/lib/commerce/catalog';
+import { countryFromHeaders } from '@/lib/commerce/region';
+import { checkoutCurrency } from '@/lib/server/orders';
+import { hasItem, listOrders, listShares } from '@/lib/server/repo/orders';
 import { listProjects } from '@/lib/server/repo/projects';
 
 export const metadata: Metadata = { title: 'My albums', robots: { index: false } };
@@ -22,7 +26,7 @@ function albumExtras(orders: Awaited<ReturnType<typeof listOrders>>, shares: Awa
     if (o.status !== 'paid') continue;
     const e = (extras[o.project_id] ??= {});
     e.orderId ??= o.id;
-    if (!e.pdfOrderId && o.items.some((i) => i.kind === 'digital_pdf')) e.pdfOrderId = o.id;
+    if (!e.pdfOrderId && hasItem(o, 'digital_pdf')) e.pdfOrderId = o.id;
   }
   const now = Date.now();
   for (const s of shares) {
@@ -44,6 +48,9 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
   const [projects, orders, shares] = await Promise.all([listProjects(user.id), listOrders(user.id), listShares(user.id)]);
 
   const extras = albumExtras(orders, shares);
+  const currency = checkoutCurrency(countryFromHeaders(await headers()));
+  const albumPrice = priceIn(getCatalog().album.price, currency);
+  const unlockPrice = albumPrice === null ? undefined : formatMoney(albumPrice, currency);
 
   return (
     <div>
@@ -56,7 +63,7 @@ async function Content({ searchParams }: { searchParams: Promise<Record<string, 
       </div>
 
       <div className="mt-6 sm:mt-10">
-        <ProjectGrid projects={projects} extras={extras} />
+        <ProjectGrid projects={projects} extras={extras} unlockPrice={unlockPrice} />
       </div>
 
       {orders.length > 0 && (

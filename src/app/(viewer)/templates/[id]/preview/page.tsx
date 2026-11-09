@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AlbumViewer } from '@/components/album/AlbumViewer';
+import { AlbumPrice } from '@/components/commerce/AlbumPrice';
 import { TEMPLATES } from '@/lib/templates';
 import { getTemplateDemo } from '@/lib/templates/demo';
 import { categoryById, styleById } from '@/lib/templates/taxonomy';
@@ -30,13 +31,14 @@ export default async function TemplatePreviewPage({ params }: PageProps<'/templa
       doc={demo.doc}
       photos={demo.photos}
       title={t.name}
-      subtitle={`${categoryById(t.category)?.label} · ${styleById(t.style)?.label} · ${demo.stats.pageCount} pages · Demo with sample photography`}
+      subtitle={`${categoryById(t.category)?.label} · ${styleById(t.style)?.label} · Demo with sample photos — yours will hold your own`}
       backHref={`/templates/${t.id}`}
       backLabel="Template details"
       actions={
-        <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-sm">
-          <span className="hidden sm:inline">Use this design</span>
-          <span className="sm:hidden">Use</span>
+        <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-sm h-9 shrink-0 whitespace-nowrap px-3.5">
+          <span className="hidden sm:inline">Use this design ·&nbsp;</span>
+          <span className="sm:hidden">Use ·&nbsp;</span>
+          <AlbumPrice />
         </Link>
       }
     />

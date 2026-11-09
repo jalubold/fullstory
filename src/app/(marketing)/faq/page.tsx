@@ -16,8 +16,9 @@ export default function FaqPage() {
       items: [
         ['Do I need an account?', 'No. There’s nothing to sign up for. Your albums are saved to this browser automatically, and you get a private album link to open them on another device.'],
         ['Do I need design experience?', 'Not at all — that’s the point. Every template is a complete, finished design. You add your photos and your words; the layout, fonts and colours stay exactly as designed, so the result always looks professional.'],
-        ['Is it free to design an album?', 'Yes. Creating, editing, saving and previewing projects is free. You only pay when you order a digital PDF or a shareable album.'],
-        ['How many pages will my album have?', 'Each design comes with its pages already laid out — the number is shown on the template’s page. Your photos fill the frames automatically, and you can swap any photo afterwards.'],
+        ['How much does it cost?', 'One price per album, paid once when you choose your design: everything is included — as many pages as you like, your music, page-turn animations, a private share link with QR code, and the high-resolution PDF. No subscription. Prices are shown in US dollars or euros depending on where you are, taxes included.'],
+        ['Can I see a design before I pay?', 'Yes. Every design has a full demo with sample photos — flip through every page, try the page-turn styles, then decide.'],
+                ['How many pages can my album have?', 'As many as you like. Each design starts with its pages laid out; add more any time from 25+ layouts (or from the design’s own pages), and change, reorder or remove pages whenever you want.'],
         ['Will I lose my work if I close the browser?', 'No. Your album saves automatically while you work, and a local backup protects changes made while you are offline. Open “My albums” to continue — or use your private album link from another device.'],
         ['Can I make an album on my phone?', 'Yes. The editor works on phones, tablets and computers. On a phone you swipe through the pages, tap a photo to zoom, reposition or change it, and tap any text to rewrite it.'],
       ],
@@ -50,14 +51,14 @@ export default function FaqPage() {
         ['What is included in the digital PDF?', 'A high-resolution PDF of your finished album — cover, every page and back cover — ready to keep, archive or print at home.'],
         ['How does a shareable album work?', 'You get a private link to an online, page-turning version of your album. You can protect it with a password, set an expiry date, or switch it off at any time.'],
         ['Can guests scan a QR code to see the album?', 'Yes. Every shareable online album comes with a QR code you can download as PNG or SVG — print it on invitations, place cards or a frame, and anyone who scans it opens your album.'],
-        ['What if I edit my album after buying?', 'Purchases are made for the version of the album at checkout, so the file you receive always matches what you approved. You can keep editing and order again later.'],
+                ['What if I edit my album later?', 'Go ahead — your album is yours to keep editing. Your share link always shows the latest version, and the PDF is made fresh from your latest pages whenever you download it.'],
       ],
     },
     {
       title: 'Payments & privacy',
       items: [
         ['How do I pay?', 'Payments are handled securely by our payment provider. We never see or store your card details.'],
-        ['When do I get access to my download?', 'Immediately after your payment is confirmed. If a payment is still processing, your order page will update automatically.'],
+                ['When can I start?', 'Straight after payment — you go right into your album. Your share link, QR code and PDF are ready whenever you are.'],
         ['How do I get my albums on another device?', 'On “My albums”, copy your private album link and open it on any device to continue where you left off. Keep it private — anyone with the link can open your albums.'],
       ],
     },
@@ -100,7 +101,7 @@ export default function FaqPage() {
           <div className="rounded-[4px] bg-paper-2 p-8">
             <p className="font-serif text-2xl">Still have a question?</p>
             <p className="mt-2 text-ink-soft">
-              Start a project — it’s free — or <Link href="/how-it-works" className="underline underline-offset-4">see how it works</Link>.
+              Flip through any <Link href="/templates" className="underline underline-offset-4">design’s demo</Link> before you decide, or <Link href="/how-it-works" className="underline underline-offset-4">see how it works</Link>.
             </p>
           </div>
         </div>

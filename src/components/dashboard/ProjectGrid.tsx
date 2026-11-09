@@ -4,7 +4,7 @@ import type { ProjectSummary } from '@/lib/server/repo/projects';
 import { ProjectCard } from './ProjectCard';
 import type { AlbumExtras } from './types';
 
-export function ProjectGrid({ projects, empty, extras }: { projects: ProjectSummary[]; empty?: { title: string; text: string }; extras?: Record<string, AlbumExtras> }) {
+export function ProjectGrid({ projects, empty, extras, unlockPrice }: { projects: ProjectSummary[]; empty?: { title: string; text: string }; extras?: Record<string, AlbumExtras>; unlockPrice?: string }) {
   if (!projects.length) {
     return (
       <div className="rounded-[4px] border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
@@ -17,7 +17,7 @@ export function ProjectGrid({ projects, empty, extras }: { projects: ProjectSumm
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 xl:grid-cols-3">
       {projects.map((p) => (
-        <ProjectCard key={p.id} extras={extras?.[p.id]} p={{ id: p.id, title: p.title, status: p.status, pageCount: p.pageCount, updatedAt: p.updatedAt, cover: p.cover, size: p.size, photos: p.photos }} />
+        <ProjectCard key={p.id} extras={extras?.[p.id]} unlockPrice={unlockPrice} p={{ id: p.id, title: p.title, status: p.status, pageCount: p.pageCount, updatedAt: p.updatedAt, cover: p.cover, size: p.size, photos: p.photos, unlocked: p.unlocked }} />
       ))}
     </div>
   );

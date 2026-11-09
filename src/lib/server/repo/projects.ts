@@ -20,6 +20,9 @@ export interface ProjectRow {
   size_id: string;
   created_at: string;
   updated_at: string;
+  /** Set once the album has been paid for; editing, sharing and the PDF need it. */
+  unlocked_at: string | null;
+  unlock_order_id: string | null;
 }
 
 export interface ProjectSummary {
@@ -35,6 +38,8 @@ export interface ProjectSummary {
   size: PageSize;
   photos: PhotoMap;
   hasOrders: boolean;
+  /** Paid for and open for editing. */
+  unlocked: boolean;
 }
 
 const iso = (v: unknown) => (v instanceof Date ? v.toISOString() : String(v));
@@ -133,10 +138,12 @@ export async function listProjects(userId: string, status?: ProjectStatus): Prom
     cover: Page;
     size: PageSize;
     has_orders: boolean;
+    unlocked: boolean;
   }>(
     `select p.id, p.title, p.template_id, p.status, p.page_count, p.size_id, p.created_at, p.updated_at,
             p.document->'cover' as cover, p.document->'size' as size,
-            exists(select 1 from orders o where o.project_id = p.id and o.status = 'paid') as has_orders
+            exists(select 1 from orders o where o.project_id = p.id and o.status = 'paid') as has_orders,
+            p.unlocked_at is not null as unlocked
      from projects p where p.user_id = $1 and p.deleted_at is null ${status ? 'and p.status = $2' : `and p.status <> 'archived'`}
      order by p.updated_at desc`,
     status ? [userId, status] : [userId],
@@ -157,6 +164,7 @@ export async function listProjects(userId: string, status?: ProjectStatus): Prom
     size: r.size,
     photos,
     hasOrders: !!r.has_orders,
+    unlocked: !!r.unlocked,
   }));
 }
 
@@ -169,4 +177,28 @@ export async function getProjectPresentation(projectId: string): Promise<Present
   if (!/^[0-9a-f-]{36}$/i.test(projectId)) return null;
   const row = await sqlOne<{ p: Presentation | null }>(`select document->'presentation' as p from projects where id = $1 and deleted_at is null`, [projectId]);
   return row?.p ?? null;
+}
+
+/** Opens a paid album for editing (idempotent). */
+export async function unlockProject(projectId: string, orderId: string): Promise<void> {
+  await sql('update projects set unlocked_at = coalesce(unlocked_at, now()), unlock_order_id = coalesce(unlock_order_id, $2) where id = $1', [projectId, orderId]);
+}
+
+/**
+ * An album this browser started from the same design but hasn't paid for yet
+ * (e.g. they backed out of checkout). Reused so returning doesn't pile up copies.
+ */
+export async function findUnpaidStart(userId: string, templateId: string | null): Promise<ProjectRow | null> {
+  return sqlOne<ProjectRow>(
+    `select * from projects where user_id = $1 and deleted_at is null and unlocked_at is null
+       and template_id is not distinct from $2 and created_at > now() - interval '3 days'
+       and not exists (select 1 from photos where photos.project_id = projects.id)
+     order by created_at desc limit 1`,
+    [userId, templateId],
+  );
+}
+
+/** The project's current version (cheap check for whether an album changed). */
+export async function projectVersion(projectId: string): Promise<number | null> {
+  return (await sqlOne<{ version: number }>('select version from projects where id = $1 and deleted_at is null', [projectId]))?.version ?? null;
 }

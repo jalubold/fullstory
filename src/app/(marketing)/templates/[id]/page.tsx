@@ -3,9 +3,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowRight, Check, ChevronLeft, Eye } from 'lucide-react';
 import { BookCover, OpenBook } from '@/components/album/Book';
+import { AlbumPrice } from '@/components/commerce/AlbumPrice';
 import { TemplateCard } from '@/components/templates/TemplateCard';
+import { INCLUDED } from '@/lib/commerce/included';
 import { buildSpreads } from '@/lib/album/geometry';
-import { formatMoney, getCatalog, priceIn, sizesFor } from '@/lib/commerce/catalog';
+import { sizesFor } from '@/lib/commerce/catalog';
 import { TEMPLATES } from '@/lib/templates';
 import { getTemplateDemo } from '@/lib/templates/demo';
 import { SAMPLE_PHOTOS } from '@/lib/templates/samples';
@@ -30,13 +32,10 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
   const demo = getTemplateDemo(id);
   if (!demo) notFound();
   const { template: t, doc, photos, stats } = demo;
-  const catalog = getCatalog();
   const category = categoryById(t.category)!;
   const style = styleById(t.style)!;
   const sizes = sizesFor(t.orientation);
   const spreads = buildSpreads(doc.pages.length);
-  // Static page: show the fee in every currency we charge in (visitors pay in theirs at checkout).
-  const premium = catalog.currencies.map((c) => { const p = priceIn(catalog.premiumTemplate.price, c); return p === null ? null : formatMoney(p, c); }).filter(Boolean).join(' / ');
   const related = TEMPLATES.filter((x) => x.id !== t.id && (x.category === t.category || x.style === t.style)).slice(0, 3);
   const usedIds = new Set(Object.keys(photos));
   const credits = [...new Map(SAMPLE_PHOTOS.filter((p) => usedIds.has(`s:${p.key}`)).map((p) => [p.photographer.username, p.photographer.name])).values()];
@@ -73,7 +72,6 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
         <div className="min-w-0 lg:pt-4">
           <p className="smallcaps">
             {category.label} · {style.label}
-            {t.tier === 'premium' && <span className="ml-2 !text-accent">· Premium</span>}
           </p>
           <h1 className="mt-3 font-serif text-[2.75rem] font-medium leading-none md:text-6xl">{t.name}</h1>
           <p className="mt-4 text-lg leading-relaxed text-ink-soft">{t.summary}</p>
@@ -89,18 +87,29 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
             <Spec label="Size" value={sizes.map((s) => s.label).join(' · ')} />
             <Spec label="Pages" value={`${stats.pageCount} pages + cover`} />
             <Spec label="Photos" value={`${stats.photoSlots}–${stats.recommendedPhotos}`} />
-            {t.tier === 'premium' && premium && <Spec label="Premium design" value={`${premium} one-time, added at checkout`} />}
           </dl>
 
-          <div className="mt-8 hidden flex-wrap gap-3 lg:flex">
-            <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-lg">
-              Use this design <ArrowRight size={16} />
-            </Link>
-            <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary btn-lg">
-              <Eye size={16} /> Preview full album
-            </Link>
+          <div className="mt-8 rounded-[6px] border border-line bg-white p-5 sm:p-6">
+            <p className="flex items-baseline gap-2">
+              <span className="font-serif text-3xl text-ink"><AlbumPrice /></span>
+              <span className="text-sm text-ink-soft">one-time · everything included</span>
+            </p>
+            <ul className="mt-4 grid gap-x-5 gap-y-2 sm:grid-cols-2">
+              {INCLUDED.map((f) => (
+                <li key={f.id} className="flex items-start gap-2 text-sm text-ink-soft">
+                  <Check size={15} className="mt-0.5 shrink-0 text-accent-dark" /> {f.title}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 hidden flex-wrap gap-3 lg:flex">
+              <Link href={`/create/new?template=${t.id}`} className="btn btn-primary btn-lg">
+                Use this design — <AlbumPrice /> <ArrowRight size={16} />
+              </Link>
+              <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary btn-lg">
+                <Eye size={16} /> Preview full album
+              </Link>
+            </div>
           </div>
-          <p className="mt-4 text-xs text-muted">Free to design — you only pay when you order it.</p>
         </div>
       </section>
 
@@ -110,8 +119,8 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
           <Link href={`/templates/${t.id}/preview`} className="btn btn-secondary h-12 shrink-0 gap-2 px-4 text-[0.8125rem]" aria-label="Flip through the full album">
             <Eye size={17} /> Preview
           </Link>
-          <Link href={`/create/new?template=${t.id}`} className="btn btn-primary h-12 flex-1 text-[0.75rem] uppercase tracking-[0.16em]">
-            Use this design <ArrowRight size={16} />
+          <Link href={`/create/new?template=${t.id}`} className="btn btn-primary h-12 flex-1 text-[0.75rem] uppercase tracking-[0.14em]">
+            Use this design · <AlbumPrice /> <ArrowRight size={16} />
           </Link>
         </div>
       </div>

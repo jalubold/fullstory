@@ -30,6 +30,7 @@ type CreemCheckout = {
 };
 
 const ITEM_NAMES: Partial<Record<OrderItemInput['kind'], string>> = {
+  album: 'Everything included',
   digital_pdf: 'Digital PDF',
   digital_share: 'Private album link',
   print: 'Printed photobook',
@@ -42,7 +43,9 @@ function productSpec(order: OrderRow) {
   const premium = kinds.includes('premium_template');
   const name = `Fullstory album · ${formats.join(' + ')}${premium ? ' (Premium design)' : ''}`;
   const description = [
-    'Your finished photo album from fullstory.pro.',
+    kinds.includes('album')
+      ? 'Your photo album on fullstory.pro with everything included: unlimited pages and layouts, your own music, page-turn animations, a private share link with QR code, and a high-resolution PDF.'
+      : 'Your finished photo album from fullstory.pro.',
     kinds.includes('digital_pdf') ? 'Digital PDF: a high-resolution PDF of your album to download and keep.' : '',
     kinds.includes('digital_share') ? 'Private album link: a private, page-turning online album with a QR code.' : '',
     premium ? 'Includes the Premium design fee.' : '',
@@ -104,7 +107,7 @@ export class CreemProvider implements PaymentProvider {
     return product.id;
   }
 
-  async createCheckout(order: OrderRow, { successUrl, email }: { successUrl: string; cancelUrl: string; email: string }) {
+  async createCheckout(order: OrderRow, { successUrl, email }: { successUrl: string; cancelUrl: string; email: string | null }) {
     if (!(CREEM_CURRENCIES as readonly string[]).includes(order.currency)) throw new Error(`Creem can't charge in ${order.currency}`);
     if (order.amount_total < 100) throw new Error('Order total is below the minimum charge');
     const productId = await this.productFor(order);
@@ -113,7 +116,7 @@ export class CreemProvider implements PaymentProvider {
       request_id: order.id,
       units: 1,
       custom_price: order.amount_total,
-      customer: { email },
+      ...(email ? { customer: { email } } : {}),
       success_url: successUrl,
       metadata: { orderId: order.id, orderNumber: order.number },
     });

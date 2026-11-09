@@ -1,6 +1,7 @@
 import { getCatalog, priceIn, type Catalog, type Currency } from './catalog';
 
 export type OrderItemInput =
+  | { kind: 'album' }
   | { kind: 'digital_pdf' }
   | { kind: 'digital_share' }
   | { kind: 'print'; sizeId: string; coverId: string; pageCount: number; quantity: number }
@@ -45,7 +46,11 @@ export function quote(items: OrderItemInput[], currency: Currency, shippingId: s
   const lines: PricedLine[] = [];
   let hasPrint = false;
   for (const item of items) {
-    if (item.kind === 'premium_template') {
+    if (item.kind === 'album') {
+      const amount = priceIn(catalog.album.price, currency);
+      if (amount === null) throw new PricingError(`No ${currency} price configured for the album`);
+      lines.push({ kind: item.kind, label: catalog.album.label, detail: 'Everything included', quantity: 1, unitAmount: amount, amount });
+    } else if (item.kind === 'premium_template') {
       const amount = priceIn(catalog.premiumTemplate.price, currency);
       if (amount === null) throw new PricingError(`No ${currency} price configured for premium designs`);
       lines.push({ kind: item.kind, label: catalog.premiumTemplate.label, quantity: 1, unitAmount: amount, amount });

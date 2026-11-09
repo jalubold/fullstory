@@ -73,6 +73,22 @@ function ItemView({ item, doc, photos, width, eager }: { item: ViewItem; doc: Al
   );
 }
 
+/**
+ * One page at a time (phones), turned like a real book: the same 3D page turn
+ * as the open book on larger screens, showing only its right-hand page, so the
+ * page swings over at the spine.
+ */
+function SinglePageFlip({ index, doc, photos, width, dir }: { index: number; doc: AlbumDocument; photos: PhotoMap; width: number; dir: 1 | -1 }) {
+  const spread = { left: index > 0 ? doc.pages[index - 1] : null, right: doc.pages[index] };
+  return (
+    <div style={{ width, clipPath: 'inset(-12% -12% -12% 0)' }}>
+      <div style={{ width: width * 2, marginLeft: -width }}>
+        <FlipBook spread={spread} dir={dir} size={doc.size} photos={photos} renderWidth={width * 2} {...bookFinish(doc)} eager />
+      </div>
+    </div>
+  );
+}
+
 export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel = 'Back', actions, banner, presentation, animationPicker }: AlbumViewerProps) {
   const show = presentation ?? presentationOf(doc);
   const music = show.musicUrl;
@@ -310,6 +326,10 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
                   {...bookFinish(doc)}
                   eager
                 />
+              </div>
+            ) : item.kind === 'page' && anim === 'flip' ? (
+              <div key="single-book" className="viewer-turn" data-dir={dir} style={{ width: displayW }}>
+                <SinglePageFlip index={item.index} doc={doc} photos={photos} width={displayW} dir={dir} />
               </div>
             ) : (
               <div key={`${mode}-${index}-${anim}`} className={anim === 'flip' ? 'viewer-turn' : `pa pa-${anim}`} data-dir={dir} style={{ width: displayW }}>

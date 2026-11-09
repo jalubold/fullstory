@@ -186,4 +186,17 @@ create unique index if not exists projects_user_client_key on projects (user_id,
 );
 alter table app_settings enable row level security`,
   },
+  {
+    id: 7,
+    name: 'pay-upfront-albums',
+    // Albums are bought up front: an album opens for editing once paid. The paid
+    // order then follows the album (its snapshot is refreshed from the project
+    // version), so the PDF and share link always show the latest pages.
+    sql: `alter table projects add column if not exists unlocked_at timestamptz;
+alter table projects add column if not exists unlock_order_id uuid;
+alter table orders add column if not exists snapshot_version integer;
+update projects p set unlocked_at = coalesce(o.paid_at, now()), unlock_order_id = o.id
+  from (select distinct on (project_id) project_id, id, paid_at from orders where status = 'paid' order by project_id, paid_at desc nulls last) o
+  where o.project_id = p.id and p.unlocked_at is null`,
+  },
 ];

@@ -2,16 +2,16 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { AlertCircle, CheckCircle2, Clock, Download, ExternalLink, Link2, Package, RotateCcw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, Download, ExternalLink, Eye, Link2, Package, PenLine, RotateCcw } from 'lucide-react';
 import { BookCover } from '@/components/album/Book';
 import { DownloadButton, OrderStatusPoller, ShareManager } from '@/components/dashboard/OrderClient';
 import { date, FULFILLMENT_LABEL, FULFILLMENT_STEPS, money, PAYMENT_LABEL } from '@/components/dashboard/format';
 import { getSize, getCatalog } from '@/lib/commerce/catalog';
 import { requireUser } from '@/lib/server/auth';
 import { appUrl } from '@/lib/server/env';
-import { syncOrder } from '@/lib/server/orders';
+import { refreshAlbumOrder, syncOrder } from '@/lib/server/orders';
 import { documentPhotoMap } from '@/lib/server/repo/projects';
-import { getOwnedOrder, getShareForOrder, hasItem } from '@/lib/server/repo/orders';
+import { getOwnedOrder, getShareForOrder, hasItem, isAlbumOrder } from '@/lib/server/repo/orders';
 
 export const metadata: Metadata = { title: 'Order', robots: { index: false } };
 
@@ -20,7 +20,8 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser(`/orders/${id}`);
   let order = await getOwnedOrder(user.id, id);
   if (!order) notFound();
-  order = await syncOrder(order);
+  order = await refreshAlbumOrder(await syncOrder(order));
+  const album = isAlbumOrder(order);
   const doc = order.document_snapshot;
   const photos = await documentPhotoMap(doc);
   const share = order.status === 'paid' ? await getShareForOrder(order.id) : null;
@@ -40,14 +41,20 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
         <div className="flex-1">
           <span className={`badge ${status.cls}`}>{status.label}</span>
           <h1 className="mt-3 font-serif text-4xl">
-            {order.status === 'paid' ? 'Thank you — your order is confirmed.' : order.status === 'pending' ? 'Confirming your payment…' : order.status === 'failed' ? 'Your payment didn’t go through.' : order.status === 'refunded' ? 'This order was refunded.' : 'This order was cancelled.'}
+            {order.status === 'paid' && album ? 'Share & download' : order.status === 'paid' ? 'Thank you — your order is confirmed.' : order.status === 'pending' ? 'Confirming your payment…' : order.status === 'failed' ? 'Your payment didn’t go through.' : order.status === 'refunded' ? 'This order was refunded.' : 'This order was cancelled.'}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Order {order.number} · placed {date(order.created_at)} · {money(order.amount_total, order.currency)}
+            {album && order.status === 'paid' ? 'Your link and PDF always show the latest version of your album.' : `Order ${order.number} · placed ${date(order.created_at)} · ${money(order.amount_total, order.currency)}`}
           </p>
+          {album && order.status === 'paid' && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link href={`/projects/${order.project_id}/edit`} className="btn btn-secondary btn-sm"><PenLine size={14} /> Keep editing</Link>
+              <Link href={`/projects/${order.project_id}/preview`} className="btn btn-ghost btn-sm"><Eye size={14} /> Preview</Link>
+            </div>
+          )}
           {order.status === 'pending' && <p className="mt-3 flex items-center gap-2 text-sm text-ink-soft"><Clock size={15} /> This page updates automatically as soon as your payment is confirmed.</p>}
           {order.status === 'failed' && (
-            <Link href={`/projects/${order.project_id}/checkout`} className="btn btn-primary btn-sm mt-4"><RotateCcw size={14} /> Try again</Link>
+            <Link href={album ? `/projects/${order.project_id}/unlock` : `/projects/${order.project_id}/checkout`} className="btn btn-primary btn-sm mt-4"><RotateCcw size={14} /> Try again</Link>
           )}
         </div>
       </div>
@@ -111,7 +118,7 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
       )}
 
       <section className="rounded-[4px] border border-line bg-white p-6 sm:p-8">
-        <h2 className="font-serif text-2xl">Summary</h2>
+        <h2 className="font-serif text-2xl">{album ? `Order ${order.number}` : 'Summary'}</h2>
         <dl className="mt-4 space-y-2 text-sm">
           {order.lines.map((l, i) => (
             <div key={i} className="flex justify-between gap-4">

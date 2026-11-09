@@ -7,7 +7,7 @@ import { money } from '@/components/dashboard/format';
 import { Logo } from '@/components/ui/Logo';
 import { requireUser } from '@/lib/server/auth';
 import { testPaymentsAllowed } from '@/lib/server/payments';
-import { getOwnedOrder } from '@/lib/server/repo/orders';
+import { getOwnedOrder, isAlbumOrder } from '@/lib/server/repo/orders';
 
 export const metadata: Metadata = { title: 'Test payment', robots: { index: false } };
 
@@ -34,7 +34,12 @@ async function Content({ params, searchParams }: { params: Promise<{ orderId: st
       </ul>
       <p className="mt-4 flex justify-between border-t border-line pt-4 font-medium"><span>Total</span><span>{money(order.amount_total, order.currency)}</span></p>
       <div className="mt-8">
-        <TestPayment orderId={order.id} session={order.provider_session_id!} cancelHref={`/projects/${order.project_id}/checkout?cancelled=${order.id}`} />
+        <TestPayment
+          orderId={order.id}
+          session={order.provider_session_id!}
+          cancelHref={isAlbumOrder(order) ? `/projects/${order.project_id}/unlock` : `/projects/${order.project_id}/checkout?cancelled=${order.id}`}
+          doneHref={isAlbumOrder(order) ? `/projects/${order.project_id}/unlock?order=${order.id}` : undefined}
+        />
       </div>
     </div>
   );

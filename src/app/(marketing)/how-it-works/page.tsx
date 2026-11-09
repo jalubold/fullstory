@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 const STEPS = [
-  { title: 'Choose a design', text: 'Every page is already designed. Flip through it before you begin.' },
-  { title: 'Add your photos', text: 'They fill the frames for you. Tap a photo to adjust it, tap any text to rewrite it.' },
-  { title: 'Keep it', text: 'Download a high-resolution PDF, or share a private, page-turning album with a QR code.' },
+  { title: 'Choose a design', text: 'Flip through the demo — every page — before you decide.' },
+  { title: 'Make it yours', text: 'One price, everything included. Your photos fill the frames; add pages, your music and a page-turn style.' },
+  { title: 'Share it', text: 'A private, page-turning album with a QR code, and a high-resolution PDF to keep.' },
 ];
 
 const FEATURES = [
@@ -85,7 +85,7 @@ export default function HowItWorksPage() {
         <h2 className="font-serif text-[2rem] md:text-4xl">Ready when you are.</h2>
         <div className="mt-6 flex flex-col items-center gap-4">
           <Link href="/create" className="btn btn-primary btn-lg w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto">
-            Begin your book — it’s free
+            Begin your book
           </Link>
         </div>
       </section>

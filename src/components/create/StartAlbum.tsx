@@ -11,8 +11,10 @@ const NAV_FALLBACK_MS = 9_000;
 
 class Retryable extends Error {}
 
-/** POST /api/projects with a timeout. Network errors, timeouts and 5xx are retryable. */
-async function createAlbum(request: Record<string, unknown>, clientKey: string, outer: AbortSignal): Promise<string> {
+type Started = { projectId: string; url?: string; unlocked?: boolean };
+
+/** POST /api/albums/start with a timeout. Network errors, timeouts and 5xx are retryable. */
+async function startAlbum(request: Record<string, unknown>, clientKey: string, outer: AbortSignal): Promise<Started> {
   const ctrl = new AbortController();
   const onAbort = () => ctrl.abort();
   outer.addEventListener('abort', onAbort);
@@ -20,7 +22,7 @@ async function createAlbum(request: Record<string, unknown>, clientKey: string, 
   try {
     let res: Response;
     try {
-      res = await fetch('/api/projects', {
+      res = await fetch('/api/albums/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...request, clientKey }),
@@ -31,8 +33,8 @@ async function createAlbum(request: Record<string, unknown>, clientKey: string, 
     }
     const data = await res.json().catch(() => ({}));
     if (res.status >= 500) throw new Retryable(data.error ?? 'Our server had a hiccup.');
-    if (!res.ok || !data.id) throw new Error(data.error ?? 'We couldn’t start your album.');
-    return data.id as string;
+    if (!res.ok || !data.projectId) throw new Error(data.error ?? 'We couldn’t start your album.');
+    return data as Started;
   } finally {
     window.clearTimeout(timer);
     outer.removeEventListener('abort', onAbort);
@@ -40,9 +42,9 @@ async function createAlbum(request: Record<string, unknown>, clientKey: string, 
 }
 
 /**
- * One-click start: creates the album as soon as this screen is shown and moves
- * on to adding photos. Name, size and everything else can be changed later in
- * the editor.
+ * One-click start: sets up the album as soon as this screen is shown and goes
+ * straight to secure checkout (albums are paid for up front). After payment the
+ * buyer lands in the editor. Name, size and everything else can be changed later.
  *
  * Next.js keeps visited pages alive (hidden with React <Activity>), so this
  * screen can be shown again later with its old state. Each showing therefore
@@ -77,12 +79,17 @@ export function StartAlbum({ request, visual, title }: { request: Record<string,
     (async () => {
       for (let tryNo = 0; ; tryNo++) {
         try {
-          const id = await createAlbum(JSON.parse(requestKey), v.key, ctrl.signal);
+          const started = await startAlbum(JSON.parse(requestKey), v.key, ctrl.signal);
           if (ctrl.signal.aborted) return;
           v.done = true;
           setOpening(true);
-          // Phones and tablets go straight to the editor (photos are added there, one at a time);
-          // desktops add a batch of photos first.
+          if (started.url) {
+            // Off to the payment page; coming back lands on /projects/:id/unlock.
+            window.location.assign(started.url);
+            return;
+          }
+          // Already paid for: phones and tablets go straight to the editor; desktops add a batch of photos first.
+          const id = started.projectId;
           const url = isMobileDevice() ? `/projects/${id}/edit` : `/projects/${id}/photos`;
           router.replace(url);
           // If the in-app navigation stalls, finish with a normal page load.
@@ -138,10 +145,10 @@ export function StartAlbum({ request, visual, title }: { request: Record<string,
         ) : (
           <>
             <h1 className="rise mt-12 font-serif text-4xl font-medium md:text-5xl" style={{ animationDelay: '0.2s' }}>
-              {opening ? 'Opening' : 'Binding'} <span className="italic">{title}</span>
+              {opening ? 'Opening' : 'Preparing'} <span className="italic">{title}</span>
             </h1>
             <p className="rise mt-3 text-white/65" style={{ animationDelay: '0.35s' }}>
-              {opening ? 'Your pages are ready — now for your photos…' : 'Setting out every page for your photos…'}
+              {opening ? 'Taking you to secure checkout…' : 'Setting out every page for your photos…'}
             </p>
             <div className="rise mx-auto mt-9 h-px w-56 overflow-hidden bg-white/20" style={{ animationDelay: '0.45s' }}>
               <div className="h-full w-1/3 animate-[fs-progress_1.2s_ease-in-out_infinite] bg-white" />

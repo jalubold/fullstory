@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 
-export function TestPayment({ orderId, session, cancelHref }: { orderId: string; session: string; cancelHref: string }) {
+export function TestPayment({ orderId, session, cancelHref, doneHref }: { orderId: string; session: string; cancelHref: string; doneHref?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState<'paid' | 'failed' | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +17,7 @@ export function TestPayment({ orderId, session, cancelHref }: { orderId: string;
       setBusy(null);
       return;
     }
-    router.push(`/orders/${orderId}?session_id=${session}`);
+    router.push(doneHref ?? `/orders/${orderId}?session_id=${session}`);
   };
   return (
     <div className="space-y-3">

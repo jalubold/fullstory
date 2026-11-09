@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type DragEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
-import { AlertCircle, AlertTriangle, ArrowRight, Check, ChevronLeft, ChevronRight, CloudOff, Eye, ImagePlus, Loader2, Minus, Move, Music2, Plus, Redo2, RotateCcw, Trash2, Undo2, Upload, Wand2, X } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ArrowRight, Check, ChevronLeft, ChevronRight, CloudOff, Copy, Eye, ImagePlus, LayoutTemplate, Loader2, Minus, Move, Music2, Plus, Redo2, RotateCcw, Trash2, Undo2, Upload, Wand2, X } from 'lucide-react';
 import { PageView } from '@/components/album/PageView';
 import { bookFinish, luminance } from '@/lib/album/color';
 import { cssFontStack } from '@/lib/album/fonts';
 import { buildSpreads, computeCrop, effectiveDpi, pageSizePt, panCrop } from '@/lib/album/geometry';
-import { allPages, autofill, clearPhoto, findElement, pageAt } from '@/lib/album/ops';
+import { applyLayout, buildPage, clonePage } from '@/lib/album/build';
+import { LAYOUT_GROUPS, LAYOUTS } from '@/lib/album/layouts';
+import { allPages, autofill, clearPhoto, deletePage, findElement, movePage, pageAt } from '@/lib/album/ops';
 import type { AlbumDocument, AlbumElement, Crop, Page, PageRef, PageSize, PhotoAsset, PhotoElement, PhotoMap, TextElement } from '@/lib/album/types';
 import { MotionPanel } from '../MotionPanel';
 import { useEditor } from '../store';
@@ -20,8 +22,9 @@ import { PendingTiles, UploadStatus, usePendingUploads, useUploadStats } from '.
 /**
  * The album editor, deliberately simple on every screen: nothing on a page
  * can be moved or resized. You add photos (they fill the frames), tap or click
- * a photo to change it, tap or click text to rewrite it, and choose the music
- * and page-turn style. Everything else is already designed.
+ * a photo to change it, tap or click text to rewrite it, add pages from a
+ * gallery of layouts, and choose the music and page-turn style. Everything
+ * else is already designed.
  *
  *  - phones: one page at a time, swipe, bottom sheets
  *  - tablets/desktop: book spreads, centred dialogs, ←/→ to turn pages
@@ -29,7 +32,12 @@ import { PendingTiles, UploadStatus, usePendingUploads, useUploadStats } from '.
  */
 
 type Target = { ref: PageRef; id: string };
-type SheetState = { kind: 'photo'; target: Target | null } | { kind: 'text'; target: Target } | { kind: 'motion' } | null;
+type SheetState =
+  | { kind: 'photo'; target: Target | null }
+  | { kind: 'text'; target: Target }
+  | { kind: 'motion' }
+  | { kind: 'pages'; mode: 'add' | 'layout'; after: number; targets: number[] }
+  | null;
 type Slide = { refs: Array<PageRef | null>; label: string; short: string };
 
 const ACCEPT = ACCEPT_ATTR;
@@ -167,6 +175,7 @@ export function SimpleEditor({ save, banners, minDpi }: { save: () => Promise<bo
   const [sheet, setSheet] = useState<SheetState>(null);
   const [leaving, setLeaving] = useState<string | null>(null);
   const [fileDrag, setFileDrag] = useState(false);
+  const [focusPage, setFocusPage] = useState<number | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState({ w: 360, h: 480 });
   const raf = useRef(0);
@@ -197,6 +206,29 @@ export function SimpleEditor({ save, banners, minDpi }: { save: () => Promise<bo
     const ref = slides[at]?.refs.find(Boolean);
     if (ref) useEditor.getState().setActive(ref);
   }, [at, slides]);
+
+  // After adding, duplicating or moving a page, bring it into view.
+  useEffect(() => {
+    if (focusPage === null) return;
+    const i = slides.findIndex((s) => s.refs.some((r) => r?.kind === 'page' && r.index === focusPage));
+    const el = scroller.current;
+    if (i >= 0 && el) {
+      el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIndex(i);
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFocusPage(null);
+  }, [focusPage, slides]);
+
+  /** Where a new page goes: after the page(s) on screen (first page from the cover, last from the back). */
+  const pagesOn = (i: number) => (slides[i]?.refs ?? []).flatMap((r) => (r?.kind === 'page' ? [r.index] : []));
+  const insertAfter = (i: number) => {
+    const here = pagesOn(i);
+    if (here.length) return Math.max(...here);
+    return slides[i]?.refs[0]?.kind === 'back' ? pageCount - 1 : -1;
+  };
+  const openAdd = (after = insertAfter(at)) => setSheet({ kind: 'pages', mode: 'add', after, targets: [] });
 
   const ratio = doc.size.widthMm / doc.size.heightMm;
   const pageW = Math.max(120, Math.floor(wide ? Math.min((box.w - 136) / 2, (box.h - 64) * ratio) : Math.min(box.w - 40, (box.h - 56) * ratio)));
@@ -287,7 +319,17 @@ export function SimpleEditor({ save, banners, minDpi }: { save: () => Promise<bo
                       )}
                       {spread && <span aria-hidden className="pointer-events-none absolute inset-y-0 left-1/2 w-12 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgb(0_0_0/.06)_40%,rgb(0_0_0/.16)_50%,rgb(0_0_0/.06)_60%,transparent)]" />}
                     </div>
-                    <p className="smallcaps mt-4">{slide.label}</p>
+                    <div className="mt-3 flex items-center gap-1.5">
+                      <p className="smallcaps mr-1.5">{slide.label}</p>
+                      {pagesOn(i).length > 0 && (
+                        <button type="button" onClick={() => setSheet({ kind: 'pages', mode: 'layout', after: insertAfter(i), targets: pagesOn(i) })} className="inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong bg-card px-3 text-[12px] text-ink-soft transition hover:border-ink hover:text-ink active:scale-95">
+                          <LayoutTemplate size={13} /> Page
+                        </button>
+                      )}
+                      <button type="button" onClick={() => openAdd(insertAfter(i))} className="inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong bg-card px-3 text-[12px] text-ink-soft transition hover:border-ink hover:text-ink active:scale-95">
+                        <Plus size={13} /> Add page
+                      </button>
+                    </div>
                   </section>
                 );
               })}
@@ -312,12 +354,13 @@ export function SimpleEditor({ save, banners, minDpi }: { save: () => Promise<bo
             </div>
           </div>
 
-          <BottomBar index={at} slides={slides} doc={doc} photos={photoMap} photoCount={photoCount} showActions={!desk} onPick={goTo} onLibrary={() => setSheet({ kind: 'photo', target: null })} />
+          <BottomBar index={at} slides={slides} doc={doc} photos={photoMap} photoCount={photoCount} showActions={!desk} onPick={goTo} onLibrary={() => setSheet({ kind: 'photo', target: null })} onAddPage={() => openAdd(pageCount - 1)} />
         </div>
       </div>
 
       {sheet?.kind === 'photo' && <PhotoSheet target={sheet.target} refs={slides[at]?.refs ?? []} minDpi={minDpi} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'text' && <TextSheet target={sheet.target} onClose={() => setSheet(null)} />}
+      {sheet?.kind === 'pages' && <PagesSheet mode={sheet.mode} after={sheet.after} targets={sheet.targets} onClose={() => setSheet(null)} onFocus={setFocusPage} />}
       {sheet?.kind === 'motion' && (
         <Sheet title="Music & page turns" onClose={() => setSheet(null)}>
           <div className="pt-1">
@@ -579,7 +622,7 @@ function LibraryPanel({ refs }: { refs: Array<PageRef | null> }) {
 
 /* -------------------------------- bottom bar -------------------------------- */
 
-function BottomBar({ index, slides, doc, photos, photoCount, showActions, onPick, onLibrary }: { index: number; slides: Slide[]; doc: AlbumDocument; photos: PhotoMap; photoCount: number; showActions: boolean; onPick: (i: number) => void; onLibrary: () => void }) {
+function BottomBar({ index, slides, doc, photos, photoCount, showActions, onPick, onLibrary, onAddPage }: { index: number; slides: Slide[]; doc: AlbumDocument; photos: PhotoMap; photoCount: number; showActions: boolean; onPick: (i: number) => void; onLibrary: () => void; onAddPage: () => void }) {
   const stats = useUploadStats();
   const strip = useRef<HTMLDivElement>(null);
   const empty = useMemo(() => emptyFrameCount(doc), [doc]);
@@ -625,6 +668,12 @@ function BottomBar({ index, slides, doc, photos, photoCount, showActions, onPick
         {slides.map((slide, i) => (
           <Thumb key={i} refs={slide.refs} doc={doc} photos={photos} label={slide.short} active={i === index} onClick={() => onPick(i)} />
         ))}
+        <button type="button" onClick={onAddPage} className="flex shrink-0 flex-col items-center gap-1" aria-label="Add a page">
+          <span className="grid w-11 place-items-center rounded-[2px] border border-dashed border-line-strong text-muted transition hover:border-accent hover:text-accent md:w-12" style={{ aspectRatio: `${doc.size.widthMm} / ${doc.size.heightMm}` }}>
+            <Plus size={18} />
+          </span>
+          <span className="text-[10px] text-muted">Add</span>
+        </button>
       </div>
       {showActions && (
         <div className="flex gap-2 px-4">
@@ -1140,5 +1189,161 @@ function FirstTimeTip({ wide }: { wide: boolean }) {
         <X size={16} />
       </button>
     </div>
+  );
+}
+
+/* ------------------------------------ pages ------------------------------------ */
+
+/** Albums can grow freely; this ceiling only keeps PDFs quick to make. */
+const MAX_PAGES = 500;
+
+/** A fresh copy of one of the album's own page designs, ready for new photos. */
+function blankCopy(page: Page): Page {
+  const p = clonePage(page);
+  for (const el of p.elements) if (el.type === 'photo') Object.assign(el, { photoId: null, crop: { fx: 0.5, fy: 0.5, zoom: 1 } });
+  return p;
+}
+
+type PageChoice = { key: string; label: string; preview: Page; make: (d: AlbumDocument) => Page; layoutId?: string };
+
+function useLayoutChoices(doc: AlbumDocument) {
+  return useMemo(() => {
+    // The album's own page designs first (they carry the design's backgrounds and ornaments)…
+    const seen = new Set<string>();
+    const design: PageChoice[] = [];
+    for (const p of doc.pages) {
+      const k = p.layoutId ?? p.id;
+      if (seen.has(k) || design.length >= 12) continue;
+      seen.add(k);
+      design.push({ key: `d-${p.id}`, label: 'From your design', preview: blankCopy(p), make: () => blankCopy(p) });
+    }
+    // …then every layout, in the album's fonts and colours.
+    const groups = LAYOUT_GROUPS.filter((g) => g.id !== 'cover' && g.id !== 'back').map((g) => ({
+      id: g.id,
+      label: g.label,
+      items: LAYOUTS.filter((l) => l.group === g.id).map<PageChoice>((l) => ({
+        key: l.id,
+        label: l.name,
+        layoutId: l.id,
+        preview: buildPage(l.id, doc.theme, doc.size),
+        make: (d) => buildPage(l.id, d.theme, d.size),
+      })),
+    }));
+    return { design, groups: groups.filter((g) => g.items.length) };
+    // Rebuild only when the design itself changes, not on every edit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doc.theme, doc.size, doc.pages.length]);
+}
+
+function ChoiceGrid({ items, doc, onPick }: { items: PageChoice[]; doc: AlbumDocument; onPick: (c: PageChoice) => void }) {
+  return (
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+      {items.map((c) => (
+        <button key={c.key} type="button" onClick={() => onPick(c)} className="group text-left" title={c.label}>
+          <span className="block overflow-hidden rounded-[3px] bg-white ring-1 ring-line transition group-hover:ring-2 group-hover:ring-accent group-active:scale-[0.97]">
+            <PageView page={c.preview} size={doc.size} photos={{}} renderWidth={120} emptyFrames="placeholder" />
+          </span>
+          {c.layoutId && <span className="mt-1 line-clamp-1 block text-[11px] text-muted">{c.label}</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Pages: add pages from a gallery of layouts (and from the album's own design),
+ * or change, duplicate, move and remove the page you're on.
+ */
+function PagesSheet({ mode, after, targets, onClose, onFocus }: { mode: 'add' | 'layout'; after: number; targets: number[]; onClose: () => void; onFocus: (pageIndex: number) => void }) {
+  const doc = useEditor((s) => s.doc)!;
+  const choices = useLayoutChoices(doc);
+  const [target, setTarget] = useState(targets[0] ?? 0);
+  const n = doc.pages.length;
+
+  const add = (c: PageChoice) => {
+    const s = useEditor.getState();
+    if (s.doc!.pages.length >= MAX_PAGES) {
+      s.toast(`An album can have up to ${MAX_PAGES} pages`);
+      return;
+    }
+    const at = Math.max(0, Math.min(after + 1, s.doc!.pages.length));
+    s.apply((d) => void d.pages.splice(at, 0, c.make(d as AlbumDocument)));
+    s.toast('Page added', 'success');
+    onFocus(at);
+    onClose();
+  };
+  const change = (c: PageChoice) => {
+    if (!c.layoutId) return;
+    const s = useEditor.getState();
+    s.apply((d) => {
+      const doc2 = d as AlbumDocument;
+      doc2.pages[target] = applyLayout(doc2.pages[target], c.layoutId!, doc2.theme, doc2.size).page;
+    });
+    s.toast('Layout changed — your photos and words came along', 'success');
+    onClose();
+  };
+  const duplicate = () => {
+    const s = useEditor.getState();
+    if (s.doc!.pages.length >= MAX_PAGES) return s.toast(`An album can have up to ${MAX_PAGES} pages`);
+    s.apply((d) => void d.pages.splice(target + 1, 0, clonePage((d as AlbumDocument).pages[target])));
+    s.toast('Page duplicated', 'success');
+    onFocus(target + 1);
+    onClose();
+  };
+  const move = (delta: -1 | 1) => {
+    const to = target + delta;
+    if (to < 0 || to >= n) return;
+    useEditor.getState().apply((d) => movePage(d as AlbumDocument, target, to));
+    onFocus(to);
+    onClose();
+  };
+  const remove = () => {
+    if (n <= 1) return;
+    const page = doc.pages[target];
+    const hasPhotos = page.elements.some((e) => e.type === 'photo' && e.photoId);
+    if (hasPhotos && !window.confirm('Remove this page? Its photos stay in your library.')) return;
+    const s = useEditor.getState();
+    s.apply((d) => void deletePage(d as AlbumDocument, target));
+    s.toast('Page removed · ⌘Z to undo');
+    onFocus(Math.max(0, target - 1));
+    onClose();
+  };
+
+  return (
+    <Sheet title={mode === 'add' ? 'Add a page' : `Page ${target + 1}`} onClose={onClose}>
+      {mode === 'layout' && (
+        <>
+          {targets.length > 1 && (
+            <div className="mb-4 flex rounded-full border border-line-strong bg-white p-0.5 text-xs" role="group" aria-label="Which page">
+              {targets.map((t, i) => (
+                <button key={t} type="button" onClick={() => setTarget(t)} aria-pressed={target === t} className={`flex-1 rounded-full px-3 py-1.5 ${target === t ? 'bg-ink text-paper' : 'text-ink-soft'}`}>
+                  {i === 0 ? 'Left' : 'Right'} page · {t + 1}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="grid grid-cols-4 gap-2">
+            <button type="button" onClick={duplicate} className="btn btn-secondary h-auto flex-col gap-1 py-2.5 text-[11px]"><Copy size={16} /> Duplicate</button>
+            <button type="button" onClick={() => move(-1)} disabled={target === 0} className="btn btn-secondary h-auto flex-col gap-1 py-2.5 text-[11px]"><ChevronLeft size={16} /> Earlier</button>
+            <button type="button" onClick={() => move(1)} disabled={target >= n - 1} className="btn btn-secondary h-auto flex-col gap-1 py-2.5 text-[11px]"><ChevronRight size={16} /> Later</button>
+            <button type="button" onClick={remove} disabled={n <= 1} className="btn btn-secondary h-auto flex-col gap-1 py-2.5 text-[11px] text-danger"><Trash2 size={16} /> Remove</button>
+          </div>
+          <p className="smallcaps mb-3 mt-6">Change the layout</p>
+          <p className="-mt-1 mb-3 text-xs text-muted">Your photos and words move into the new layout.</p>
+        </>
+      )}
+      {mode === 'add' && choices.design.length > 0 && (
+        <section className="mb-6">
+          <p className="smallcaps mb-3">From your design</p>
+          <ChoiceGrid items={choices.design} doc={doc} onPick={add} />
+        </section>
+      )}
+      {choices.groups.map((g) => (
+        <section key={g.id} className="mb-6">
+          <p className="smallcaps mb-3">{g.label}</p>
+          <ChoiceGrid items={g.items} doc={doc} onPick={mode === 'add' ? add : change} />
+        </section>
+      ))}
+    </Sheet>
   );
 }

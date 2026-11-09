@@ -12,7 +12,7 @@ const VALUES = [
   { title: 'Made to be kept', text: 'Photos on a phone are easy to take and easy to forget. A book is something you return to, and pass on.' },
   { title: 'Design that steps back', text: 'Our templates are built to make your photographs look their best — calm typography, balanced spacing, no clutter.' },
   { title: 'Yours, privately', text: 'No accounts, no passwords. Your photos and albums stay private to you, and nothing is shared unless you publish a link.' },
-  { title: 'Honest pricing', text: 'Designing is free. You see the full price of every format before you pay, with no subscriptions.' },
+  { title: 'Honest pricing', text: 'One price per album with everything included, shown before you start. No subscriptions, no extras.' },
 ];
 
 export default function AboutPage() {
