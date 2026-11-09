@@ -1,6 +1,8 @@
 import crypto from 'node:crypto';
 import { connection } from 'next/server';
 import { sqlOne } from '@/lib/server/db';
+import { getPaymentProvider } from '@/lib/server/payments';
+import { CreemProvider } from '@/lib/server/payments/creem';
 import { dbMode, storageMode } from '@/lib/server/env';
 import { storage } from '@/lib/server/storage';
 
@@ -53,5 +55,13 @@ export async function GET(req: Request) {
       store = { ok: false, steps, error: clean(e) };
     }
   }
-  return Response.json({ dbMode, db, storageMode, store }, { headers: { 'Cache-Control': 'no-store' } });
+  // Payments: which provider is active and whether it's set up. Flags only — never key values.
+  const provider = getPaymentProvider();
+  const payments: { provider: string | null; test?: boolean; webhook?: boolean; api?: string } = { provider: provider?.id ?? null };
+  if (provider) payments.test = provider.isTest;
+  if (provider instanceof CreemProvider) {
+    payments.webhook = Boolean(process.env.CREEM_WEBHOOK_SECRET);
+    if (new URL(req.url).searchParams.get('deep') === '1') payments.api = await provider.ping();
+  }
+  return Response.json({ dbMode, db, storageMode, store, payments }, { headers: { 'Cache-Control': 'no-store' } });
 }

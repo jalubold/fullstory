@@ -35,7 +35,8 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
   const style = styleById(t.style)!;
   const sizes = sizesFor(t.orientation);
   const spreads = buildSpreads(doc.pages.length);
-  const premium = priceIn(catalog.premiumTemplate.price, catalog.defaultCurrency);
+  // Static page: show the fee in every currency we charge in (visitors pay in theirs at checkout).
+  const premium = catalog.currencies.map((c) => { const p = priceIn(catalog.premiumTemplate.price, c); return p === null ? null : formatMoney(p, c); }).filter(Boolean).join(' / ');
   const related = TEMPLATES.filter((x) => x.id !== t.id && (x.category === t.category || x.style === t.style)).slice(0, 3);
   const usedIds = new Set(Object.keys(photos));
   const credits = [...new Map(SAMPLE_PHOTOS.filter((p) => usedIds.has(`s:${p.key}`)).map((p) => [p.photographer.username, p.photographer.name])).values()];
@@ -88,7 +89,7 @@ export default async function TemplateDetailPage({ params }: PageProps<'/templat
             <Spec label="Size" value={sizes.map((s) => s.label).join(' · ')} />
             <Spec label="Pages" value={`${stats.pageCount} pages + cover`} />
             <Spec label="Photos" value={`${stats.photoSlots}–${stats.recommendedPhotos}`} />
-            {t.tier === 'premium' && premium !== null && <Spec label="Premium design" value={`${formatMoney(premium, catalog.defaultCurrency)} one-time, added at checkout`} />}
+            {t.tier === 'premium' && premium && <Spec label="Premium design" value={`${premium} one-time, added at checkout`} />}
           </dl>
 
           <div className="mt-8 hidden flex-wrap gap-3 lg:flex">

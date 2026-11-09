@@ -20,18 +20,19 @@ function fmt(amount: number, currency: Currency) {
 interface Props {
   projectId: string;
   catalog: Catalog;
+  /** Set by the server from the visitor's country. */
+  currency: Currency;
   orientation: Orientation;
   sizeId: string;
   pageCount: number;
   premium: boolean;
-  provider: { label: string; isTest: boolean } | null;
+  provider: { id: string; label: string; isTest: boolean } | null;
   defaultName: string;
   defaultEmail: string;
 }
 
-export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCount, premium, provider, defaultName, defaultEmail }: Props) {
+export function CheckoutForm({ projectId, catalog, currency, orientation, sizeId, pageCount, premium, provider, defaultName, defaultEmail }: Props) {
   const [email, setEmail] = useState(defaultEmail);
-  const [currency, setCurrency] = useState<Currency>(catalog.defaultCurrency);
   const [pdf, setPdf] = useState(true);
   const [share, setShare] = useState(false);
   const [print, setPrint] = useState(false);
@@ -109,13 +110,6 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-serif text-3xl">Choose your formats</h2>
-          <div className="flex rounded-full border border-line-strong bg-white p-0.5" role="group" aria-label="Currency">
-            {catalog.currencies.map((c) => (
-              <button key={c} type="button" onClick={() => setCurrency(c)} aria-pressed={currency === c} className={`rounded-full px-3 py-1 text-xs ${currency === c ? 'bg-ink text-paper' : 'text-ink-soft'}`}>
-                {c}
-              </button>
-            ))}
-          </div>
         </div>
         <Option icon={Download} title={catalog.digital.pdf.label} text={catalog.digital.pdf.description} price={catalog.digital.pdf.price[currency]} currency={currency} checked={pdf} onChange={setPdf} />
         <Option icon={Link2} title={catalog.digital.share.label} text={catalog.digital.share.description} price={catalog.digital.share.price[currency]} currency={currency} checked={share} onChange={setShare} extra={<span className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-accent-dark"><QrCode size={14} /> QR code included — guests scan it to open the album</span>} />
@@ -240,7 +234,7 @@ export function CheckoutForm({ projectId, catalog, orientation, sizeId, pageCoun
                 <dt>Total</dt>
                 <dd className="tabular-nums">{fmt(q.total, currency)}</dd>
               </div>
-              <p className="text-xs text-muted">Taxes may be added at payment where applicable.</p>
+              <p className="text-xs text-muted">{provider?.id === 'creem' ? 'Includes any applicable taxes.' : 'Taxes may be added at payment where applicable.'}</p>
             </dl>
           ) : (
             <p className="mt-4 text-sm text-muted">{items.length ? 'Pricing for this combination isn’t configured.' : 'Choose at least one format.'}</p>

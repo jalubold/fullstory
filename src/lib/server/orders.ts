@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { countPhotoFrames, usedPhotoIds } from '@/lib/album/geometry';
 import { getCatalog, getSize, isCurrency, type Currency } from '@/lib/commerce/catalog';
 import { normalisePageCount, quote, type OrderItemInput } from '@/lib/commerce/pricing';
+import { currencyForCountry } from '@/lib/commerce/region';
 import { getTemplate } from '@/lib/templates';
 import { updateProfile, type SessionUser } from './auth';
 import { appUrl } from './env';
@@ -16,7 +17,8 @@ import { getProject, updateProjectMeta } from './repo/projects';
 export const orderRequestSchema = z.object({
   projectId: z.string().uuid(),
   email: z.string().trim().email().max(200),
-  currency: z.string(),
+  /** Ignored: the currency comes from the visitor's country. Kept so older clients still validate. */
+  currency: z.string().optional(),
   pdf: z.boolean().default(false),
   share: z.boolean().default(false),
   print: z
@@ -42,13 +44,18 @@ export const orderRequestSchema = z.object({
 
 export type OrderRequest = z.infer<typeof orderRequestSchema>;
 
+/** The currency a visitor in `country` is charged in. */
+export function checkoutCurrency(country: string | null): Currency {
+  return currencyForCountry(country, getCatalog().currencies);
+}
+
 /** Validates a checkout request, prices it on the server, snapshots the album and opens a payment session. */
-export async function createCheckout(user: SessionUser, req: OrderRequest): Promise<{ orderId: string; url: string }> {
+export async function createCheckout(user: SessionUser, req: OrderRequest, ctx: { country: string | null }): Promise<{ orderId: string; url: string }> {
   const catalog = getCatalog();
   const provider = getPaymentProvider();
   if (!provider) throw new HttpError(503, 'Payments are not configured on this site yet.');
-  if (!isCurrency(req.currency)) throw new HttpError(400, 'Unsupported currency.');
-  const currency = req.currency as Currency;
+  const currency = checkoutCurrency(ctx.country);
+  if (!isCurrency(currency)) throw new HttpError(400, 'Unsupported currency.');
   const project = await getProject(user.id, req.projectId);
   if (!project) throw new HttpError(404, 'Project not found.');
   const doc = project.document;
@@ -99,8 +106,10 @@ export async function createCheckout(user: SessionUser, req: OrderRequest): Prom
   });
 
   const base = appUrl();
+  const orderUrl = `${base}/orders/${order.id}`;
   const session = await provider.createCheckout(order, {
-    successUrl: `${base}/orders/${order.id}?session_id={CHECKOUT_SESSION_ID}`,
+    // Stripe fills in its placeholder; Creem appends its own checkout details.
+    successUrl: provider.id === 'stripe' ? `${orderUrl}?session_id={CHECKOUT_SESSION_ID}` : orderUrl,
     cancelUrl: `${base}/projects/${project.id}/checkout?cancelled=${order.id}`,
     email: req.email,
   });

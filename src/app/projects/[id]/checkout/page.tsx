@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { headers } from 'next/headers';
 import { AlertTriangle, CheckCircle2, Eye, PenLine } from 'lucide-react';
 import { BookCover } from '@/components/album/Book';
 import { CheckoutForm } from '@/components/commerce/CheckoutForm';
@@ -9,6 +10,8 @@ import { Logo } from '@/components/ui/Logo';
 import { countPhotoFrames, effectiveDpi, pageSizePt } from '@/lib/album/geometry';
 import { allPages } from '@/lib/album/ops';
 import { getCatalog } from '@/lib/commerce/catalog';
+import { countryFromHeaders } from '@/lib/commerce/region';
+import { checkoutCurrency } from '@/lib/server/orders';
 import { getPaymentProvider } from '@/lib/server/payments';
 import { loadOwnedProject } from '@/lib/server/project-loader';
 import { getTemplate } from '@/lib/templates';
@@ -33,6 +36,7 @@ async function Checkout({ params, searchParams }: { params: Promise<{ id: string
     }
   }
   const provider = getPaymentProvider();
+  const currency = checkoutCurrency(countryFromHeaders(await headers()));
   const template = doc.templateId ? getTemplate(doc.templateId) : null;
   const checks = [
     { ok: frames.filled > 0, text: frames.filled > 0 ? `${frames.filled} photos placed` : 'No photos placed yet' },
@@ -72,11 +76,12 @@ async function Checkout({ params, searchParams }: { params: Promise<{ id: string
         <CheckoutForm
           projectId={project.id}
           catalog={catalog}
+          currency={currency}
           orientation={doc.orientation}
           sizeId={doc.size.id}
           pageCount={doc.pages.length}
           premium={template?.tier === 'premium'}
-          provider={provider ? { label: provider.label, isTest: provider.isTest } : null}
+          provider={provider ? { id: provider.id, label: provider.label, isTest: provider.isTest } : null}
           defaultName={user.name ?? ''}
           defaultEmail={user.email ?? ''}
         />

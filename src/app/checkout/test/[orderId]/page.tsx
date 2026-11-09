@@ -22,7 +22,7 @@ async function Content({ params, searchParams }: { params: Promise<{ orderId: st
       <div className="flex items-start gap-3 rounded-2xl bg-warning-soft p-4 text-sm text-warning">
         <FlaskConical size={18} className="mt-0.5 shrink-0" />
         <p>
-          <strong>Test payment provider.</strong> No card is charged and no money moves. Configure Stripe (STRIPE_SECRET_KEY) to accept real payments.
+          <strong>Test payment provider.</strong> No card is charged and no money moves. Set CREEM_API_KEY to accept real payments.
         </p>
       </div>
       <p className="mt-6 text-sm text-muted">Order {order.number}</p>

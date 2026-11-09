@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import Stripe from 'stripe';
 import { isProduction } from '../env';
 import type { OrderRow } from '../repo/orders';
+import { CreemProvider } from './creem';
 
 export type ProviderStatus = 'paid' | 'pending' | 'failed';
 
@@ -15,7 +16,7 @@ export interface PaymentEvent {
 }
 
 export interface PaymentProvider {
-  id: 'stripe' | 'test';
+  id: 'creem' | 'stripe' | 'test';
   label: string;
   /** Test providers never move real money; the UI labels them clearly. */
   isTest: boolean;
@@ -142,7 +143,8 @@ export function testPaymentsAllowed() {
 }
 
 export function getPaymentProvider(name?: string): PaymentProvider | null {
-  const preferred = name ?? process.env.PAYMENT_PROVIDER ?? (process.env.STRIPE_SECRET_KEY ? 'stripe' : 'test');
+  const preferred = name ?? process.env.PAYMENT_PROVIDER ?? (process.env.CREEM_API_KEY ? 'creem' : process.env.STRIPE_SECRET_KEY ? 'stripe' : 'test');
+  if (preferred === 'creem' && process.env.CREEM_API_KEY) return new CreemProvider(process.env.CREEM_API_KEY);
   if (preferred === 'stripe' && process.env.STRIPE_SECRET_KEY) return new StripeProvider(process.env.STRIPE_SECRET_KEY);
   if (preferred === 'test' && testPaymentsAllowed()) return new TestProvider();
   return null;

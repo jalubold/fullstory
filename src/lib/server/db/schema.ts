@@ -175,4 +175,15 @@ create unique index if not exists projects_user_client_key on projects (user_id,
     name: 'orders-project-index',
     sql: `create index if not exists orders_project_idx on orders (project_id)`,
   },
+  {
+    id: 6,
+    name: 'app-settings',
+    // Small server-side key/value store, e.g. the payment provider's product IDs.
+    sql: `create table if not exists app_settings (
+  key text primary key,
+  value text not null,
+  updated_at timestamptz not null default now()
+);
+alter table app_settings enable row level security`,
+  },
 ];
