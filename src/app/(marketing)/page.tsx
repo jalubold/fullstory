@@ -62,9 +62,6 @@ export default function HomePage() {
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
-            <p className="rise mt-8 text-center text-sm text-white/55 sm:mt-14 sm:text-left" style={{ animationDelay: '0.8s' }}>
-              One-time <AlbumPrice /> <span className="mx-2 text-white/30">·</span> Everything included <span className="mx-2 text-white/30">·</span> No account
-            </p>
           </div>
 
           <div className="book-in relative mx-auto w-full max-w-[46rem] pb-10 lg:pb-0">
