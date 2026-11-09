@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, Lock } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 
 export type BuyTarget = { projectId: string } | { templateId: string | null; sizeId: string; title: string; pageCount?: number };
 
@@ -47,8 +47,9 @@ export function BuyButton({ target, label, className = 'btn btn-primary btn-lg' 
   return (
     <div>
       <button type="button" onClick={go} disabled={busy} aria-busy={busy} className={className}>
-        {busy ? <Loader2 size={16} className="animate-spin" /> : <Lock size={15} />}
-        {busy ? 'Opening secure checkout…' : label}
+        {busy && <Loader2 size={16} className="animate-spin" />}
+        {busy ? 'Opening checkout…' : label}
+        {!busy && <ArrowRight size={16} />}
       </button>
       {error && (
         <p role="alert" className="mt-3 text-sm text-danger">

@@ -38,7 +38,6 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
   const spread = withPhotos.length >= 2 ? { left: withPhotos[0], right: withPhotos[1] } : { left: doc.pages[0], right: doc.pages[1] ?? null };
   const editorPage = withPhotos.find((p) => p.elements.filter((e) => e.type === 'photo').length === 1) ?? withPhotos[0] ?? doc.pages[0];
   const thumbs = Object.values(photos).slice(0, 4).map((a) => photoUrl(a, 200));
-  const buyLabel = `Get started — ${price}`;
 
   const features: Array<{ icon: typeof Layers; kicker: string; title: ReactNode; text: string; points: string[]; visual: ReactNode }> = [
     {
@@ -257,9 +256,14 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
           </div>
 
           <div className="order-4 lg:order-none lg:col-start-1 lg:row-start-3 lg:self-start">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7">
-              <p className="font-serif text-5xl leading-none">{price}</p>
-              <BuyButton target={target} label="Get started" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
+            <div className="flex items-center gap-4 sm:gap-6">
+              <div className="min-w-0 flex-1 sm:flex-none [&>div]:w-full">
+                <BuyButton target={target} label="Create your own" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
+              </div>
+              <p className="shrink-0 font-serif text-2xl leading-none text-white sm:text-3xl">
+                <span className="mr-1.5 font-sans text-sm text-white/70">Only</span>
+                {price}
+              </p>
             </div>
           </div>
         </div>
@@ -351,11 +355,15 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
           <h2 className="mx-auto mt-8 max-w-2xl font-serif text-[2.4rem] font-medium leading-[0.98] md:text-6xl">
             Your story, <span className="italic">beautifully kept.</span>
           </h2>
-          <p className="mt-4 text-white/75">
-            {price} one-time · everything included
-          </p>
-          <div className="mt-8 flex justify-center">
-            <BuyButton target={target} label={buyLabel} className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
+          <p className="mt-4 text-white/75">Everything included.</p>
+          <div className="mx-auto mt-8 flex max-w-md items-center justify-center gap-4 sm:gap-6">
+            <div className="min-w-0 flex-1 sm:flex-none [&>div]:w-full">
+              <BuyButton target={target} label="Create your own" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
+            </div>
+            <p className="shrink-0 font-serif text-2xl leading-none text-white sm:text-3xl">
+              <span className="mr-1.5 font-sans text-sm text-white/70">Only</span>
+              {price}
+            </p>
           </div>
           <Link href="/templates" className="mt-6 inline-block text-[0.75rem] font-medium uppercase tracking-[0.2em] text-white/75 hover:text-white">
             <span className="link-underline">See other designs</span>
@@ -366,13 +374,13 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
       {/* Phones: the way to buy is always one thumb-tap away. */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/92 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
         <div className="mx-auto flex max-w-xl items-center gap-4 px-4">
-          <p className="shrink-0 leading-tight">
-            <span className="block font-serif text-2xl text-ink">{price}</span>
-            <span className="block text-[11px] text-muted">everything included</span>
-          </p>
           <div className="min-w-0 flex-1 [&>div]:w-full">
-            <BuyButton target={target} label="Get started" className="btn btn-primary h-12 w-full text-[0.75rem] uppercase tracking-[0.16em]" />
+            <BuyButton target={target} label="Create your own" className="btn btn-primary h-12 w-full text-[0.75rem] uppercase tracking-[0.16em]" />
           </div>
+          <p className="shrink-0 font-serif text-2xl leading-none text-ink">
+            <span className="mr-1 font-sans text-xs text-muted">Only</span>
+            {price}
+          </p>
         </div>
       </div>
     </div>
