@@ -255,7 +255,7 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
             </ul>
           </div>
 
-          <div className="order-4 lg:order-none lg:col-start-1 lg:row-start-3 lg:self-start">
+          <div className="hidden lg:col-start-1 lg:row-start-3 lg:block lg:self-start">
             <div className="flex items-center gap-4 sm:gap-6">
               <div className="min-w-0 flex-1 sm:flex-none [&>div]:w-full">
                 <BuyButton target={target} label="Create your own" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
@@ -356,7 +356,7 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
             Your story, <span className="italic">beautifully kept.</span>
           </h2>
           <p className="mt-4 text-white/75">Everything included.</p>
-          <div className="mx-auto mt-8 flex max-w-md items-center justify-center gap-4 sm:gap-6">
+          <div className="mx-auto mt-8 hidden max-w-md items-center justify-center gap-4 sm:gap-6 lg:flex">
             <div className="min-w-0 flex-1 sm:flex-none [&>div]:w-full">
               <BuyButton target={target} label="Create your own" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto sm:px-10" />
             </div>
