@@ -99,11 +99,11 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
       text: 'Your album opens like a real book — on phones and computers — with a page turn that feels like paper.',
       points: ['A real 3D page turn, on every screen', 'Five styles to choose from', 'Swipe on a phone, click or use the keys on a computer'],
       visual: (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
+        <div className="no-scrollbar -mx-5 flex snap-x gap-3 overflow-x-auto px-5 sm:mx-0 sm:grid sm:grid-cols-5 sm:overflow-visible sm:px-0">
           {ANIMATIONS.map((a, i) => {
             const page = withPhotos[i % Math.max(1, withPhotos.length)] ?? doc.pages[i];
             return (
-              <div key={a.id} className={`rounded-[8px] p-2 ${i === 0 ? 'bg-accent text-white shadow-pop' : 'bg-white ring-1 ring-line'}`}>
+              <div key={a.id} className={`w-[7.5rem] shrink-0 snap-start rounded-[8px] p-2 sm:w-auto ${i === 0 ? 'bg-accent text-white shadow-pop' : 'bg-white ring-1 ring-line'}`}>
                 <div className={i === 0 ? '' : 'opacity-90'}>
                   <FlatPage page={page} size={doc.size} photos={photos} renderWidth={160} />
                 </div>
@@ -190,7 +190,7 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
   ];
 
   return (
-    <div className="pb-28 lg:pb-0">
+    <div>
       {/* Hero: the promise, everything that's included, the price and one button — all above the fold. */}
       <section className="cloth relative overflow-hidden">
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_55%_at_75%_45%,rgb(255_255_255/0.10),transparent_70%)]" />
@@ -280,7 +280,7 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
           <div className="mt-12 space-y-16 lg:mt-20 lg:space-y-28">
             {features.map((f, i) => (
               <article key={f.kicker} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
-                <div className={i % 2 ? 'lg:order-2' : ''}>
+                <div className={`min-w-0 ${i % 2 ? 'lg:order-2' : ''}`}>
                   <p className="flex items-center gap-2 text-accent">
                     <f.icon size={18} />
                     <span className="smallcaps !text-accent">{String(i + 1).padStart(2, '0')} · {f.kicker}</span>
@@ -295,7 +295,8 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
                     ))}
                   </ul>
                 </div>
-                <div className={i % 2 ? 'lg:order-1' : ''}>{f.visual}</div>
+                {/* min-w-0: a scrolling row inside must never widen the column (and the page) */}
+                <div className={`min-w-0 ${i % 2 ? 'lg:order-1' : ''}`}>{f.visual}</div>
               </article>
             ))}
           </div>
@@ -371,8 +372,8 @@ export async function SalesPage({ demo, name, price, target, siteUrl, notice }: 
         </div>
       </section>
 
-      {/* Phones: the way to buy is always one thumb-tap away. */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/92 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
+      {/* Phones & tablets: the way to buy stays one thumb-tap away while the page is on screen, then makes way for the footer. */}
+      <div className="sticky bottom-0 z-40 border-t border-line bg-paper/92 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
         <div className="mx-auto flex max-w-xl items-center gap-4 px-4">
           <div className="min-w-0 flex-1 [&>div]:w-full">
             <BuyButton target={target} label="Create your own" className="btn btn-primary h-12 w-full text-[0.75rem] uppercase tracking-[0.16em]" />
