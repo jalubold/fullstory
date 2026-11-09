@@ -40,7 +40,7 @@ export function SiteFooter() {
               Your photos. Your story. <span className="italic text-accent">Your book.</span>
             </p>
             <Link href="/create" className="mt-7 inline-flex items-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink">
-              <span className="link-underline">Begin your book</span> <ArrowRight size={14} />
+              <span className="link-underline">Create your own</span> <ArrowRight size={14} />
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">

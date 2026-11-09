@@ -55,7 +55,7 @@ export default function HomePage() {
             </p>
             <div className="rise mt-10 flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-5" style={{ animationDelay: '0.68s' }}>
               <Link href="/create" className="btn btn-light btn-lg h-14 text-[0.75rem] uppercase tracking-[0.2em] sm:h-auto">
-                Begin your book
+                Create your own
               </Link>
               <Link href="/templates" className="group inline-flex items-center justify-center gap-2 py-2 text-[0.75rem] font-medium uppercase tracking-[0.2em] text-white sm:justify-start">
                 <span className="link-underline">Browse the collection</span>
@@ -142,7 +142,7 @@ export default function HomePage() {
           </Reveal>
           <Reveal delay={150} className="mt-10 flex flex-col items-center gap-4">
             <Link href="/create" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.2em] sm:h-auto sm:w-auto">
-              Begin your book
+              Create your own
             </Link>
             <p className="text-sm text-white/60">
               One-time <AlbumPrice /> · everything included

@@ -33,7 +33,7 @@ export default function HowItWorksPage() {
           <h1 className="font-serif text-[2.5rem] font-medium leading-[1.02] md:text-6xl">A beautiful album, without the design degree.</h1>
           <p className="mt-4 max-w-lg text-ink-soft md:mt-5 md:text-lg">You bring the photos and the words. The design is already done.</p>
           <Link href="/create" className="btn btn-primary btn-lg mt-7 hidden md:inline-flex">
-            Begin your book <ArrowRight size={16} />
+            Create your own <ArrowRight size={16} />
           </Link>
         </div>
         <div className="relative h-60 md:h-[26rem]">
@@ -85,7 +85,7 @@ export default function HowItWorksPage() {
         <h2 className="font-serif text-[2rem] md:text-4xl">Ready when you are.</h2>
         <div className="mt-6 flex flex-col items-center gap-4">
           <Link href="/create" className="btn btn-primary btn-lg w-full text-[0.75rem] uppercase tracking-[0.18em] sm:w-auto">
-            Begin your book
+            Create your own
           </Link>
         </div>
       </section>

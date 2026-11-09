@@ -20,7 +20,7 @@ function Inner() {
           My albums
         </Link>
         <Link href="/create" className="btn btn-primary btn-sm hidden uppercase tracking-[0.16em] !text-[0.6875rem] lg:inline-flex group-data-[dark=true]/header:bg-white group-data-[dark=true]/header:text-ink group-data-[dark=true]/header:hover:bg-ink group-data-[dark=true]/header:hover:text-white">
-          Begin your book
+          Create your own
         </Link>
       </div>
     </div>
