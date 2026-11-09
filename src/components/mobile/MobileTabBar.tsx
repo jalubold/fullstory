@@ -67,7 +67,7 @@ export function MobileTabBar() {
         <div className="mx-auto flex h-[4.25rem] max-w-xl items-stretch px-2">
           {tab(tabs[0])}
           {tab(tabs[1])}
-          <Link href="/create" aria-label="Begin a new book" className="group flex flex-1 items-center justify-center">
+          <Link href="/create" aria-label="Create your own" className="group flex flex-1 items-center justify-center">
             <span className="grid h-12 w-12 place-items-center rounded-full bg-accent text-white shadow-[0_10px_20px_-8px_rgb(142_17_38/0.75)] transition-transform group-active:scale-90">
               <Plus size={24} strokeWidth={2.2} />
             </span>
@@ -106,7 +106,7 @@ export function MobileTabBar() {
                 ))}
               </ul>
               <Link href="/create" className="btn btn-primary btn-lg mx-4 mt-4 flex text-[0.75rem] uppercase tracking-[0.18em]">
-                <Plus size={16} /> Begin a new book
+                <Plus size={16} /> Create your own
               </Link>
             </div>
           </div>,

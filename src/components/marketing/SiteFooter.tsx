@@ -7,7 +7,7 @@ const COLUMNS = [
   {
     title: 'Create',
     links: [
-      { href: '/create', label: 'Begin a new book' },
+      { href: '/create', label: 'Create your own' },
       { href: '/templates', label: 'Designs' },
     ],
   },

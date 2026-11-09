@@ -16,7 +16,7 @@ export default function WorkspaceLayout({ children }: LayoutProps<'/'>) {
             </Link>
           </div>
           <Link href="/create" className="btn btn-primary btn-sm hidden text-[0.6875rem] uppercase tracking-[0.16em] lg:inline-flex">
-            <Plus size={15} /> Begin a new book
+            <Plus size={15} /> Create your own
           </Link>
         </div>
       </header>

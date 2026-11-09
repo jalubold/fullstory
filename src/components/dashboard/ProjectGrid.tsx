@@ -10,7 +10,7 @@ export function ProjectGrid({ projects, empty, extras, unlockPrice }: { projects
       <div className="rounded-[4px] border border-dashed border-line-strong bg-white/60 px-6 py-16 text-center">
         <p className="font-serif text-3xl">{empty?.title ?? 'Your first album starts here'}</p>
         <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">{empty?.text ?? 'Pick a design, add your photos — it fills itself in. Takes a few minutes.'}</p>
-        <Link href="/create" className="btn btn-primary mt-6"><Plus size={15} /> Begin a new book</Link>
+        <Link href="/create" className="btn btn-primary mt-6"><Plus size={15} /> Create your own</Link>
       </div>
     );
   }
