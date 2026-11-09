@@ -160,7 +160,7 @@ export function TemplateBrowser({ items, categories, styles, lockedCategory }: P
         </button>
         <label className="hidden shrink-0 items-center sm:flex">
           <span className="sr-only">Sort</span>
-          <select value={f.sort} onChange={(e) => setF((p) => ({ ...p, sort: e.target.value }))} className="input h-11 !w-auto !py-0 !pr-9">
+          <select value={f.sort} onChange={(e) => setF((p) => ({ ...p, sort: e.target.value }))} className="input h-11 !w-auto !py-0">
             <option value="featured">Featured first</option>
             <option value="name">Name A–Z</option>
             <option value="photos-asc">Fewest photos</option>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, Columns2, Expand, Minimize, Minus, Plus, RectangleVertical } from 'lucide-react';
+import { ArrowLeft, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Columns2, Expand, Minimize, Minus, Plus, RectangleVertical } from 'lucide-react';
 import { buildViewItems, spreadIndexOfPage, type ViewItem } from '@/lib/album/geometry';
 import { bookFinish } from '@/lib/album/color';
 import { ANIMATIONS, presentationOf } from '@/lib/album/presentation';
@@ -241,17 +241,20 @@ export function AlbumViewer({ doc, photos, title, subtitle, backHref, backLabel 
         {animationPicker && (
           <label className="hidden items-center gap-2 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-white/55 md:flex">
             Animation
-            <select
-              value={anim}
-              onChange={(e) => setAnim(e.target.value as PageAnimation)}
-              className="rounded-[2px] border border-white/15 bg-white/5 px-2 py-1.5 text-xs normal-case tracking-normal text-white outline-none focus:border-white/40"
-            >
-              {ANIMATIONS.map((a) => (
-                <option key={a.id} value={a.id} className="text-ink">
-                  {a.label}
-                </option>
-              ))}
-            </select>
+            <span className="relative">
+              <select
+                value={anim}
+                onChange={(e) => setAnim(e.target.value as PageAnimation)}
+                className="h-8 cursor-pointer appearance-none rounded-[4px] border border-white/15 bg-white/5 py-0 pl-3 pr-8 text-xs normal-case tracking-normal text-white outline-none transition-colors hover:border-white/30 focus:border-white/40"
+              >
+                {ANIMATIONS.map((a) => (
+                  <option key={a.id} value={a.id} className="text-ink">
+                    {a.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={14} aria-hidden className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/70" />
+            </span>
           </label>
         )}
         {music && (
