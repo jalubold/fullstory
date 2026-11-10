@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { AlbumPrice } from '@/components/commerce/AlbumPrice';
 import { EditorDemo } from '@/components/marketing/EditorDemo';
 import { HeroFlipBook } from '@/components/marketing/HeroFlipBook';
 import { Reveal } from '@/components/motion/Reveal';
@@ -144,9 +143,6 @@ export default function HomePage() {
             <Link href="/create" className="btn btn-light btn-lg h-14 w-full text-[0.75rem] uppercase tracking-[0.2em] sm:h-auto sm:w-auto">
               Create your own
             </Link>
-            <p className="text-sm text-white/60">
-              One-time <AlbumPrice /> · everything included
-            </p>
           </Reveal>
         </div>
       </section>
