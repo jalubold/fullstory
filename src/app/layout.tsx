@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { SiteAnalytics } from '@/components/analytics/SiteAnalytics';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'https://fullstory.pro'),
@@ -29,7 +30,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         <link rel="preload" href="/fonts/cormorant-garamond-500.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
-      <body className="min-h-dvh bg-paper text-ink antialiased">{children}</body>
+      <body className="min-h-dvh bg-paper text-ink antialiased">
+        {children}
+        <SiteAnalytics />
+      </body>
     </html>
   );
 }
