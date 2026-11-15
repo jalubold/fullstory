@@ -1,9 +1,8 @@
 import 'server-only';
 import crypto from 'node:crypto';
 import type { OrderItemInput } from '@/lib/commerce/pricing';
-import type { OrderRow } from '../repo/orders';
 import { getSetting, setSetting } from '../repo/settings';
-import type { PaymentEvent, PaymentProvider } from './index';
+import type { CheckoutOrder, PaymentEvent, PaymentProvider } from './index';
 
 /**
  * Creem (merchant of record). Creem prices a checkout from a product, so we
@@ -37,9 +36,10 @@ const ITEM_NAMES: Partial<Record<OrderItemInput['kind'], string>> = {
 };
 
 /** The product an order is sold as, e.g. "Fullstory album · Digital PDF + Private album link". */
-function productSpec(order: OrderRow) {
+function productSpec(order: CheckoutOrder) {
+  if (order.product) return order.product;
   const kinds = [...new Set(order.items.map((i) => i.kind))].sort();
-  const formats = kinds.map((k) => ITEM_NAMES[k]).filter(Boolean) as string[];
+  const formats = kinds.map((k) => ITEM_NAMES[k as OrderItemInput['kind']]).filter(Boolean) as string[];
   const premium = kinds.includes('premium_template');
   const name = `Fullstory album · ${formats.join(' + ')}${premium ? ' (Premium design)' : ''}`;
   const description = [
@@ -60,6 +60,7 @@ export class CreemProvider implements PaymentProvider {
   id = 'creem' as const;
   label = 'Creem';
   isTest: boolean;
+  currencies = CREEM_CURRENCIES;
   private base: string;
 
   constructor(private apiKey: string) {
@@ -89,7 +90,7 @@ export class CreemProvider implements PaymentProvider {
   }
 
   /** The Creem product for this order's formats and currency; created once, then reused. */
-  private async productFor(order: OrderRow, fresh = false): Promise<string> {
+  private async productFor(order: CheckoutOrder, fresh = false): Promise<string> {
     const spec = productSpec(order);
     const settingKey = `creem:${this.isTest ? 'test' : 'live'}:product:${order.currency}:${spec.key}`;
     const known = fresh ? null : await getSetting(settingKey);
@@ -107,7 +108,7 @@ export class CreemProvider implements PaymentProvider {
     return product.id;
   }
 
-  async createCheckout(order: OrderRow, { successUrl, email }: { successUrl: string; cancelUrl: string; email: string | null }) {
+  async createCheckout(order: CheckoutOrder, { successUrl, email }: { successUrl: string; cancelUrl: string; email: string | null }) {
     if (!(CREEM_CURRENCIES as readonly string[]).includes(order.currency)) throw new Error(`Creem can't charge in ${order.currency}`);
     if (order.amount_total < 100) throw new Error('Order total is below the minimum charge');
     const open = async (productId: string) =>
@@ -143,7 +144,7 @@ export class CreemProvider implements PaymentProvider {
     }
   }
 
-  async getStatus(order: OrderRow) {
+  async getStatus(order: CheckoutOrder) {
     if (!order.provider_session_id) return { status: 'pending' as const };
     const c = await this.api<CreemCheckout>('GET', `/v1/checkouts?checkout_id=${encodeURIComponent(order.provider_session_id)}`);
     const belongs = !c.request_id || c.request_id === order.id;
@@ -159,7 +160,7 @@ export class CreemProvider implements PaymentProvider {
     return { status: 'pending' as const };
   }
 
-  async refund(order: OrderRow) {
+  async refund(order: CheckoutOrder) {
     if (!order.provider_payment_id) throw new Error('No Creem transaction recorded for this order — refund it from the Creem dashboard.');
     await this.api('POST', '/v1/refunds', { transaction_id: order.provider_payment_id });
   }

@@ -25,6 +25,37 @@ DISCOVER → SELECT → PREVIEW → CUSTOMIZE → REVIEW → PAY → EXPORT / SH
 - **PDF export** (`src/lib/server/pdf/render.ts`) draws vector text, ornaments and patterns and crops photos from the **original uploads** at the target DPI. Separate outputs for the digital PDF, the print-ready interior (with bleed, trim/bleed boxes, page-count padding) and the print cover spread (back + spine + front, with board wrap for hardcovers).
 - **Commerce**: server-side pricing from a configurable catalog, order snapshots, Stripe Checkout (webhook + server-side verification), payment states `pending → paid / failed / refunded / cancelled`, and access gates — downloads, share links and print files are only available for **paid** orders.
 
+## Are We Compatible? (`/compatible`)
+
+A second product in the same app: **two people answer the same 20 questions independently, then see how they compare.** It reuses FULLSTORY's stack (database, payments, PDF engine, analytics) but has its own brand, routes and tables, and never touches album data.
+
+```
+LANDING → STAGE + NAME → 20 QUESTIONS → INVITE (link / WhatsApp) → PARTNER ANSWERS → FREE RESULT → BLUEPRINT ($9.99 / Rp39.000, one payment for both) → PDF
+```
+
+| Route | |
+| --- | --- |
+| `/compatible`, `/compatible/how-it-works`, `/compatible/start` | Landing, transparent method + privacy, start flow |
+| `/compatible/i/[invite]` | Invitation for the second person (single use) |
+| `/compatible/s/[token]` | A participant’s private page: quiz → waiting room → free result |
+| `/compatible/s/[token]/blueprint` | The Relationship Blueprint (paid; both participants) |
+| `/api/compat/p/[token]/blueprint` | Blueprint PDF |
+
+**Code**
+
+- `src/lib/compat/` — pure TypeScript, no server dependencies, unit-tested (`npm test`):
+  - `questions/v1.ts` — the question bank: 5 dimensions × 4 questions, with authored complements, frictions, blind spots, insights, bridges and conversation starters per option. Sets are versioned; add `v2.ts` and register it in `questions/index.ts` — stored assessments keep scoring against the version they were taken with.
+  - `scoring.ts` — deterministic scoring (relation, similarity and alignment per question → dimension and overall scores, profile axes, signature). Methodology documented in the file and on `/compatible/how-it-works`.
+  - `report.ts` — builds the 14-section Blueprint and the free preview from the scoring result. Every insight is assembled from content attached to the answers both people chose and carries them as evidence.
+- `src/lib/compat/server/` — tokens, repository, view model, payments, PDF renderer.
+- `src/components/compat/`, `src/app/compatible/`, `src/app/api/compat/` — UI and routes. Styles: `src/app/compat.css` (`awc-` prefix).
+
+**Privacy & access.** No accounts. Each participant gets a private link with a random 192-bit token; only its SHA-256 hash is stored. The invite link is an HMAC of the assessment id (re-showable, never stored) and can be claimed once. A participant can only read their own answers until both have submitted; answers lock on submission. Either participant can delete the assessment (both answer sets). Retention: unfinished tests are purged after 60 days, completed ones ~18 months after completion (`src/lib/compat/retention.ts`). Private pages send `no-referrer`, are excluded from robots and are redacted in analytics.
+
+**Payments.** Uses the site’s provider (`CREEM_API_KEY` → Creem, `STRIPE_SECRET_KEY` → Stripe, otherwise the dev-only test provider). Orders live in `compat_orders`; webhooks arrive on the existing `/api/payments/webhook/{creem,stripe}` endpoints and are routed to compat orders automatically. Payment is always re-verified with the provider server-side and unlocks the assessment — the report for both people. Indonesian visitors pay Rp39.000 when the provider can charge IDR (Stripe); Creem supports only USD/EUR, so with Creem everyone pays $9.99. Prices: `src/lib/compat/pricing.ts`.
+
+**Analytics.** Funnel events via Vercel Web Analytics (`src/lib/compat/track.ts`) — never names, answers or tokens.
+
 ## Tech stack
 
 Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind CSS 4 · Supabase (Postgres, Storage) · pdf-lib + fontkit · sharp · Stripe · zustand + immer · dnd-kit.
@@ -94,4 +125,5 @@ Template demos use photographs published on Unsplash (Unsplash License), hot-lin
 | `npm run dev` | development server |
 | `npm run build` / `npm start` | production build / server |
 | `npm run lint` | ESLint |
+| `npm test` | Are We Compatible? scoring, report and pricing tests |
 | `node scripts/fetch-fonts.mjs` | re-download fonts (Google Fonts, OFL) |

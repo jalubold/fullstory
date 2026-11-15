@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./fonts.css";
+@import "./compat.css";
 
 @theme {
   /* Clean gallery whites, deep ink and one deep red accent. */

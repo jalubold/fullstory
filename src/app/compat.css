@@ -1,0 +1,273 @@
+/*
+ * Are We Compatible? — design tokens and components.
+ * Warm cream, burgundy and soft rose; Fraunces headlines, Manrope body.
+ * Scoped by the `awc-` prefix so it never affects FULLSTORY pages.
+ */
+
+@theme {
+  --color-awc-cream: #faf7f2;
+  --color-awc-cream-2: #f3ede5;
+  --color-awc-wine: #a94d65;
+  --color-awc-wine-dark: #8c3a51;
+  --color-awc-wine-deep: #5e2536;
+  --color-awc-blush: #e8c6cc;
+  --color-awc-blush-soft: #f5e6e9;
+  --color-awc-ink: #34252a;
+  --color-awc-ink-soft: #5a474d;
+  --color-awc-muted: #7a6a6f;
+  --color-awc-line: #eadfdc;
+  --color-awc-line-strong: #dccbc8;
+  /* Person A = wine, Person B = slate (validated pair: CVD ΔE 9.4, normal ΔE 19.6). */
+  --color-awc-slate: #2f6f9f;
+  --color-awc-slate-soft: #e4edf5;
+  --color-awc-sage: #4f6f5c;
+  --color-awc-sage-soft: #e6eee8;
+  --color-awc-amber: #9a6a1f;
+  --color-awc-amber-soft: #f6ecda;
+
+  --font-awc-serif: "Fraunces", Georgia, serif;
+  --font-awc-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-awc-card: 0 1px 2px rgb(52 37 42 / 0.04), 0 12px 32px -16px rgb(52 37 42 / 0.18);
+  --shadow-awc-lift: 0 2px 6px rgb(52 37 42 / 0.06), 0 24px 48px -20px rgb(52 37 42 / 0.28);
+}
+
+@layer components {
+  .awc {
+    background: var(--color-awc-cream);
+    color: var(--color-awc-ink);
+    font-family: var(--font-awc-sans);
+    font-feature-settings: "ss01";
+  }
+  .awc ::selection {
+    background: rgb(169 77 101 / 0.18);
+  }
+  .awc :focus-visible {
+    outline: 2px solid var(--color-awc-wine);
+    outline-offset: 3px;
+  }
+  .awc-serif {
+    font-family: var(--font-awc-serif);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    font-optical-sizing: auto;
+  }
+  .awc-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-awc-wine);
+  }
+  .awc-container {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .awc-container {
+      padding-inline: 2rem;
+    }
+  }
+  .awc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.005em;
+    line-height: 1.1;
+    transition: background-color 0.2s var(--ease-soft), color 0.2s, border-color 0.2s, transform 0.15s var(--ease-soft), box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .awc-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .awc-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .awc-btn-primary {
+    background: var(--color-awc-wine);
+    color: #fff;
+    box-shadow: 0 8px 24px -12px rgb(169 77 101 / 0.7);
+  }
+  .awc-btn-primary:hover:not(:disabled) {
+    background: var(--color-awc-wine-dark);
+  }
+  .awc-btn-secondary {
+    background: #fff;
+    color: var(--color-awc-ink);
+    border: 1px solid var(--color-awc-line-strong);
+  }
+  .awc-btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-awc-wine);
+    color: var(--color-awc-wine-dark);
+  }
+  .awc-btn-ghost {
+    color: var(--color-awc-ink-soft);
+  }
+  .awc-btn-ghost:hover:not(:disabled) {
+    color: var(--color-awc-wine-dark);
+    background: rgb(169 77 101 / 0.06);
+  }
+  .awc-btn-light {
+    background: #fff;
+    color: var(--color-awc-wine-deep);
+  }
+  .awc-btn-light:hover:not(:disabled) {
+    background: var(--color-awc-blush-soft);
+  }
+  .awc-card {
+    background: #fff;
+    border: 1px solid var(--color-awc-line);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-awc-card);
+  }
+  .awc-input {
+    width: 100%;
+    min-height: 3.25rem;
+    border-radius: 0.875rem;
+    border: 1px solid var(--color-awc-line-strong);
+    background: #fff;
+    padding: 0.85rem 1rem;
+    font-size: 1.0625rem;
+    color: var(--color-awc-ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .awc-input::placeholder {
+    color: #a99a9e;
+  }
+  .awc-input:focus {
+    outline: none;
+    border-color: var(--color-awc-wine);
+    box-shadow: 0 0 0 4px rgb(169 77 101 / 0.12);
+  }
+  .awc-rule {
+    height: 1px;
+    background: var(--color-awc-line-strong);
+  }
+  .awc-numeral {
+    font-family: var(--font-awc-serif);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-awc-wine);
+    line-height: 1;
+  }
+  .awc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  /* The premium report reads like a printed magazine. */
+  .awc-prose p + p {
+    margin-top: 0.85em;
+  }
+}
+
+@keyframes awc-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes awc-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes awc-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes awc-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes awc-ring {
+  from {
+    stroke-dashoffset: var(--awc-ring-full);
+  }
+}
+@keyframes awc-bar {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes awc-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.awc-anim-in {
+  animation: awc-in 0.6s var(--ease-soft) both;
+}
+.awc-anim-next {
+  animation: awc-in-right 0.42s var(--ease-soft) both;
+}
+.awc-anim-back {
+  animation: awc-in-left 0.42s var(--ease-soft) both;
+}
+.awc-anim-pop {
+  animation: awc-pop 0.35s var(--ease-soft) both;
+}
+.awc-ring-arc {
+  animation: awc-ring 1.4s var(--ease-soft) both 0.2s;
+}
+.awc-bar-fill {
+  transform-origin: left center;
+  animation: awc-bar 1.1s var(--ease-soft) both 0.25s;
+}
+.awc-pulse {
+  animation: awc-pulse 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .awc-anim-in,
+  .awc-anim-next,
+  .awc-anim-back,
+  .awc-anim-pop,
+  .awc-ring-arc,
+  .awc-bar-fill,
+  .awc-pulse {
+    animation: none !important;
+  }
+}

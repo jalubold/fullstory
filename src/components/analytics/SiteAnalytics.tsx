@@ -8,6 +8,9 @@ const PRIVATE: Array<[RegExp, string]> = [
   [/^\/restore\/[^/]+/, '/restore/[token]'],
   [/^\/projects\/[^/]+/, '/projects/[id]'],
   [/^\/orders\/[^/]+/, '/orders/[id]'],
+  [/^\/compatible\/s\/[^/]+/, '/compatible/s/[token]'],
+  [/^\/compatible\/i\/[^/]+/, '/compatible/i/[invite]'],
+  [/^\/compatible\/return\/[^/]+/, '/compatible/return/[order]'],
 ];
 
 function redact(event: BeforeSendEvent): BeforeSendEvent | null {

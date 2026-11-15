@@ -2,6 +2,7 @@ import 'server-only';
 import { sqlOne } from '../db';
 import { applyPaymentResult } from '../orders';
 import { claimWebhookEvent, getOrder } from '../repo/orders';
+import { handleCompatPaymentEvent } from '@/lib/compat/server/payments';
 import { getPaymentProvider } from './index';
 
 /**
@@ -24,7 +25,9 @@ export async function handlePaymentWebhook(providerId: 'creem' | 'stripe', req: 
   if (!orderId && event.sessionId) orderId = (await sqlOne<{ id: string }>('select id from orders where provider_session_id = $1', [event.sessionId]))?.id ?? null;
   if (!orderId && event.paymentIntentId) orderId = (await sqlOne<{ id: string }>('select id from orders where provider_payment_id = $1', [event.paymentIntentId]))?.id ?? null;
   const order = orderId ? await getOrder(orderId) : null;
-  if (!order || order.provider !== providerId) return new Response('unknown order');
+  // Not an album order: it may be an Are We Compatible? order on the same endpoint.
+  if (!order) return new Response((await handleCompatPaymentEvent(providerId, provider, event)) ? 'ok' : 'unknown order');
+  if (order.provider !== providerId) return new Response('unknown order');
   if (event.type === 'paid') {
     // Re-verify with the provider rather than trusting the payload alone.
     const status = await provider.getStatus(order).catch(() => null);

@@ -18,5 +18,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page('/faq', 0.5),
     page('/about', 0.5),
     page('/create', 0.7),
+    page('/compatible', 0.9, 'weekly'),
+    page('/compatible/how-it-works', 0.6),
+    page('/compatible/start', 0.7),
   ];
 }

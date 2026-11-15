@@ -2,7 +2,6 @@ import 'server-only';
 import crypto from 'node:crypto';
 import Stripe from 'stripe';
 import { isProduction } from '../env';
-import type { OrderRow } from '../repo/orders';
 import { CreemProvider } from './creem';
 
 export type ProviderStatus = 'paid' | 'pending' | 'failed';
@@ -15,15 +14,36 @@ export interface PaymentEvent {
   type: 'paid' | 'failed' | 'cancelled' | 'refunded' | 'ignored';
 }
 
+/**
+ * What a provider needs to know about an order. Album orders (OrderRow) and
+ * Are We Compatible? orders (CompatOrderRow) both satisfy it.
+ */
+export interface CheckoutOrder {
+  id: string;
+  number: string;
+  status: string;
+  currency: string;
+  amount_total: number;
+  amount_shipping: number;
+  lines: Array<{ label: string; detail?: string; quantity: number; unitAmount: number }>;
+  items: Array<{ kind: string }>;
+  provider_session_id: string | null;
+  provider_payment_id: string | null;
+  /** Catalogue product for providers that sell from one (Creem). Defaults to the album product. */
+  product?: { key: string; name: string; description: string };
+}
+
 export interface PaymentProvider {
   id: 'creem' | 'stripe' | 'test';
   label: string;
   /** Test providers never move real money; the UI labels them clearly. */
   isTest: boolean;
-  createCheckout(order: OrderRow, opts: { successUrl: string; cancelUrl: string; email: string | null }): Promise<{ url: string; sessionId: string }>;
+  /** Currencies this provider can charge in (null: any). */
+  currencies: readonly string[] | null;
+  createCheckout(order: CheckoutOrder, opts: { successUrl: string; cancelUrl: string; email: string | null }): Promise<{ url: string; sessionId: string }>;
   /** Server-side verification of a checkout session's payment state. */
-  getStatus(order: OrderRow): Promise<{ status: ProviderStatus; paymentId?: string | null; receiptUrl?: string | null }>;
-  refund(order: OrderRow): Promise<void>;
+  getStatus(order: CheckoutOrder): Promise<{ status: ProviderStatus; paymentId?: string | null; receiptUrl?: string | null }>;
+  refund(order: CheckoutOrder): Promise<void>;
   parseWebhook?(req: Request): Promise<PaymentEvent>;
 }
 
@@ -33,13 +53,14 @@ class StripeProvider implements PaymentProvider {
   id = 'stripe' as const;
   label = 'Stripe';
   isTest: boolean;
+  currencies = null;
   private stripe: Stripe;
   constructor(secret: string) {
     this.stripe = new Stripe(secret);
     this.isTest = secret.startsWith('sk_test_');
   }
 
-  async createCheckout(order: OrderRow, { successUrl, cancelUrl, email }: { successUrl: string; cancelUrl: string; email: string | null }) {
+  async createCheckout(order: CheckoutOrder, { successUrl, cancelUrl, email }: { successUrl: string; cancelUrl: string; email: string | null }) {
     const currency = order.currency.toLowerCase();
     const session = await this.stripe.checkout.sessions.create({
       mode: 'payment',
@@ -67,7 +88,7 @@ class StripeProvider implements PaymentProvider {
     return { url: session.url, sessionId: session.id };
   }
 
-  async getStatus(order: OrderRow) {
+  async getStatus(order: CheckoutOrder) {
     if (!order.provider_session_id) return { status: 'pending' as const };
     const s = await this.stripe.checkout.sessions.retrieve(order.provider_session_id, { expand: ['payment_intent.latest_charge'] });
     const pi = typeof s.payment_intent === 'object' ? s.payment_intent : null;
@@ -79,7 +100,7 @@ class StripeProvider implements PaymentProvider {
     return { status: 'pending' as const };
   }
 
-  async refund(order: OrderRow) {
+  async refund(order: CheckoutOrder) {
     if (!order.provider_payment_id) throw new Error('No payment to refund');
     await this.stripe.refunds.create({ payment_intent: order.provider_payment_id, metadata: { orderId: order.id } });
   }
@@ -128,11 +149,12 @@ class TestProvider implements PaymentProvider {
   id = 'test' as const;
   label = 'Test payments';
   isTest = true;
-  async createCheckout(order: OrderRow) {
+  currencies = null;
+  async createCheckout(order: CheckoutOrder) {
     const sessionId = `test_${crypto.randomBytes(12).toString('hex')}`;
     return { url: `/checkout/test/${order.id}?session=${sessionId}`, sessionId };
   }
-  async getStatus(order: OrderRow) {
+  async getStatus(order: CheckoutOrder) {
     return { status: order.status === 'paid' ? ('paid' as const) : order.status === 'failed' ? ('failed' as const) : ('pending' as const) };
   }
   async refund() {}
