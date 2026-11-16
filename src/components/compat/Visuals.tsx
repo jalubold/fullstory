@@ -5,11 +5,12 @@ import type { AxisView, Evidence, Insight } from '@/lib/compat/report';
 import { relationLabels } from '@/lib/compat/report';
 import type { Relation } from '@/lib/compat/types';
 import { UI } from '@/lib/compat/ui-strings';
+import { initial } from './initial';
 
 /* Person A = wine, Person B = slate; always paired with an initial and a name. */
 export const PERSON_COLOR = { a: 'var(--color-awc-wine)', b: 'var(--color-awc-slate)' } as const;
 
-export const initial = (name: string) => (name.trim()[0] ?? '?').toUpperCase();
+export { initial };
 
 export function PersonDot({ role, name, size = 'md' }: { role: 'a' | 'b'; name: string; size?: 'sm' | 'md' }) {
   const s = size === 'sm' ? 'h-5 w-5 text-[0.625rem]' : 'h-7 w-7 text-xs';

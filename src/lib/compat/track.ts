@@ -5,6 +5,9 @@ import { track as vercelTrack } from '@vercel/analytics';
  * Events never carry names, answers, tokens or any other personal data.
  */
 export type CompatEvent =
+  | 'compat_try_answer'
+  | 'compat_try_guess'
+  | 'compat_try_cta'
   | 'compat_start'
   | 'compat_quiz_begin'
   | 'compat_submit'

@@ -1,22 +1,28 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { ArrowRight, Check, Clock, Coffee, Compass, EyeOff, Handshake, HeartHandshake, Languages, Lock, MessageCircle, Plus, Sparkles, Trash2, UserX } from 'lucide-react';
-import { Venn, VennMark } from '@/components/compat/Brand';
+import { SignatureGlyph, Venn, VennMark } from '@/components/compat/Brand';
 import { CompatFooter, CompatHeader } from '@/components/compat/Shell';
 import { ContinueBanner, PriceTag } from '@/components/compat/LandingDynamic';
 import { StickyCta } from '@/components/compat/StickyCta';
+import { TryIt } from '@/components/compat/TryIt';
 import { EvidenceBlock, PersonDot, RelationChip } from '@/components/compat/Visuals';
 import { Reveal } from '@/components/motion/Reveal';
 import { getContexts } from '@/lib/compat/contexts';
 import { isLocale, type Locale } from '@/lib/compat/i18n';
 import { getQuestionSet } from '@/lib/compat/questions';
-import { horizonLabels } from '@/lib/compat/report';
-import { sampleBlueprint, SAMPLE_ANSWERS } from '@/lib/compat/sample';
-import type { DimensionId } from '@/lib/compat/types';
+import { horizonLabels, signatures } from '@/lib/compat/report';
+import { sampleBlueprint } from '@/lib/compat/sample';
+import { tryQuestion } from '@/lib/compat/tryit';
+import type { DimensionId, SignatureId } from '@/lib/compat/types';
 import { UI } from '@/lib/compat/ui-strings';
 
 /** One prerendered version per language (generateStaticParams in the layout); opt out of unknown-param validation. */
 export const instant = false;
+
+const SIGNATURE_ORDER: SignatureId[] = ['mirror', 'puzzle', 'anchors', 'bridge', 'explorers', 'conversation', 'balanced'];
+/** Each card rests at a slightly different angle. */
+const TILTS = [-2, 1.5, -1, 2.2, 1.6, -1.8, 1, -1.4];
 
 const DIM_ICONS: Record<DimensionId, typeof MessageCircle> = { communication: MessageCircle, emotional: HeartHandshake, lifestyle: Coffee, future: Compass, conflict: Handshake };
 
@@ -49,27 +55,46 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
         {/* ───────── Hero ───────── */}
         <section className="relative">
           <div aria-hidden className="awc-grain pointer-events-none absolute inset-0 [mask-image:linear-gradient(180deg,#000_40%,transparent)]" />
-          <div className="awc-container relative grid items-center gap-14 pb-16 pt-10 md:pb-24 md:pt-16 lg:grid-cols-[1.02fr_0.98fr] lg:gap-10 lg:pt-20">
-            <div className="awc-anim-in">
-              <p className="inline-flex items-center gap-2 rounded-full border border-awc-blush bg-white/80 py-1.5 pl-2 pr-3.5 text-[0.75rem] font-semibold text-awc-wine-dark shadow-[var(--shadow-awc-card)]">
-                <VennMark size={14} />
-                {t.eyebrow}
-              </p>
-              <h1 className="awc-serif mt-6 text-balance text-[2.75rem] leading-[1.02] tracking-[-0.025em] text-awc-ink sm:text-[3.75rem] lg:text-[4.6rem]">
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <span className="awc-drift-a absolute -right-28 -top-24 h-[30rem] w-[30rem] rounded-full border border-awc-wine/15" />
+            <span className="awc-drift-b absolute -top-10 right-24 h-[30rem] w-[30rem] rounded-full border border-awc-slate/15" />
+          </div>
+          <div className="awc-container relative grid gap-x-12 gap-y-6 pb-16 pt-7 sm:gap-y-8 md:pb-24 md:pt-14 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)] lg:gap-y-0 lg:pt-20">
+            <div className="awc-anim-in lg:col-start-1 lg:row-start-1 lg:self-end">
+              <div className="flex items-center justify-between gap-3">
+                <p className="inline-flex items-center gap-2 rounded-full border border-awc-blush bg-white/80 py-1.5 pl-2 pr-3.5 text-[0.75rem] font-semibold text-awc-wine-dark shadow-[var(--shadow-awc-card)]">
+                  <VennMark size={14} />
+                  {t.eyebrow}
+                </p>
+                {/* Phones: the play card comes first, so keep a direct way to start within reach. */}
+                <Link href="/compatible/start" className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-awc-wine-dark sm:hidden">
+                  {UI[locale].shell.start} <ArrowRight size={15} aria-hidden />
+                </Link>
+              </div>
+              <h1 className="awc-serif mt-5 text-balance text-[2.6rem] leading-[1.02] tracking-[-0.025em] text-awc-ink sm:mt-6 sm:text-[3.75rem] lg:text-[4.6rem]">
                 <span className="block">{t.h1a}</span>
                 <span className="block">{t.h1b}</span>
                 <em className="block text-awc-wine">{t.h1c}</em>
               </h1>
-              <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-awc-ink-soft md:text-xl">{t.lead}</p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Link id="hero-cta" href="/compatible/start" className="awc-btn awc-btn-primary min-h-14 px-8 text-[1.0625rem]">
+              <p className="mt-6 hidden max-w-xl text-pretty text-lg leading-relaxed text-awc-ink-soft sm:block md:text-xl">{t.lead}</p>
+            </div>
+
+            {/* Play: answer one real question, then guess theirs */}
+            <div className="awc-anim-in mx-auto w-full max-w-[33rem] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:ml-auto lg:self-center" style={{ animationDelay: '140ms' }}>
+              <TryIt locale={locale} question={tryQuestion(locale)} />
+            </div>
+
+            <div className="awc-anim-in lg:col-start-1 lg:row-start-2 lg:self-start lg:pt-9" style={{ animationDelay: '80ms' }}>
+              <p className="mb-6 text-pretty text-lg leading-relaxed text-awc-ink-soft sm:hidden">{t.lead}</p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link id="hero-cta" href="/compatible/start" className="awc-btn awc-btn-primary awc-cta-glow min-h-14 px-8 text-[1.0625rem]">
                   {t.cta} <ArrowRight size={19} aria-hidden />
                 </Link>
                 <Link href="/compatible/how-it-works" className="awc-btn awc-btn-ghost min-h-14">
                   {t.seeHow}
                 </Link>
               </div>
-              <ul className="mt-9 grid grid-cols-2 gap-x-6 gap-y-3 text-[0.875rem] text-awc-ink-soft sm:flex sm:flex-wrap">
+              <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3 text-[0.875rem] text-awc-ink-soft sm:flex sm:flex-wrap">
                 {t.trust.map((x, i) => {
                   const I = [Clock, EyeOff, UserX, Languages][i];
                   return (
@@ -81,7 +106,6 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
                 })}
               </ul>
             </div>
-            <HeroVisual locale={locale} />
           </div>
         </section>
 
@@ -103,8 +127,49 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
           </div>
         </section>
 
-        {/* ───────── How it works ───────── */}
+        {/* ───────── Seven signatures ───────── */}
         <section className="awc-container py-20 md:py-28">
+          <Reveal className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-end">
+            <div>
+              <p className="awc-eyebrow">{t.types.eyebrow}</p>
+              <h2 className="awc-serif mt-3 text-balance text-4xl leading-[1.08] md:text-[3.4rem]">{t.types.title}</h2>
+            </div>
+            <p className="text-pretty text-lg leading-relaxed text-awc-ink-soft">{t.types.lead}</p>
+          </Reveal>
+          <div className="awc-snap mt-12 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0">
+            {SIGNATURE_ORDER.map((id, i) => {
+              const sig = signatures(locale)[id];
+              return (
+                <Reveal key={id} delay={i * 60} className="w-[62%] sm:w-[36%] lg:w-auto">
+                  <article className="awc-type-card flex h-full flex-col rounded-[1.5rem] border border-awc-line bg-white p-4 shadow-[var(--shadow-awc-card)]" style={{ '--tilt': `${TILTS[i]}deg` } as React.CSSProperties}>
+                    <div className="flex aspect-[10/7] items-center justify-center rounded-[1.1rem] bg-awc-cream-2/70">
+                      <SignatureGlyph id={id} />
+                    </div>
+                    <p className="awc-numeral mt-4 text-base">{String(i + 1).padStart(2, '0')}</p>
+                    <h3 className="awc-serif mt-1 text-[1.3rem] leading-tight">{sig.title}</h3>
+                    <p className="mt-1.5 text-[0.875rem] leading-snug text-awc-muted">{sig.tagline}</p>
+                  </article>
+                </Reveal>
+              );
+            })}
+            <Reveal delay={7 * 60} className="w-[62%] sm:w-[36%] lg:w-auto">
+              <Link href="/compatible/start" className="awc-type-card group flex h-full flex-col rounded-[1.5rem] bg-awc-wine-deep p-4 text-white shadow-[var(--shadow-awc-card)]" style={{ '--tilt': `${TILTS[7]}deg` } as React.CSSProperties}>
+                <div className="flex aspect-[10/7] items-center justify-center rounded-[1.1rem] bg-white/[0.06]">
+                  <Venn names={{ a: null, b: null }} overlap={46} pending="both" size={132} tone="dark" />
+                </div>
+                <p className="awc-serif mt-4 text-[1.5rem] italic leading-tight text-awc-blush">{t.types.mystery}</p>
+                <p className="mt-1.5 text-[0.875rem] leading-snug text-white/70">{t.types.mysteryBody}</p>
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold">
+                  {t.types.mysteryCta} <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" aria-hidden />
+                </span>
+              </Link>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ───────── How it works ───────── */}
+        <section className="border-y border-awc-line bg-white/60">
+          <div className="awc-container py-20 md:py-28">
           <Reveal className="max-w-2xl">
             <p className="awc-eyebrow">{t.howEyebrow}</p>
             <h2 className="awc-serif mt-3 text-balance text-4xl leading-[1.08] md:text-[3.4rem]">{t.howTitle}</h2>
@@ -123,10 +188,11 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
               </Reveal>
             ))}
           </ol>
+          </div>
         </section>
 
         {/* ───────── Five dimensions ───────── */}
-        <section className="border-y border-awc-line bg-white/60">
+        <section>
           <div className="awc-container py-20 md:py-28">
             <Reveal className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
               <div>
@@ -330,67 +396,6 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
       <CompatFooter locale={locale} />
       <StickyCta label={t.cta} watchId="hero-cta" hideNearId="final-cta" />
     </>
-  );
-}
-
-/** Hero: a real result for the sample couple, with their two answers to the same question. */
-function HeroVisual({ locale }: { locale: Locale }) {
-  const t = UI[locale].landing;
-  const bp = sampleBlueprint(locale);
-  const q = getQuestionSet(undefined, locale).questions.find((x) => x.id === 'com-rhythm')!;
-  const label = (id: string) => q.options.find((o) => o.id === id)!.label;
-  const { names, overview } = bp;
-  return (
-    <div className="relative mx-auto w-full max-w-[34rem] lg:max-w-none lg:pb-16" aria-hidden>
-      {/* Answer A */}
-      <div className="awc-float relative z-20 mb-3 flex max-w-[86%] items-start gap-3 rounded-2xl rounded-bl-md border border-awc-wine/25 bg-white p-3.5 shadow-[var(--shadow-awc-lift)] lg:absolute lg:-left-8 lg:top-0 lg:mb-0 lg:max-w-[18rem]">
-        <PersonDot role="a" name={names.a} size="sm" />
-        <div>
-          <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-awc-muted">{names.a}</p>
-          <p className="mt-0.5 text-[0.875rem] leading-snug text-awc-ink">{label(SAMPLE_ANSWERS.a['com-rhythm'])}</p>
-        </div>
-      </div>
-
-      {/* Result card */}
-      <div className="awc-anim-in relative z-10 overflow-hidden rounded-[2rem] bg-awc-wine-deep px-6 pb-7 pt-8 text-white shadow-[0_40px_80px_-30px_rgb(94_37_54/0.6)] sm:px-9 lg:ml-8 lg:mr-2 lg:mt-14" style={{ animationDelay: '150ms' }}>
-        <p className="text-center text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-awc-blush">
-          {names.a} & {names.b}
-        </p>
-        <div className="mt-2 flex justify-center">
-          <Venn names={names} overlap={overview.similarity + 20} size={290} tone="dark" />
-        </div>
-        <p className="awc-serif text-center text-[2rem] leading-tight">{overview.signature.title}</p>
-        <p className="awc-serif mt-1 text-center italic text-white/70">{overview.signature.tagline}</p>
-        <div className="mt-6 grid grid-cols-[1fr_auto] items-end gap-6 border-t border-white/10 pt-5">
-          <div className="space-y-2">
-            {bp.dimensions.map((d) => (
-              <div key={d.id} className="flex items-center gap-3">
-                <span className="w-[6.5rem] truncate text-[0.6875rem] text-white/70 sm:w-32">{d.label}</span>
-                <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
-                  <span className="awc-bar-fill block h-full rounded-full bg-awc-blush" style={{ width: `${d.alignment}%` }} />
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="text-right">
-            <p className="awc-serif text-[3.25rem] leading-none">
-              {overview.alignment}
-              <span className="text-2xl text-white/60">%</span>
-            </p>
-            <p className="mt-1 text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-white/60">{t.preview.aligned}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Answer B */}
-      <div className="awc-float-slow relative z-20 ml-auto mt-3 flex max-w-[86%] items-start gap-3 rounded-2xl rounded-br-md border border-awc-slate/25 bg-white p-3.5 shadow-[var(--shadow-awc-lift)] lg:absolute lg:-bottom-3 lg:-right-6 lg:mt-0 lg:max-w-[17rem]">
-        <PersonDot role="b" name={names.b} size="sm" />
-        <div>
-          <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-awc-muted">{names.b}</p>
-          <p className="mt-0.5 text-[0.875rem] leading-snug text-awc-ink">{label(SAMPLE_ANSWERS.b['com-rhythm'])}</p>
-        </div>
-      </div>
-    </div>
   );
 }
 

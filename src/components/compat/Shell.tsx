@@ -17,21 +17,22 @@ export function Wordmark({ className = '', tone = 'dark', locale }: { className?
   );
 }
 
-export function CompatHeader({ locale, right }: { locale: Locale; right?: ReactNode }) {
+/** `path` is this page's path after /compatible, so the language switcher can return to it. */
+export function CompatHeader({ locale, right, path = '' }: { locale: Locale; right?: ReactNode; path?: string }) {
   return (
     <header className="sticky top-0 z-40 border-b border-awc-line/70 bg-awc-cream/85 backdrop-blur-md supports-[backdrop-filter]:bg-awc-cream/70">
       <div className="awc-container flex h-14 items-center justify-between gap-3 md:h-16">
         <Wordmark locale={locale} />
         <div className="flex items-center gap-1.5 sm:gap-2">
           {right}
-          <LanguageSwitcher locale={locale} label={UI[locale].shell.language} />
+          <LanguageSwitcher locale={locale} label={UI[locale].shell.language} path={path} />
         </div>
       </div>
     </header>
   );
 }
 
-export function CompatFooter({ locale }: { locale: Locale }) {
+export function CompatFooter({ locale, path = '' }: { locale: Locale; path?: string }) {
   const t = UI[locale].shell;
   return (
     <footer className="border-t border-awc-line bg-awc-cream">
@@ -44,7 +45,7 @@ export function CompatFooter({ locale }: { locale: Locale }) {
           <Link href="/compatible/how-it-works" className="hover:text-awc-wine-dark">{t.howItWorks}</Link>
           <Link href="/compatible/how-it-works#privacy" className="hover:text-awc-wine-dark">{t.privacy}</Link>
           <Link href="/compatible/start" className="hover:text-awc-wine-dark">{t.start}</Link>
-          <LanguageSwitcher locale={locale} label={t.language} />
+          <LanguageSwitcher locale={locale} label={t.language} path={path} />
         </nav>
       </div>
     </footer>

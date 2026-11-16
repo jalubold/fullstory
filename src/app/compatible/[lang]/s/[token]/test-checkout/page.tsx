@@ -23,9 +23,11 @@ async function Page({ params, searchParams }: { params: Promise<{ lang: string; 
   await connection();
   const { lang, token } = await params;
   const locale = localeOf(lang);
+  const sp = await searchParams;
+  const query = typeof sp.order === 'string' && typeof sp.session === 'string' ? `?order=${encodeURIComponent(sp.order)}&session=${encodeURIComponent(sp.session)}` : '';
   return (
     <>
-      <CompatHeader locale={locale} />
+      <CompatHeader locale={locale} path={`/s/${token}/test-checkout${query}`} />
       <FlowScreen>
         <h1 className="awc-serif mb-6 text-4xl">{UI[locale].checkout.title}</h1>
         <Content token={token} searchParams={searchParams} locale={locale} />

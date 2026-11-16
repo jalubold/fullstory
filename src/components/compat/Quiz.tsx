@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Loader2, Lock, Pencil } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Loader2, Lock, Pencil, Sparkles } from 'lucide-react';
 import type { Locale } from '@/lib/compat/i18n';
+import { takePrefill } from '@/lib/compat/prefill';
 import { track } from '@/lib/compat/track';
 import { UI } from '@/lib/compat/ui-strings';
 
@@ -51,6 +52,8 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [returnToReview, setReturnToReview] = useState(false);
+  /** The question answered on the landing page's "try one question", if any. */
+  const [prefilledId, setPrefilledId] = useState<string | null>(null);
   const latest = useRef(answers);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -154,7 +157,17 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
         <button
           type="button"
           onClick={() => {
-            track('compat_quiz_begin', { role, locale });
+            // Pick up the answer given on the landing page, so that tap wasn't wasted.
+            const pre = takePrefill();
+            const target = pre ? questions.find((x) => x.id === pre.questionId) : undefined;
+            if (pre && target && !latest.current[target.id] && target.options.some((o) => o.id === pre.optionId)) {
+              const next = { ...latest.current, [target.id]: pre.optionId };
+              latest.current = next;
+              setAnswers(next);
+              setPrefilledId(target.id);
+              void save();
+            }
+            track('compat_quiz_begin', { role, locale, prefilled: !!target });
             go({ kind: 'question', index: 0, dir: 'next' });
           }}
           className="awc-btn awc-btn-primary mt-10 w-full text-base sm:w-auto sm:self-start sm:px-10"
@@ -215,6 +228,10 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
   const inDim = questions.filter((x) => x.dimension === q.dimension);
   const posInDim = inDim.findIndex((x) => x.id === q.id);
   const selected = answers[q.id];
+  // A word of encouragement at each quarter of the way.
+  const total = questions.length;
+  const milestone =
+    screen.index === total - 1 ? t.milestones.last : screen.index === Math.round(total / 4) ? t.milestones.quarter : screen.index === Math.round(total / 2) ? t.milestones.half : screen.index === total - 5 ? t.milestones.almost : null;
 
   return (
     <div className="flex flex-1 flex-col">
@@ -241,7 +258,14 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
       </div>
 
       <div key={q.id} className={`${screen.dir === 'next' ? 'awc-anim-next' : 'awc-anim-back'} flex flex-1 flex-col pt-8 sm:pt-12`}>
-        <span className="awc-numeral text-5xl sm:text-6xl">{String(screen.index + 1).padStart(2, '0')}</span>
+        <div className="flex items-end justify-between gap-4">
+          <span className="awc-numeral text-5xl sm:text-6xl">{String(screen.index + 1).padStart(2, '0')}</span>
+          {milestone && screen.dir === 'next' && (
+            <span className="awc-chip awc-anim-pop mb-1.5 bg-awc-blush-soft text-awc-wine-dark">
+              <Sparkles size={12} aria-hidden /> {milestone}
+            </span>
+          )}
+        </div>
         <h1 className="awc-serif mt-4 text-[1.8rem] leading-[1.15] text-awc-ink sm:text-[2.4rem]">{q.prompt}</h1>
         <div className="mt-8 grid gap-2.5" role="radiogroup" aria-label={q.prompt}>
           {q.options.map((o, i) => {
@@ -263,6 +287,7 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
             );
           })}
         </div>
+        {prefilledId === q.id && selected && <p className="mt-3 text-[0.8125rem] text-awc-muted">{t.prefilled}</p>}
       </div>
 
       <div className="mt-8 flex items-center justify-between pb-[env(safe-area-inset-bottom)]">

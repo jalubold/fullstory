@@ -10,13 +10,20 @@ import { UI } from '@/lib/compat/ui-strings';
 export function JoinFlow({ invite, inviterName, locale }: { invite: string; inviterName: string; locale: Locale }) {
   const t = UI[locale].join;
   const router = useRouter();
-  const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; url?: string } | null>(null);
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!name.trim() || busy) return;
+    // Read the field itself rather than React state: on a slow phone the name
+    // may have been typed before this page's scripts finished loading.
+    const name = String(new FormData(e.currentTarget).get('name') ?? '').trim();
+    if (busy) return;
+    if (!name) {
+      setError({ message: UI[locale].errors.name });
+      e.currentTarget.querySelector('input')?.focus();
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -51,7 +58,7 @@ export function JoinFlow({ invite, inviterName, locale }: { invite: string; invi
       <label htmlFor="awc-join-name" className="mt-8 block text-sm font-semibold text-awc-ink">
         {t.label}
       </label>
-      <input id="awc-join-name" className="awc-input mt-2" value={name} onChange={(e) => setName(e.target.value)} placeholder={UI[locale].start.namePlaceholder} autoComplete="given-name" maxLength={40} enterKeyHint="go" />
+      <input id="awc-join-name" name="name" className="awc-input mt-2" onInput={() => error && setError(null)} placeholder={UI[locale].start.namePlaceholder} autoComplete="given-name" maxLength={40} enterKeyHint="go" required />
       {error && (
         <p className="mt-3 text-sm text-[#a3302a]" role="alert">
           {error.message}{' '}
@@ -62,7 +69,7 @@ export function JoinFlow({ invite, inviterName, locale }: { invite: string; invi
           )}
         </p>
       )}
-      <button type="submit" disabled={!name.trim() || busy} className="awc-btn awc-btn-primary mt-6 w-full text-base">
+      <button type="submit" disabled={busy} className="awc-btn awc-btn-primary mt-6 w-full text-base">
         {busy && <Loader2 size={18} className="animate-spin" aria-hidden />}
         {busy ? t.busy : t.submit}
         {!busy && <ArrowRight size={18} aria-hidden />}

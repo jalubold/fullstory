@@ -33,6 +33,7 @@ export default async function HowItWorks({ params }: PageProps<'/compatible/[lan
     <>
       <CompatHeader
         locale={locale}
+        path="/how-it-works"
         right={
           <Link href="/compatible/start" className="awc-btn awc-btn-primary min-h-0 px-4 py-2.5 text-sm">
             {UI[locale].shell.start}
@@ -96,7 +97,7 @@ export default async function HowItWorks({ params }: PageProps<'/compatible/[lan
           </div>
         </article>
       </main>
-      <CompatFooter locale={locale} />
+      <CompatFooter locale={locale} path="/how-it-works" />
     </>
   );
 }

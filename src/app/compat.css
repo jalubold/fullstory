@@ -382,3 +382,75 @@
     animation: none !important;
   }
 }
+
+/* ───────────── v3: play, types, reveal ───────────── */
+
+@keyframes awc-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(var(--awc-dx, 26px), var(--awc-dy, 10px));
+  }
+}
+@keyframes awc-glow {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px -12px rgb(169 77 101 / 0.7), 0 0 0 0 rgb(169 77 101 / 0.32);
+  }
+  55% {
+    box-shadow: 0 8px 24px -12px rgb(169 77 101 / 0.7), 0 0 0 12px rgb(169 77 101 / 0);
+  }
+}
+@keyframes awc-reveal-out {
+  to {
+    transform: translateY(-100%);
+    visibility: hidden;
+  }
+}
+.awc-drift-a {
+  animation: awc-drift 16s ease-in-out infinite;
+}
+.awc-drift-b {
+  --awc-dx: -26px;
+  --awc-dy: -8px;
+  animation: awc-drift 16s ease-in-out infinite;
+}
+.awc-cta-glow {
+  animation: awc-glow 2.8s ease-out infinite;
+}
+/* Signature cards sit slightly askew, like cards dealt on a table, and straighten when picked up. */
+@media (min-width: 1024px) {
+  .awc-type-card {
+    transform: rotate(var(--tilt, 0deg));
+    transition: transform 0.45s var(--ease-soft), box-shadow 0.3s;
+  }
+  .awc-type-card:hover {
+    transform: rotate(0deg) translateY(-8px);
+    box-shadow: var(--shadow-awc-lift);
+  }
+}
+/* First look at the results: a curtain with the two circles meeting, then it lifts. */
+.awc-reveal {
+  animation: awc-reveal-out 0.8s cubic-bezier(0.7, 0, 0.2, 1) forwards 2.7s;
+}
+.awc-reveal-names {
+  animation: awc-in 0.7s var(--ease-soft) both 0.9s;
+}
+.awc-reveal-ready {
+  animation: awc-in 0.7s var(--ease-soft) both 1.5s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .awc-drift-a,
+  .awc-drift-b,
+  .awc-cta-glow {
+    animation: none !important;
+  }
+  .awc-type-card {
+    transform: none;
+  }
+  .awc-reveal {
+    display: none;
+  }
+}

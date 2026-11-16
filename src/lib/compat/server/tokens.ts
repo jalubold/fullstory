@@ -17,6 +17,9 @@ export const hashToken = (token: string) => crypto.createHash('sha256').update(t
 
 export const isTokenShaped = (t: unknown): t is string => typeof t === 'string' && /^[A-Za-z0-9_-]{32}$/.test(t);
 
+/** Short key for "this browser has seen these results" (see ../reveal.ts). Not reversible to the link. */
+export const revealKeyFor = (token: string) => hashToken(token).slice(0, 10);
+
 export function inviteTokenFor(assessmentId: string): string {
   return crypto.createHmac('sha256', appSecret()).update(`compat-invite:${assessmentId}`).digest('base64url').slice(0, 32);
 }

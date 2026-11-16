@@ -6,6 +6,7 @@ import type { ParticipantView } from '@/lib/compat/server/view';
 import { UI } from '@/lib/compat/ui-strings';
 import { DeleteData, InviteCard, PrivateLink, ShareResult, StatusPoller, TrackView, UnlockButton } from './Actions';
 import { Venn } from './Brand';
+import { Reveal } from './Reveal';
 import { FlowScreen } from './Shell';
 import { DimensionBars, InsightCard, PeopleLegend, PersonDot } from './Visuals';
 
@@ -81,7 +82,26 @@ function StatusRow({ done, label, detail, pending, role, name, locale }: { done:
   );
 }
 
-export function ResultsStage({ view, preview, price, privateUrl, siteUrl, notice, locale }: { view: ParticipantView; preview: BlueprintPreview; price: string; privateUrl: string; siteUrl: string; notice?: string; locale: Locale }) {
+export function ResultsStage({
+  view,
+  preview,
+  price,
+  privateUrl,
+  siteUrl,
+  notice,
+  locale,
+  revealKey = null,
+}: {
+  view: ParticipantView;
+  preview: BlueprintPreview;
+  price: string;
+  privateUrl: string;
+  siteUrl: string;
+  notice?: string;
+  locale: Locale;
+  /** Set the first time this browser opens these results: plays the reveal. */
+  revealKey?: string | null;
+}) {
   const t = UI[locale].results;
   const { names, overview } = preview;
   const sig = overview.signature;
@@ -90,6 +110,7 @@ export function ResultsStage({ view, preview, price, privateUrl, siteUrl, notice
   return (
     <div>
       <TrackView event="compat_results_view" props={{ unlocked: view.unlocked, locale }} />
+      {revealKey && <Reveal revealKey={revealKey} names={names} overlap={overview.similarity} ready={t.revealReady} skip={t.revealSkip} />}
       {/* Headline: a poster made to be screenshotted and shared */}
       <section className="awc-anim-in relative mx-auto max-w-3xl overflow-hidden rounded-[2rem] bg-awc-wine-deep px-5 pb-9 pt-9 text-center text-white shadow-[0_40px_80px_-30px_rgb(94_37_54/0.6)] sm:px-12 sm:pb-11">
         <svg aria-hidden viewBox="0 0 600 400" className="pointer-events-none absolute -left-40 -top-32 w-[560px] opacity-[0.06]">

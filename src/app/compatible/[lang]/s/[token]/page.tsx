@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { Quiz } from '@/components/compat/Quiz';
@@ -9,7 +9,9 @@ import { countryFromHeaders } from '@/lib/commerce/region';
 import { isLocale, type Locale } from '@/lib/compat/i18n';
 import { getQuestionSet } from '@/lib/compat/questions';
 import { buildPreview } from '@/lib/compat/report';
+import { parseRevealed, REVEAL_COOKIE } from '@/lib/compat/reveal';
 import { blueprintPrice } from '@/lib/compat/server/payments';
+import { revealKeyFor } from '@/lib/compat/server/tokens';
 import { loadBlueprint, loadView } from '@/lib/compat/server/view';
 import { UI } from '@/lib/compat/ui-strings';
 import { appUrl } from '@/lib/server/env';
@@ -27,7 +29,7 @@ async function Page({ params, searchParams }: { params: Promise<{ lang: string; 
   const locale = localeOf(lang);
   return (
     <>
-      <CompatHeader locale={locale} />
+      <CompatHeader locale={locale} path={`/s/${token}`} />
       <Hub token={token} searchParams={searchParams} locale={locale} />
     </>
   );
@@ -70,6 +72,9 @@ async function Hub({ token, searchParams, locale }: { token: string; searchParam
   const blueprint = await loadBlueprint(ctx, locale);
   if (!blueprint) return <InvalidLink locale={locale} />;
   const price = blueprintPrice(countryFromHeaders(await headers())).label;
+  // The reveal plays the first time this browser opens these results.
+  const revealKey = revealKeyFor(token);
+  const revealed = parseRevealed((await cookies()).get(REVEAL_COOKIE)?.value).includes(revealKey);
   return (
     <main id="main" className="flex-1">
       <div className="awc-container py-10 md:py-16">
@@ -80,6 +85,7 @@ async function Hub({ token, searchParams, locale }: { token: string; searchParam
           privateUrl={privateUrl}
           siteUrl={`${appUrl()}/compatible`}
           locale={locale}
+          revealKey={revealed ? null : revealKey}
           notice={payment === 'failed' ? t.paymentFailed : payment === 'cancelled' ? t.paymentCancelled : undefined}
         />
       </div>

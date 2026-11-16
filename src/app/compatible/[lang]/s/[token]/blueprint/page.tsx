@@ -23,7 +23,7 @@ async function Report({ params }: { params: Promise<{ lang: string; token: strin
   const found = await loadView(token, locale);
   if (!found) return (
     <>
-      <CompatHeader locale={locale} />
+      <CompatHeader locale={locale} path={`/s/${token}/blueprint`} />
       <InvalidLink locale={locale} />
     </>
   );
@@ -34,7 +34,7 @@ async function Report({ params }: { params: Promise<{ lang: string; token: strin
   const generated = new Date().toLocaleDateString(LOCALE_NAMES[locale].intl, { day: 'numeric', month: 'long', year: 'numeric' });
   return (
     <>
-      <CompatHeader locale={locale} />
+      <CompatHeader locale={locale} path={`/s/${token}/blueprint`} />
       <main id="main" className="flex-1">
         <BlueprintReport bp={bp} token={token} generated={generated} locale={locale} />
       </main>

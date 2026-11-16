@@ -24,7 +24,7 @@ async function Page({ params }: { params: Promise<{ lang: string; invite: string
   const locale = localeOf(lang);
   return (
     <>
-      <CompatHeader locale={locale} />
+      <CompatHeader locale={locale} path={`/i/${invite}`} />
       <Invite invite={invite} locale={locale} />
     </>
   );

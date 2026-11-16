@@ -18,7 +18,7 @@ export default async function StartPage({ params }: PageProps<'/compatible/[lang
   const locale = localeOf((await params).lang);
   return (
     <>
-      <CompatHeader locale={locale} />
+      <CompatHeader locale={locale} path="/start" />
       <FlowScreen>
         <StartFlow locale={locale} contexts={getContexts(locale).map(({ id, label, hint }) => ({ id, label, hint }))} />
       </FlowScreen>

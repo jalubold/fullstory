@@ -28,7 +28,7 @@ async function Page({ params, searchParams }: { params: Promise<{ lang: string; 
   const locale = localeOf(lang);
   return (
     <>
-      <CompatHeader locale={locale} />
+      <CompatHeader locale={locale} path={`/return/${orderId}`} />
       <Return orderId={orderId} searchParams={searchParams} locale={locale} />
     </>
   );
