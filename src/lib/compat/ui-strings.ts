@@ -45,7 +45,7 @@ const EN = {
     ctaNote: 'About 6 minutes each · no account needed',
     /** The hero's sample result: a handwritten note above it, and its labels. */
     heroNote: (a: string, b: string) => `This is ${a} & ${b}. What about you two?`,
-    heroSample: 'Sample result',
+    heroSample: 'Overview',
     heroType: 'Relationship signature',
     heroHook: (same: number, total: number, pct: number) => ['Only ', `${same} of ${total}`, ' answers the same. Still ', `${pct}% aligned`, '.'] as string[],
     heroClick: 'Where they click',
@@ -542,7 +542,7 @@ const ID: UIStrings = {
     cta: 'Mulai tes — gratis',
     ctaNote: 'Sekitar 6 menit per orang · nggak perlu akun',
     heroNote: (a: string, b: string) => `Ini hasil ${a} & ${b}. Kalian gimana?`,
-    heroSample: 'Contoh hasil',
+    heroSample: 'Overview',
     heroType: 'Tipe pasangan',
     heroHook: (same: number, total: number, pct: number) => ['Jawaban yang sama cuma ', `${same} dari ${total}`, '. Tetap ', `${pct}% selaras`, '.'],
     heroClick: 'Yang bikin nyambung',
