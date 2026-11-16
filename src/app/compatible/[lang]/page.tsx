@@ -246,7 +246,7 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
           <div className="awc-container grid gap-12 py-20 md:py-28 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-16">
             <Reveal className="lg:sticky lg:top-28 lg:self-start">
               <p className="awc-eyebrow">{sci.eyebrow}</p>
-              <h2 className="awc-serif mt-3 text-balance text-4xl leading-[1.08] md:text-[3.4rem]">
+              <h2 className="awc-serif mt-3 text-balance text-4xl leading-[1.08] md:text-[3.1rem]">
                 {sci.title[0]}
                 <Marked kind="underline" delay={350}>
                   {sci.title[1]}
