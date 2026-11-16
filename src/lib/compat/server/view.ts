@@ -2,6 +2,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { isProduction, appUrl } from '@/lib/server/env';
 import { getContext } from '../contexts';
+import type { Locale } from '../i18n';
 import { getQuestionSet } from '../questions';
 import { buildBlueprint, type Blueprint } from '../report';
 import type { Answers, Role } from '../types';
@@ -28,10 +29,10 @@ export interface ParticipantView {
   assessmentId: string;
 }
 
-export function toView(token: string, ctx: ParticipantContext): ParticipantView {
+export function toView(token: string, ctx: ParticipantContext, locale: Locale = 'en'): ParticipantView {
   const submitted = !!ctx.me.submitted_at;
   const partnerSubmitted = !!ctx.partner?.submitted_at;
-  const info = getContext(ctx.assessment.context);
+  const info = getContext(ctx.assessment.context, locale);
   return {
     token,
     role: ctx.me.role,
@@ -49,20 +50,21 @@ export function toView(token: string, ctx: ParticipantContext): ParticipantView 
   };
 }
 
-export async function loadView(token: string): Promise<{ view: ParticipantView; ctx: ParticipantContext } | null> {
+export async function loadView(token: string, locale: Locale = 'en'): Promise<{ view: ParticipantView; ctx: ParticipantContext } | null> {
   const ctx = await findByToken(token);
-  return ctx ? { view: toView(token, ctx), ctx } : null;
+  return ctx ? { view: toView(token, ctx, locale), ctx } : null;
 }
 
-/** The full Blueprint, once both have submitted. Callers decide what to reveal (preview vs paid). */
-export async function loadBlueprint(ctx: ParticipantContext): Promise<Blueprint | null> {
+/** The full Blueprint in the reader's language, once both have submitted. Callers decide what to reveal (preview vs paid). */
+export async function loadBlueprint(ctx: ParticipantContext, locale: Locale = 'en'): Promise<Blueprint | null> {
   const both = await bothAnswers(ctx.assessment.id);
   if (!both) return null;
   return buildBlueprint({
-    set: getQuestionSet(ctx.assessment.question_set),
+    set: getQuestionSet(ctx.assessment.question_set, locale),
     context: ctx.assessment.context,
     names: { a: both.a.name, b: both.b.name },
     answers: { a: both.a.answers, b: both.b.answers },
+    locale,
   });
 }
 

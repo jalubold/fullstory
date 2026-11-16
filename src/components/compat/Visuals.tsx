@@ -1,8 +1,10 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Check, Puzzle, Equal, ArrowLeftRight, MessageCircleWarning, MoveHorizontal } from 'lucide-react';
+import type { Locale } from '@/lib/compat/i18n';
 import type { AxisView, Evidence, Insight } from '@/lib/compat/report';
-import { RELATION_LABELS } from '@/lib/compat/report';
+import { relationLabels } from '@/lib/compat/report';
 import type { Relation } from '@/lib/compat/types';
+import { UI } from '@/lib/compat/ui-strings';
 
 /* Person A = wine, Person B = slate; always paired with an initial and a name. */
 export const PERSON_COLOR = { a: 'var(--color-awc-wine)', b: 'var(--color-awc-slate)' } as const;
@@ -81,18 +83,18 @@ const RELATION_STYLE: Record<Relation, { cls: string; Icon: typeof Check }> = {
   tension: { cls: 'bg-awc-amber-soft text-awc-amber', Icon: MessageCircleWarning },
 };
 
-export function RelationChip({ relation, blindSpot = false }: { relation: Relation; blindSpot?: boolean }) {
+export function RelationChip({ relation, blindSpot = false, locale }: { relation: Relation; blindSpot?: boolean; locale: Locale }) {
   if (blindSpot) {
     return (
       <span className="awc-chip bg-awc-amber-soft text-awc-amber">
-        <MessageCircleWarning size={12} aria-hidden /> Shared blind spot
+        <MessageCircleWarning size={12} aria-hidden /> {UI[locale].blueprint.sharedBlindSpot}
       </span>
     );
   }
   const { cls, Icon } = RELATION_STYLE[relation];
   return (
     <span className={`awc-chip ${cls}`}>
-      <Icon size={12} aria-hidden /> {RELATION_LABELS[relation]}
+      <Icon size={12} aria-hidden /> {relationLabels(locale)[relation]}
     </span>
   );
 }
@@ -116,14 +118,14 @@ export function EvidenceBlock({ evidence, names }: { evidence: Evidence; names: 
   );
 }
 
-export function InsightCard({ insight, names, index, showTip = true, footer }: { insight: Insight; names: { a: string; b: string }; index?: number; showTip?: boolean; footer?: ReactNode }) {
+export function InsightCard({ insight, names, locale, index, showTip = true, footer }: { insight: Insight; names: { a: string; b: string }; locale: Locale; index?: number; showTip?: boolean; footer?: ReactNode }) {
   const blind = insight.id.startsWith('blind-');
   return (
     <article className="awc-card p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         {index !== undefined && <span className="awc-numeral text-2xl">{String(index + 1).padStart(2, '0')}</span>}
         <h3 className="awc-serif text-[1.35rem] leading-tight text-awc-ink">{insight.title}</h3>
-        {insight.relation && <span className="sm:ml-auto"><RelationChip relation={insight.relation} blindSpot={blind && insight.relation === 'shared'} /></span>}
+        {insight.relation && <span className="sm:ml-auto"><RelationChip relation={insight.relation} blindSpot={blind && insight.relation === 'shared'} locale={locale} /></span>}
       </div>
       <div className="awc-prose mt-3 text-[0.98rem] leading-relaxed text-awc-ink-soft">
         {insight.body.map((p, i) => (
@@ -132,7 +134,7 @@ export function InsightCard({ insight, names, index, showTip = true, footer }: {
       </div>
       {showTip && insight.tip && (
         <div className="mt-4 flex gap-3 rounded-2xl border border-awc-blush bg-awc-blush-soft/50 p-3.5 text-[0.9rem] leading-relaxed text-awc-ink">
-          <span className="awc-eyebrow mt-0.5 shrink-0">Try</span>
+          <span className="awc-eyebrow mt-0.5 shrink-0">{UI[locale].blueprint.try}</span>
           <p>{insight.tip}</p>
         </div>
       )}
@@ -145,7 +147,7 @@ export function InsightCard({ insight, names, index, showTip = true, footer }: {
 }
 
 /** One axis, two people: where each sits between two poles. Legend = initials + names in the parent. */
-export function AxisSpectrum({ axis, names }: { axis: AxisView; names: { a: string; b: string } }) {
+export function AxisSpectrum({ axis, names, locale }: { axis: AxisView; names: { a: string; b: string }; locale: Locale }) {
   const pos = (v: number | null) => `${((Math.max(-1, Math.min(1, v ?? 0)) + 1) / 2) * 100}%`;
   const close = axis.a !== null && axis.b !== null && Math.abs(axis.a - axis.b) < 0.12;
   return (
@@ -159,7 +161,7 @@ export function AxisSpectrum({ axis, names }: { axis: AxisView; names: { a: stri
             key={r}
             className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 transition-[left] duration-700"
             style={{ left: pos(axis[r]), marginTop: close ? (r === 'a' ? -9 : 9) : 0 }}
-            title={`${names[r]}: ${axis[r] === null ? 'n/a' : axis[r]! > 0.15 ? axis.right : axis[r]! < -0.15 ? axis.left : 'in between'}`}
+            title={`${names[r]}: ${axis[r] === null ? '–' : axis[r]! > 0.15 ? axis.right : axis[r]! < -0.15 ? axis.left : UI[locale].blueprint.inBetween}`}
           >
             <PersonDot role={r} name={names[r]} size="sm" />
           </div>

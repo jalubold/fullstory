@@ -148,3 +148,25 @@ export interface ScoringResult {
 }
 
 export type RelationshipContext = 'talking' | 'dating' | 'long_term' | 'married' | 'other';
+
+/**
+ * A translation of a question set. Same ids as the base set; only the text
+ * changes, so scoring is identical in every language.
+ */
+export interface QuestionSetTranslation {
+  dimensions: Record<DimensionId, { label: string; short: string; description: string }>;
+  questions: Record<
+    string,
+    {
+      prompt: string;
+      topic: string;
+      options: Record<string, { label: string; trait: string; plural: string }>;
+      /** Notes for complements and frictions, keyed "a|b" exactly as in the base set. */
+      pairs?: Record<string, string>;
+      /** Blind-spot notes, in the same order as the base set. */
+      blindSpots?: string[];
+      insight: { why: string; shared: string; different: string; bridge: string };
+      starter: string;
+    }
+  >;
+}

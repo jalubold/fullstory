@@ -5,6 +5,8 @@ import { appUrl } from '@/lib/server/env';
 import { HttpError } from '@/lib/server/http';
 import { getPaymentProvider, type CheckoutOrder, type PaymentEvent, type PaymentProvider } from '@/lib/server/payments';
 import { BLUEPRINT_PRICES, BLUEPRINT_PRODUCT, blueprintCurrency, formatPrice, type CompatCurrency } from '../pricing';
+import type { Locale } from '../i18n';
+import { UI } from '../ui-strings';
 import type { ParticipantView } from './view';
 
 /**
@@ -55,11 +57,11 @@ export async function getCompatOrder(id: string): Promise<CompatOrderRow | null>
   return sqlOne<CompatOrderRow>('select * from compat_orders where id = $1', [id]);
 }
 
-export async function startCheckout(view: ParticipantView, country: string | null): Promise<{ url: string } | { unlocked: true }> {
+export async function startCheckout(view: ParticipantView, country: string | null, locale: Locale = 'en'): Promise<{ url: string } | { unlocked: true }> {
   if (view.unlocked) return { unlocked: true };
-  if (view.stage !== 'results') throw new HttpError(409, 'The Blueprint unlocks once you have both finished.');
+  if (view.stage !== 'results') throw new HttpError(409, UI[locale].errors.notFinished);
   const provider = getPaymentProvider();
-  if (!provider) throw new HttpError(503, 'Payments are not available yet. Please try again later.');
+  if (!provider) throw new HttpError(503, UI[locale].errors.paymentsUnavailable);
   const currency = blueprintCurrency(country, provider.currencies);
   const [order] = await sql<CompatOrderRow>(
     `insert into compat_orders (id, number, assessment_id, buyer_role, currency, amount_total, provider) values ($1, $2, $3, $4, $5, $6, $7) returning *`,

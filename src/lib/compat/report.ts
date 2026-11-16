@@ -1,5 +1,7 @@
 import { getContext } from './contexts';
+import { DEFAULT_LOCALE, type Locale } from './i18n';
 import { questionMap } from './questions';
+import { REPORT_STRINGS, type Horizon, type ReportStrings } from './report-strings';
 import { score } from './scoring';
 import type { Answers, AxisId, DimensionId, Question, QuestionComparison, QuestionOption, QuestionSet, Relation, RelationshipContext, Role, ScoringResult, SignatureId } from './types';
 
@@ -91,13 +93,14 @@ export interface Starter {
 }
 
 export interface Action {
-  horizon: 'This week' | 'This month' | 'Ongoing';
+  horizon: Horizon;
   title: string;
   body: string;
   because?: string;
 }
 
 export interface Blueprint {
+  locale: Locale;
   questionSetVersion: string;
   scoringVersion: string;
   names: Record<Role, string>;
@@ -129,6 +132,7 @@ export interface Blueprint {
 
 /** What the free result shows. Built from the Blueprint so it never disagrees with it. */
 export interface BlueprintPreview {
+  locale: Locale;
   names: Record<Role, string>;
   context: { id: RelationshipContext; label: string };
   overview: Blueprint['overview'];
@@ -140,133 +144,36 @@ export interface BlueprintPreview {
 
 /* ─────────────────────────────── Static copy ────────────────────────────── */
 
-export const SIGNATURES: Record<SignatureId, Omit<Signature, 'id'>> = {
-  mirror: {
-    title: 'The Mirror Pair',
-    tagline: 'You see the world through remarkably similar eyes.',
-    description: 'Your answers line up across most of what you were asked. Shared instincts make everyday life feel easy — the thing to protect is curiosity, so that similarity never turns into assumption.',
-  },
-  puzzle: {
-    title: 'The Puzzle Pieces',
-    tagline: 'Your differences fit together.',
-    description: 'Several of your differences are complementary: where one of you leans one way, the other fills the gap. You’re not identical — you interlock.',
-  },
-  anchors: {
-    title: 'The Steady Anchors',
-    tagline: 'Grounded, and aligned on much of what matters.',
-    description: 'You agree on a lot, and where you differ the gaps are mostly small. That’s a steady base to build on.',
-  },
-  bridge: {
-    title: 'The Bridge Builders',
-    tagline: 'Different views, solid ways back to each other.',
-    description: 'You see several things differently, but you’re well aligned on how you handle disagreement — the skill that matters most when views differ.',
-  },
-  explorers: {
-    title: 'The Explorers',
-    tagline: 'Two different worlds, curious about each other.',
-    description: 'You approach many things differently, but few of those differences pull against each other. There’s a lot to discover in each other’s way of seeing things.',
-  },
-  conversation: {
-    title: 'The Deep Divers',
-    tagline: 'Plenty to talk about — and that’s where closeness grows.',
-    description: 'Your answers point to several places where you could easily misunderstand each other. That’s not a verdict, it’s a map: couples who talk these things through openly often end up closer than couples who never had to.',
-  },
-  balanced: {
-    title: 'The Balanced Pair',
-    tagline: 'A mix of common ground and fresh perspectives.',
-    description: 'You share a good amount and differ in places — a healthy mix of the familiar and the new.',
-  },
-};
+/** Signature titles and descriptions in a language. */
+export const signatures = (locale: Locale = DEFAULT_LOCALE) => REPORT_STRINGS[locale].signatures;
 
-export const RELATION_LABELS: Record<Relation, string> = {
-  shared: 'Same answer',
-  close: 'Close',
-  complementary: 'Complementary',
-  different: 'Different',
-  tension: 'Worth discussing',
-};
+/** Relation chip labels in a language. */
+export const relationLabels = (locale: Locale = DEFAULT_LOCALE): Record<Relation, string> => REPORT_STRINGS[locale].relations;
 
-const AXIS_INFO: Record<AxisId, { label: string; left: string; right: string; pos: { adj: string; noun: string; desc: string }; neg: { adj: string; noun: string; desc: string } }> = {
-  expression: {
-    label: 'Expressing feelings',
-    left: 'Private',
-    right: 'Expressive',
-    pos: { adj: 'Open-hearted', noun: 'Sharer', desc: 'puts feelings into words easily and values openness' },
-    neg: { adj: 'Quietly deep', noun: 'Observer', desc: 'keeps feelings close and expresses care in quieter ways' },
-  },
-  togetherness: {
-    label: 'Closeness & space',
-    left: 'Independent',
-    right: 'Together',
-    pos: { adj: 'Close-knit', noun: 'Connector', desc: 'draws energy from closeness and shared time' },
-    neg: { adj: 'Independent', noun: 'Free Spirit', desc: 'values independence and personal space' },
-  },
-  engagement: {
-    label: 'Handling issues',
-    left: 'Takes time',
-    right: 'Addresses now',
-    pos: { adj: 'Direct', noun: 'Resolver', desc: 'prefers to address issues head-on' },
-    neg: { adj: 'Reflective', noun: 'Reflector', desc: 'needs time and calm before working through issues' },
-  },
-  structure: {
-    label: 'Plans & spontaneity',
-    left: 'Spontaneous',
-    right: 'Planned',
-    pos: { adj: 'Steady', noun: 'Planner', desc: 'feels secure with plans and predictability' },
-    neg: { adj: 'Spontaneous', noun: 'Adventurer', desc: 'enjoys spontaneity and keeping things open' },
-  },
-  reassurance: {
-    label: 'Reassurance',
-    left: 'Self-assured',
-    right: 'Likes reassurance',
-    pos: { adj: 'Heartfelt', noun: 'Romantic', desc: 'feels most secure when care is expressed often' },
-    neg: { adj: 'Self-assured', noun: 'Anchor', desc: 'feels secure without needing much reassurance' },
-  },
-  horizon: {
-    label: 'Looking ahead',
-    left: 'Present-focused',
-    right: 'Future-focused',
-    pos: { adj: 'Future-minded', noun: 'Builder', desc: 'thinks ahead and likes a sense of direction' },
-    neg: { adj: 'Present-minded', noun: 'Savourer', desc: 'lives in the present and lets the future unfold' },
-  },
-};
+/** Action-plan horizon labels in a language. */
+export const horizonLabels = (locale: Locale = DEFAULT_LOCALE): Record<Horizon, string> => REPORT_STRINGS[locale].horizons;
 
 const AXIS_ORDER: AxisId[] = ['expression', 'togetherness', 'engagement', 'structure', 'reassurance', 'horizon'];
 
-const CARE: Record<string, { noun: string; action: (name: string) => string }> = {
-  words: { noun: 'words', action: (n) => `tell ${n} one specific thing you appreciate, out loud, every day this week` },
-  time: { noun: 'undivided time', action: (n) => `plan one phone-free hour with ${n} this week, just the two of you` },
-  help: { noun: 'practical help', action: (n) => `take one task off ${n}’s plate this week without being asked` },
-  touch: { noun: 'physical closeness', action: (n) => `offer ${n} more everyday affection — a hand on the back, a longer hug` },
-  thought: { noun: 'thoughtful surprises', action: (n) => `leave ${n} one small, unexpected sign that you were thinking of them` },
-};
-
 const PROFILE_QUESTIONS = ['com-rhythm', 'com-raise', 'com-upset', 'emo-open', 'emo-reassure', 'life-recharge', 'life-plans', 'con-heat', 'con-repair', 'con-matters'];
-
-export const DISCLAIMER =
-  'This Blueprint is for reflection and entertainment. It is built from the 20 answers each of you gave at one moment in time — not from a validated psychological assessment — and it cannot predict whether a relationship will succeed. You know your relationship better than any questionnaire.';
 
 /* ─────────────────────────────── Helpers ────────────────────────────────── */
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-function dimensionHeadline(alignment: number): string {
-  if (alignment >= 80) return 'Deeply in sync';
-  if (alignment >= 65) return 'Mostly aligned';
-  if (alignment >= 50) return 'Common ground with real differences';
-  return 'Different perspectives worth exploring';
-}
-
 class Ctx {
   readonly q: Map<string, Question>;
   readonly byId: Map<string, QuestionComparison>;
+  readonly s: ReportStrings;
   constructor(
     readonly set: QuestionSet,
     readonly result: ScoringResult,
     readonly names: Record<Role, string>,
+    readonly locale: Locale,
   ) {
     this.q = questionMap(set);
     this.byId = new Map(result.comparisons.map((c) => [c.questionId, c]));
+    this.s = REPORT_STRINGS[locale];
   }
   opt(questionId: string, optionId: string): QuestionOption {
     return this.q.get(questionId)!.options.find((o) => o.id === optionId)!;
@@ -278,13 +185,12 @@ class Ctx {
     const q = this.q.get(c.questionId)!;
     return { topic: q.topic, prompt: q.prompt, a: this.opt(q.id, c.a).label, b: this.opt(q.id, c.b).label };
   }
-  /** "Sam feels… while Alex likes…" */
+  /** "Sam feels… Alex likes…" */
   contrast(c: QuestionComparison): string {
-    const { a, b } = this.names;
-    return `${a} ${this.opt(c.questionId, c.a).trait}. ${b} ${this.opt(c.questionId, c.b).trait}.`;
+    return this.s.contrast(this.names.a, this.opt(c.questionId, c.a).trait, this.names.b, this.opt(c.questionId, c.b).trait);
   }
   both(c: QuestionComparison): string {
-    return `You both ${this.opt(c.questionId, c.a).plural}.`;
+    return this.s.both(this.opt(c.questionId, c.a).plural);
   }
   dimLabel(id: DimensionId) {
     return this.set.dimensions.find((d) => d.id === id)!.label;
@@ -298,9 +204,7 @@ function comparisonBody(ctx: Ctx, c: QuestionComparison): string[] {
     case 'shared':
       return [ctx.both(c), c.blindSpot ?? q.insight.shared];
     case 'close':
-      return [ctx.contrast(c), 'Your answers sit right next to each other — a small difference in degree rather than a gap.'];
-    case 'complementary':
-      return [ctx.contrast(c), c.pairNote ?? q.insight.different];
+      return [ctx.contrast(c), ctx.s.closeNote];
     default:
       return [ctx.contrast(c), c.pairNote ?? q.insight.different];
   }
@@ -325,19 +229,20 @@ function comparisonInsight(ctx: Ctx, c: QuestionComparison): Insight {
 function buildProfile(ctx: Ctx, role: Role): Profile {
   const name = ctx.names[role];
   const axes = ctx.result.axes[role];
+  const P = ctx.s.profile;
   const ranked = AXIS_ORDER.map((id) => ({ id, v: axes[id] ?? 0 }))
     .filter((x) => Math.abs(x.v) >= 0.15)
     .sort((x, y) => Math.abs(y.v) - Math.abs(x.v) || AXIS_ORDER.indexOf(x.id) - AXIS_ORDER.indexOf(y.id));
-  const pole = (x: { id: AxisId; v: number }) => (x.v >= 0 ? AXIS_INFO[x.id].pos : AXIS_INFO[x.id].neg);
-  let headline = 'The Even-Keeled Partner';
-  let summary = `${name}’s answers sit close to the middle on most spectrums — flexible, adaptable and hard to put in a box.`;
+  const pole = (x: { id: AxisId; v: number }) => (x.v >= 0 ? ctx.s.axes[x.id].pos : ctx.s.axes[x.id].neg);
+  let headline = P.headlineNeutral;
+  let summary = P.summaryNeutral(name);
   if (ranked.length >= 2) {
     const [first, second] = ranked;
-    headline = `The ${pole(second).adj} ${pole(first).noun}`;
-    summary = `${name} ${pole(first).desc}, and ${pole(second).desc}.`;
+    headline = P.headlineTwo(pole(second).adj, pole(first).noun);
+    summary = P.summaryTwo(name, pole(first).desc, pole(second).desc);
   } else if (ranked.length === 1) {
-    headline = `The ${pole(ranked[0]).noun}`;
-    summary = `${name} ${pole(ranked[0]).desc}, and is fairly flexible otherwise.`;
+    headline = P.headlineOne(pole(ranked[0]).noun);
+    summary = P.summaryOne(name, pole(ranked[0]).desc);
   }
   const traits = PROFILE_QUESTIONS.filter((id) => ctx.q.has(id)).map((id) => `${name} ${ctx.opt(id, ctx.answer(role, id)).trait}.`);
   const loved = ctx.q.has('emo-loved') ? ctx.opt('emo-loved', ctx.answer(role, 'emo-loved')).label : '';
@@ -352,10 +257,10 @@ function buildDimensions(ctx: Ctx): DimensionView[] {
       .filter((c) => c.dimension === d.id)
       .map((c) => {
         const q = ctx.q.get(c.questionId)!;
-        const note = c.relation === 'shared' ? (c.blindSpot ?? q.insight.shared) : c.relation === 'close' ? 'A small difference in degree.' : (c.pairNote ?? q.insight.different);
+        const note = c.relation === 'shared' ? (c.blindSpot ?? q.insight.shared) : c.relation === 'close' ? ctx.s.closeShort : (c.pairNote ?? q.insight.different);
         return { questionId: q.id, topic: q.topic, prompt: q.prompt, a: ctx.opt(q.id, c.a).label, b: ctx.opt(q.id, c.b).label, relation: c.relation, alignment: c.alignment, note };
       });
-    return { id: d.id, label: d.label, description: d.description, alignment: s.alignment, similarity: s.similarity, headline: dimensionHeadline(s.alignment), counts: s.counts, rows };
+    return { id: d.id, label: d.label, description: d.description, alignment: s.alignment, similarity: s.similarity, headline: ctx.s.dimensionHeadline(s.alignment), counts: s.counts, rows };
   });
 }
 
@@ -398,32 +303,24 @@ function careLinks(ctx: Ctx): CareLink[] {
 function careInsight(ctx: Ctx, l: CareLink): Insight {
   const R = ctx.names[l.receiver];
   const G = ctx.names[l.giver];
+  const care = ctx.s.care;
   const lovedLabel = ctx.opt('emo-loved', l.loved).label;
   const showsLabel = ctx.opt('emo-show', l.shows).label;
   const evidence: Evidence = {
-    topic: 'Care, given and received',
-    prompt: `What makes ${R} feel most loved · How ${G} naturally shows care`,
+    topic: ctx.s.careEvidence.topic,
+    prompt: ctx.s.careEvidence.prompt(R, G),
     a: l.receiver === 'a' ? lovedLabel : showsLabel,
     b: l.receiver === 'b' ? lovedLabel : showsLabel,
   };
   if (l.match) {
-    return {
-      id: `care-${l.receiver}`,
-      title: `${G}’s care lands with ${R}`,
-      body: [`${R} feels most loved through ${CARE[l.loved].noun} — and that’s exactly how ${G} naturally shows care. ${G}’s instinct already speaks ${R}’s language.`],
-      relation: 'shared',
-      evidence: [evidence],
-    };
+    return { id: `care-${l.receiver}`, title: ctx.s.careMatch.title(G, R), body: [ctx.s.careMatch.body(R, G, care[l.loved].noun)], relation: 'shared', evidence: [evidence] };
   }
   return {
     id: `care-${l.receiver}`,
-    title: `Translating ${G}’s care for ${R}`,
-    body: [
-      `${R} feels most loved through ${CARE[l.loved].noun}, while ${G} naturally shows care through ${CARE[l.shows].noun}.`,
-      `${G}’s love may be completely real and still be easy for ${R} to miss — and ${G} may wonder why it doesn’t always land.`,
-    ],
+    title: ctx.s.careMismatch.title(G, R),
+    body: ctx.s.careMismatch.body(R, G, care[l.loved].noun, care[l.shows].noun),
     relation: 'different',
-    tip: `${G}: ${CARE[l.loved].action(R)}. ${R}: try to notice ${CARE[l.shows].noun} as ${G}’s way of saying it.`,
+    tip: ctx.s.careMismatch.tip(G, care[l.loved].action(R), R, care[l.shows].noun),
     evidence: [evidence],
   };
 }
@@ -439,17 +336,7 @@ function pursueWithdraw(ctx: Ctx): { insight: Insight; pursuer: Role } | null {
   const P = ctx.names[pursuer];
   const W = ctx.names[withdrawer];
   const evidence = ['con-heat', 'com-raise', 'con-repair'].filter((id) => ctx.byId.has(id)).map((id) => ctx.evidence(ctx.byId.get(id)!));
-  const insight: Insight = {
-    id: 'pursue-withdraw',
-    title: 'The chase-and-retreat risk',
-    body: [
-      `${P}’s answers lean toward addressing issues straight away, while ${W} tends to need time and calm first.`,
-      `Under stress this can become a loop: the more ${P} presses, the more ${W} pulls back — and the more ${W} pulls back, the more ${P} presses. Neither of you is wrong; you’re each protecting the relationship in your own way.`,
-    ],
-    relation: 'tension',
-    tip: `${W}: when you need a break, say when you’ll come back. ${P}: trust that time, and give the space fully.`,
-    evidence,
-  };
+  const insight: Insight = { id: 'pursue-withdraw', title: ctx.s.pursue.title, body: ctx.s.pursue.body(P, W), relation: 'tension', tip: ctx.s.pursue.tip(W, P), evidence };
   return { insight, pursuer };
 }
 
@@ -463,26 +350,20 @@ function crossRules(ctx: Ctx): Insight[] {
     if (has('emo-reassure', 'com-rhythm') && ['lots', 'some'].includes(ctx.answer(x, 'emo-reassure')) && ['one', 'light'].includes(ctx.answer(y, 'com-rhythm')) && ['steady', 'checkins'].includes(ctx.answer(x, 'com-rhythm'))) {
       out.push({
         id: `quiet-distance-${x}`,
-        title: 'When quiet reads as distance',
-        body: [
-          `${X} values reassurance and likes regular contact, while ${Y} prefers lighter contact during the day.`,
-          `On busy days, ${Y}’s quiet may feel to ${X} like distance — even when nothing at all is wrong.`,
-        ],
+        title: ctx.s.quietDistance.title,
+        body: ctx.s.quietDistance.body(X, Y),
         relation: 'tension',
-        tip: `${Y}: one small, unprompted message on busy days goes a long way. ${X}: when worry starts rising, ask rather than guess.`,
+        tip: ctx.s.quietDistance.tip(X, Y),
         evidence: [ctx.evidence(ctx.byId.get('emo-reassure')!), ctx.evidence(ctx.byId.get('com-rhythm')!)],
       });
     }
     if (has('com-upset', 'life-recharge') && ctx.answer(x, 'com-upset') === 'comfort' && ['alone', 'solo'].includes(ctx.answer(y, 'life-recharge'))) {
       out.push({
         id: `depleted-${x}`,
-        title: 'When you’re both running low',
-        body: [
-          `When ${X} is upset, ${X} reaches for closeness — while ${Y} recharges with time alone.`,
-          'In a hard week you might both be depleted at once and need opposite things, which can leave both of you feeling unmet.',
-        ],
+        title: ctx.s.depleted.title,
+        body: ctx.s.depleted.body(X, Y),
         relation: 'tension',
-        tip: 'Agree on a “both depleted” plan in advance: a long hug first, then an hour apart, then dinner together.',
+        tip: ctx.s.depleted.tip,
         evidence: [ctx.evidence(ctx.byId.get('com-upset')!), ctx.evidence(ctx.byId.get('life-recharge')!)],
       });
     }
@@ -491,47 +372,33 @@ function crossRules(ctx: Ctx): Insight[] {
 }
 
 function deepDive(ctx: Ctx, id: string, title: string, dims: DimensionId[], extraQuestions: string[], lead: Insight[], intro: string[]): DeepDive {
-  const items = [
-    ...lead,
-    ...ctx.result.comparisons.filter((c) => dims.includes(c.dimension) || extraQuestions.includes(c.questionId)).map((c) => comparisonInsight(ctx, c)),
-  ];
+  const items = [...lead, ...ctx.result.comparisons.filter((c) => dims.includes(c.dimension) || extraQuestions.includes(c.questionId)).map((c) => comparisonInsight(ctx, c))];
   return { id, title, intro, items };
-}
-
-function bandPhrase(alignment: number): string {
-  if (alignment >= 80) return 'deeply in sync';
-  if (alignment >= 65) return 'on largely the same page';
-  if (alignment >= 50) return 'a real mix of common ground and difference';
-  return 'seeing things quite differently — which makes it the richest area to talk about';
 }
 
 function dimensionIntro(ctx: Ctx, id: DimensionId): string {
   const d = ctx.result.dimensions.find((x) => x.id === id)!;
-  const n = d.counts.shared + d.counts.close + d.counts.complementary;
+  const matched = d.counts.shared + d.counts.close + d.counts.complementary;
   const total = Object.values(d.counts).reduce((s, v) => s + v, 0);
-  const parts = [`In ${ctx.dimLabel(id).toLowerCase()} you’re ${d.alignment}% aligned: ${bandPhrase(d.alignment)}.`];
-  const rest = total - n;
-  parts.push(n === total ? `All ${total} of your answers here line up or fit together.` : n === 0 ? `None of your ${total} answers here line up closely.` : `${n} of your ${total} answers here line up or fit together, and ${rest} ${rest === 1 ? 'shows a different perspective' : 'show different perspectives'}.`);
-  if (d.counts.tension) parts.push(d.counts.tension === 1 ? 'One topic could lead to misunderstandings if it stays unspoken.' : `${d.counts.tension} topics could lead to misunderstandings if they stay unspoken.`);
-  return parts.join(' ');
+  return ctx.s.dimensionIntro({ label: ctx.dimLabel(id), alignment: d.alignment, matched, total, tension: d.counts.tension });
 }
 
 function buildStrengths(ctx: Ctx, links: CareLink[]): Insight[] {
+  const S = ctx.s.strengths;
   const cands: Array<Insight & { score: number }> = [];
   for (const d of ctx.result.dimensions) {
     if (d.alignment >= 70) {
       const topics = ctx.result.comparisons.filter((c) => c.dimension === d.id && c.relation !== 'different' && c.relation !== 'tension' && !c.blindSpot).map((c) => ctx.q.get(c.questionId)!.topic.toLowerCase());
       if (topics.length < 2) continue;
-      const list = topics.length === 2 ? topics.join(' and ') : `${topics.slice(0, -1).join(', ')} and ${topics[topics.length - 1]}`;
-      cands.push({ id: `dim-${d.id}`, title: `Strong ground in ${ctx.dimLabel(d.id).toLowerCase()}`, body: [`You’re ${d.alignment}% aligned here, with answers that match or fit together on ${list}. It’s an area you can lean on when other things feel harder.`], score: d.alignment });
+      cands.push({ id: `dim-${d.id}`, title: S.dimTitle(ctx.dimLabel(d.id)), body: [S.dimBody(d.alignment, topics)], score: d.alignment });
     }
   }
   for (const c of ctx.result.comparisons) {
     const q = ctx.q.get(c.questionId)!;
-    if (c.relation === 'complementary') cands.push({ ...comparisonInsight(ctx, c), id: `comp-${c.questionId}`, title: `${q.topic}: a natural fit`, tip: undefined, score: 76 * c.weight });
+    if (c.relation === 'complementary') cands.push({ ...comparisonInsight(ctx, c), id: `comp-${c.questionId}`, title: S.complementTitle(q.topic), tip: undefined, score: 76 * c.weight });
     else if (c.relation === 'shared' && !c.blindSpot) {
       const boost = c.dimension === 'conflict' ? 82 : c.weight > 1 ? 80 : 60;
-      cands.push({ ...comparisonInsight(ctx, c), id: `shared-${c.questionId}`, title: `Aligned on ${q.topic.toLowerCase()}`, tip: undefined, score: boost * c.weight });
+      cands.push({ ...comparisonInsight(ctx, c), id: `shared-${c.questionId}`, title: S.sharedTitle(q.topic), tip: undefined, score: boost * c.weight });
     }
   }
   for (const l of links.filter((x) => x.match)) cands.push({ ...careInsight(ctx, l), score: 88 });
@@ -545,13 +412,7 @@ function buildStrengths(ctx: Ctx, links: CareLink[]): Insight[] {
       delete copy.score;
       return copy as Insight;
     });
-  if (out.length < 3) {
-    out.push({
-      id: 'curiosity',
-      title: 'Curiosity about each other',
-      body: ['You both chose to sit down and answer twenty honest questions about how you love, argue and plan. Couples who stay curious about each other give themselves room to grow — and that’s exactly what you’re doing.'],
-    });
-  }
+  if (out.length < 3) out.push({ id: 'curiosity', title: S.curiosity.title, body: [S.curiosity.body] });
   return out;
 }
 
@@ -559,21 +420,12 @@ function buildBlindSpots(ctx: Ctx): Insight[] {
   const out: Insight[] = [];
   for (const c of ctx.result.comparisons.filter((x) => x.blindSpot)) {
     const q = ctx.q.get(c.questionId)!;
-    out.push({ id: `blind-${c.questionId}`, title: `Shared blind spot: ${q.topic.toLowerCase()}`, body: [c.relation === 'shared' ? ctx.both(c) : ctx.contrast(c), c.blindSpot!], relation: c.relation, tip: q.insight.bridge, evidence: [ctx.evidence(c)] });
+    out.push({ id: `blind-${c.questionId}`, title: ctx.s.blind.title(q.topic), body: [c.relation === 'shared' ? ctx.both(c) : ctx.contrast(c), c.blindSpot!], relation: c.relation, tip: q.insight.bridge, evidence: [ctx.evidence(c)] });
   }
   const pw = pursueWithdraw(ctx);
   if (pw) out.push(pw.insight);
   out.push(...crossRules(ctx));
-  if (!out.length) {
-    out.push({
-      id: 'none',
-      title: 'No major blind spots stood out',
-      body: [
-        'None of your answer combinations matched the patterns we look for — shared avoidance, chase-and-retreat, or needs that quietly cancel each other out.',
-        'One gentle caution: where you answered the same, it’s easy to assume you mean the same thing. Use a conversation starter or two on the topics you agree on, too.',
-      ],
-    });
-  }
+  if (!out.length) out.push({ id: 'none', title: ctx.s.blind.noneTitle, body: ctx.s.blind.noneBody });
   return out;
 }
 
@@ -585,19 +437,21 @@ function buildStarters(ctx: Ctx): Starter[] {
     const q = ctx.q.get(c.questionId)!;
     const la = ctx.opt(q.id, c.a).label;
     const lb = ctx.opt(q.id, c.b).label;
-    const why = c.relation === 'shared' ? `You both answered “${la}”. The same words can hide different pictures — compare yours.` : `${A} answered “${la}”; ${B} answered “${lb}”.`;
+    const why = c.relation === 'shared' ? ctx.s.starters.whyShared(la) : ctx.s.starters.whyDifferent(A, la, B, lb);
     return { prompt: q.starter, topic: q.topic, why };
   });
 }
 
 function buildActions(ctx: Ctx, links: CareLink[], contextId: RelationshipContext): Action[] {
+  const T = ctx.s.actions;
+  const care = ctx.s.care;
   const actions: Action[] = [];
   const used = new Set<string>();
   const { a: A, b: B } = ctx.names;
-  const bridge = (c: QuestionComparison, horizon: Action['horizon']): Action => {
+  const bridge = (c: QuestionComparison, horizon: Horizon): Action => {
     used.add(c.questionId);
     const q = ctx.q.get(c.questionId)!;
-    const because = c.relation === 'shared' ? `Because you both ${ctx.opt(q.id, c.a).plural}.` : `Because ${A} ${ctx.opt(q.id, c.a).trait}, and ${B} ${ctx.opt(q.id, c.b).trait}.`;
+    const because = c.relation === 'shared' ? T.becauseShared(ctx.opt(q.id, c.a).plural) : T.becauseDifferent(A, ctx.opt(q.id, c.a).trait, B, ctx.opt(q.id, c.b).trait);
     return { horizon, title: q.topic, body: q.insight.bridge, because };
   };
 
@@ -606,74 +460,72 @@ function buildActions(ctx: Ctx, links: CareLink[], contextId: RelationshipContex
     const l = mismatch[0];
     const R = ctx.names[l.receiver];
     const G = ctx.names[l.giver];
-    actions.push({ horizon: 'This week', title: `Love in ${R}’s language`, body: `${G}: ${CARE[l.loved].action(R)}.`, because: `Because ${R} feels most loved through ${CARE[l.loved].noun}, and ${G} naturally shows care through ${CARE[l.shows].noun}.` });
+    actions.push({ horizon: 'week', title: T.loveTitle(R), body: T.loveBody(G, care[l.loved].action(R)), because: T.loveBecause(R, care[l.loved].noun, G, care[l.shows].noun) });
     if (mismatch[1]) {
       const m = mismatch[1];
-      actions.push({ horizon: 'This week', title: `Love in ${ctx.names[m.receiver]}’s language`, body: `${ctx.names[m.giver]}: ${CARE[m.loved].action(ctx.names[m.receiver])}.`, because: `Because ${ctx.names[m.receiver]} feels most loved through ${CARE[m.loved].noun}.` });
+      const R2 = ctx.names[m.receiver];
+      actions.push({ horizon: 'week', title: T.loveTitle(R2), body: T.loveBody(ctx.names[m.giver], care[m.loved].action(R2)), because: T.loveBecauseShort(R2, care[m.loved].noun) });
     }
   } else if (links.length) {
-    actions.push({ horizon: 'This week', title: 'Keep doing what works', body: 'Your ways of showing care already land with each other. This week, name one thing the other did that made you feel loved — out loud, specifically.', because: 'Because the way each of you shows care matches how the other feels most loved.' });
+    actions.push({ horizon: 'week', title: T.keepDoing.title, body: T.keepDoing.body, because: T.keepDoing.because });
   }
 
   // The care questions are already covered by the "love in X's language" steps above.
   const differ = differOrder(ctx).filter((c) => !links.length || (c.questionId !== 'emo-loved' && c.questionId !== 'emo-show'));
-  if (differ[0]) actions.push(bridge(differ[0], 'This week'));
-  for (const c of differ.slice(1, 3)) actions.push(bridge(c, 'This month'));
+  if (differ[0]) actions.push(bridge(differ[0], 'week'));
+  for (const c of differ.slice(1, 3)) actions.push(bridge(c, 'month'));
 
   const blind = ctx.result.comparisons.find((c) => c.blindSpot && !used.has(c.questionId));
-  if (blind) actions.push(bridge(blind, 'Ongoing'));
-  else if (ctx.byId.has('con-heat') && !used.has('con-heat')) actions.push(bridge(ctx.byId.get('con-heat')!, 'Ongoing'));
+  if (blind) actions.push(bridge(blind, 'ongoing'));
+  else if (ctx.byId.has('con-heat') && !used.has('con-heat')) actions.push(bridge(ctx.byId.get('con-heat')!, 'ongoing'));
 
-  const ritual = getContext(contextId).ritual;
-  actions.push({ horizon: 'Ongoing', title: ritual.title, body: ritual.body });
+  const ritual = getContext(contextId, ctx.locale).ritual;
+  actions.push({ horizon: 'ongoing', title: ritual.title, body: ritual.body });
   return actions;
 }
 
 function buildSummary(ctx: Ctx, contextId: RelationshipContext): string[] {
-  const { a: A, b: B } = ctx.names;
+  const { a, b } = ctx.names;
   const r = ctx.result;
+  const S = ctx.s.summary;
   const sorted = [...r.dimensions].sort((x, y) => y.alignment - x.alignment);
   const top = sorted[0];
   const low = sorted[sorted.length - 1];
   const p1 =
     top.alignment === low.alignment
-      ? `${A} and ${B}, you gave the same answer on ${r.overall.sameAnswers} of ${r.overall.total} questions, with an overall alignment of ${r.overall.alignment}% that’s remarkably even across all five areas.`
-      : `${A} and ${B}, you gave the same answer on ${r.overall.sameAnswers} of ${r.overall.total} questions, with an overall alignment of ${r.overall.alignment}%. Your strongest common ground is ${ctx.dimLabel(top.id).toLowerCase()} (${top.alignment}%), and the area with the most to explore is ${ctx.dimLabel(low.id).toLowerCase()} (${low.alignment}%).`;
-  const differences = r.overall.counts.different + r.overall.counts.tension + r.overall.counts.complementary;
+      ? S.p1Even(a, b, r.overall.sameAnswers, r.overall.total, r.overall.alignment)
+      : S.p1({ a, b, same: r.overall.sameAnswers, total: r.overall.total, alignment: r.overall.alignment, top: ctx.dimLabel(top.id), topScore: top.alignment, low: ctx.dimLabel(low.id), lowScore: low.alignment });
   const c = r.overall.counts;
-  const p2Parts: string[] = [];
-  if (differences === 0) p2Parts.push('You didn’t differ on a single topic — rare, and worth celebrating, though it’s worth checking that the same words mean the same things to both of you.');
-  else {
-    p2Parts.push(`Of the ${differences} topics where your answers differ, ${c.complementary ? `${c.complementary} look complementary — they fit together rather than pull apart` : 'none are clear-cut complements, but most are simply different perspectives'}.`);
-    if (c.tension) p2Parts.push(c.tension === 1 ? 'One could lead to a misunderstanding if it stays unspoken, and this Blueprint shows exactly where.' : `${c.tension} could lead to misunderstandings if they stay unspoken, and this Blueprint shows exactly where.`);
-  }
-  return [p1, p2Parts.join(' '), getContext(contextId).framing];
+  const differences = c.different + c.tension + c.complementary;
+  const p2 = differences === 0 ? S.noDifferences : [S.differences(differences, c.complementary), c.tension ? S.tension(c.tension) : ''].filter(Boolean).join(' ');
+  return [p1, p2, getContext(contextId, ctx.locale).framing];
 }
 
 /* ─────────────────────────────── Entry points ───────────────────────────── */
 
 export interface BuildInput {
+  /** The question set in the reader's language (see getQuestionSet(version, locale)). */
   set: QuestionSet;
   context: RelationshipContext;
   names: Record<Role, string>;
   answers: Record<Role, Answers>;
+  locale?: Locale;
 }
 
 export function buildBlueprint(input: BuildInput, result: ScoringResult = score(input.set, input.answers.a, input.answers.b)): Blueprint {
-  const ctx = new Ctx(input.set, result, input.names);
+  const locale = input.locale ?? DEFAULT_LOCALE;
+  const ctx = new Ctx(input.set, result, input.names, locale);
+  const S = ctx.s;
   const links = careLinks(ctx);
-  const ctxInfo = getContext(input.context);
-  const signature = { id: result.signature, ...SIGNATURES[result.signature] };
+  const ctxInfo = getContext(input.context, locale);
+  const signature = { id: result.signature, ...S.signatures[result.signature] };
   const pw = pursueWithdraw(ctx);
 
   const conflictIntro = [dimensionIntro(ctx, 'conflict')];
-  if (pw) {
-    const P = input.names[pw.pursuer];
-    const W = input.names[pw.pursuer === 'a' ? 'b' : 'a'];
-    conflictIntro.push(`One pattern to know about: ${P} tends to move toward a problem while ${W} steps back to think it over. It’s covered in Potential Blind Spots, with a simple way to handle it.`);
-  }
+  if (pw) conflictIntro.push(S.conflictPattern(input.names[pw.pursuer], input.names[pw.pursuer === 'a' ? 'b' : 'a']));
 
   return {
+    locale,
     questionSetVersion: result.questionSetVersion,
     scoringVersion: result.scoringVersion,
     names: input.names,
@@ -688,28 +540,26 @@ export function buildBlueprint(input: BuildInput, result: ScoringResult = score(
       summary: buildSummary(ctx, input.context),
     },
     profiles: { a: buildProfile(ctx, 'a'), b: buildProfile(ctx, 'b') },
-    axes: AXIS_ORDER.map((id) => ({ id, label: AXIS_INFO[id].label, left: AXIS_INFO[id].left, right: AXIS_INFO[id].right, a: result.axes.a[id], b: result.axes.b[id] })),
+    axes: AXIS_ORDER.map((id) => ({ id, label: S.axes[id].label, left: S.axes[id].left, right: S.axes[id].right, a: result.axes.a[id], b: result.axes.b[id] })),
     dimensions: buildDimensions(ctx),
     together: buildTogether(ctx),
     differ: buildDiffer(ctx),
-    emotional: deepDive(ctx, 'emotional', 'Emotional Needs', ['emotional'], ['life-recharge'], links.map((l) => careInsight(ctx, l)), [
-      dimensionIntro(ctx, 'emotional'),
-      'This section looks at how each of you gives and receives care, how much reassurance and openness you need, and how you balance closeness with space.',
-    ]),
-    communication: deepDive(ctx, 'communication', 'Communication Dynamics', ['communication'], [], [], [dimensionIntro(ctx, 'communication')]),
-    conflict: deepDive(ctx, 'conflict', 'Conflict & Understanding', ['conflict'], [], [], conflictIntro),
-    future: deepDive(ctx, 'future', 'Future Expectations', ['future'], [], [], [dimensionIntro(ctx, 'future')]),
+    emotional: deepDive(ctx, 'emotional', S.deepDives.emotional, ['emotional'], ['life-recharge'], links.map((l) => careInsight(ctx, l)), [dimensionIntro(ctx, 'emotional'), S.emotionalIntro]),
+    communication: deepDive(ctx, 'communication', S.deepDives.communication, ['communication'], [], [], [dimensionIntro(ctx, 'communication')]),
+    conflict: deepDive(ctx, 'conflict', S.deepDives.conflict, ['conflict'], [], [], conflictIntro),
+    future: deepDive(ctx, 'future', S.deepDives.future, ['future'], [], [], [dimensionIntro(ctx, 'future')]),
     strengths: buildStrengths(ctx, links),
     blindSpots: buildBlindSpots(ctx),
     starters: buildStarters(ctx),
     actions: buildActions(ctx, links, input.context),
-    disclaimer: DISCLAIMER,
+    disclaimer: S.disclaimer,
   };
 }
 
 export function buildPreview(bp: Blueprint): BlueprintPreview {
   const differ = bp.differ.find((d) => d.relation === 'tension') ?? bp.differ[0] ?? null;
   return {
+    locale: bp.locale,
     names: bp.names,
     context: bp.context,
     overview: bp.overview,

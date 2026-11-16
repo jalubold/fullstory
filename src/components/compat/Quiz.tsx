@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Loader2, Lock, Pencil } from 'lucide-react';
+import type { Locale } from '@/lib/compat/i18n';
 import { track } from '@/lib/compat/track';
+import { UI } from '@/lib/compat/ui-strings';
 
 export interface QuizQuestion {
   id: string;
@@ -20,13 +22,15 @@ interface Props {
   questions: QuizQuestion[];
   dimensions: Array<{ id: string; label: string }>;
   initialAnswers: Record<string, string>;
+  locale: Locale;
 }
 
 type Screen = { kind: 'intro' } | { kind: 'question'; index: number; dir: 'next' | 'back' } | { kind: 'review' };
 
 const LETTERS = 'ABCDE';
 
-export function Quiz({ token, name, partnerName, role, questions, dimensions, initialAnswers }: Props) {
+export function Quiz({ token, name, partnerName, role, questions, dimensions, initialAnswers, locale }: Props) {
+  const t = UI[locale].quiz;
   const router = useRouter();
   const [answers, setAnswers] = useState<Record<string, string>>(initialAnswers);
   const answered = questions.filter((q) => answers[q.id]).length;
@@ -113,11 +117,11 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
     try {
       const res = await fetch(`/api/compat/p/${token}/answers`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: latest.current, submit: true }) });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error ?? 'We couldn’t submit your answers. Please try again.');
-      track('compat_submit', { role });
+      if (!res.ok) throw new Error(data.error ?? t.error);
+      track('compat_submit', { role, locale });
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'We couldn’t submit your answers. Please try again.');
+      setError(e instanceof Error ? e.message : t.error);
       setSubmitting(false);
     }
   }
@@ -125,27 +129,27 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
   if (screen.kind === 'intro') {
     return (
       <div className="awc-anim-in flex flex-1 flex-col justify-center py-6">
-        <p className="awc-eyebrow">Hello, {name}</p>
+        <p className="awc-eyebrow">{t.hello(name)}</p>
         <h1 className="awc-serif mt-4 text-[2.4rem] leading-[1.08] sm:text-5xl">
-          Twenty questions. <em className="text-awc-wine">No right answers.</em>
+          {t.introA} <em className="text-awc-wine">{t.introB}</em>
         </h1>
         <ul className="mt-8 space-y-4 text-[1.0625rem] leading-relaxed text-awc-ink-soft">
-          <li className="flex gap-3"><span className="awc-numeral mt-0.5 w-6 text-xl">i</span>Answer for yourself — how you actually are, not how you think you should be.</li>
-          <li className="flex gap-3"><span className="awc-numeral mt-0.5 w-6 text-xl">ii</span>Go with your first instinct. It takes about six minutes.</li>
+          <li className="flex gap-3"><span className="awc-numeral mt-0.5 w-6 text-xl">i</span>{t.rule1}</li>
+          <li className="flex gap-3"><span className="awc-numeral mt-0.5 w-6 text-xl">ii</span>{t.rule2}</li>
           <li className="flex gap-3">
             <span className="awc-numeral mt-0.5 w-6 text-xl">iii</span>
-            {partnerName ? `${partnerName} won’t see your answers until you’ve both finished.` : 'The other person won’t see your answers until you’ve both finished.'}
+            {partnerName ? t.rule3Named(partnerName) : t.rule3}
           </li>
         </ul>
         <button
           type="button"
           onClick={() => {
-            track('compat_quiz_begin', { role });
+            track('compat_quiz_begin', { role, locale });
             go({ kind: 'question', index: 0, dir: 'next' });
           }}
           className="awc-btn awc-btn-primary mt-10 w-full text-base sm:w-auto sm:self-start sm:px-10"
         >
-          I’m ready <ArrowRight size={18} aria-hidden />
+          {t.ready} <ArrowRight size={18} aria-hidden />
         </button>
       </div>
     );
@@ -155,11 +159,11 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
     const complete = answered === questions.length;
     return (
       <div className="awc-anim-in py-2">
-        <p className="awc-eyebrow">Almost there</p>
-        <h1 className="awc-serif mt-3 text-[2.1rem] leading-tight sm:text-4xl">Review your answers</h1>
+        <p className="awc-eyebrow">{t.reviewEyebrow}</p>
+        <h1 className="awc-serif mt-3 text-[2.1rem] leading-tight sm:text-4xl">{t.reviewTitle}</h1>
         <p className="mt-3 flex items-start gap-2 text-awc-ink-soft">
           <Lock size={16} className="mt-1 shrink-0 text-awc-wine" aria-hidden />
-          Once you submit, your answers lock — so your results stay honest for both of you.
+          {t.reviewLock}
         </p>
         <ol className="mt-7 divide-y divide-awc-line overflow-hidden rounded-2xl border border-awc-line bg-white">
           {questions.map((q, i) => {
@@ -177,9 +181,9 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
                   <span className="awc-numeral w-6 shrink-0 pt-0.5 text-base">{String(i + 1).padStart(2, '0')}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[0.8125rem] text-awc-muted">{q.prompt}</span>
-                    <span className={`mt-0.5 block text-[0.9375rem] ${opt ? 'font-semibold text-awc-ink' : 'italic text-awc-wine'}`}>{opt?.label ?? 'Not answered yet'}</span>
+                    <span className={`mt-0.5 block text-[0.9375rem] ${opt ? 'font-semibold text-awc-ink' : 'italic text-awc-wine'}`}>{opt?.label ?? t.notAnswered}</span>
                   </span>
-                  <Pencil size={15} className="mt-1 shrink-0 text-awc-muted opacity-60 group-hover:text-awc-wine group-hover:opacity-100" aria-label="Change" />
+                  <Pencil size={15} className="mt-1 shrink-0 text-awc-muted opacity-60 group-hover:text-awc-wine group-hover:opacity-100" aria-label={t.change} />
                 </button>
               </li>
             );
@@ -189,7 +193,7 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
         <div className="sticky bottom-0 -mx-5 mt-6 bg-gradient-to-t from-awc-cream via-awc-cream to-awc-cream/0 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6 sm:static sm:mx-0 sm:bg-none sm:px-0">
           <button type="button" onClick={submit} disabled={!complete || submitting} className="awc-btn awc-btn-primary w-full text-base">
             {submitting ? <Loader2 size={18} className="animate-spin" aria-hidden /> : <Check size={18} aria-hidden />}
-            {submitting ? 'Submitting…' : complete ? 'Submit my answers' : `${questions.length - answered} left to answer`}
+            {submitting ? t.submitting : complete ? t.submit : t.left(questions.length - answered)}
           </button>
         </div>
       </div>
@@ -205,7 +209,7 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
   return (
     <div className="flex flex-1 flex-col">
       {/* Progress: five dimensions, four questions each */}
-      <div className="flex gap-1.5" role="progressbar" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={answered} aria-label={`${answered} of ${questions.length} answered`}>
+      <div className="flex gap-1.5" role="progressbar" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={answered} aria-label={t.progress(answered, questions.length)}>
         {dimensions.map((d) => {
           const qs = questions.filter((x) => x.dimension === d.id);
           return (
@@ -219,7 +223,7 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
       </div>
       <div className="mt-4 flex items-center justify-between gap-3 text-[0.8125rem]">
         <span className="font-semibold text-awc-wine">
-          {dimensions[dimIndex]?.label} · {posInDim + 1} of {inDim.length}
+          {dimensions[dimIndex]?.label} · {t.of(posInDim + 1, inDim.length)}
         </span>
         <span className="tabular-nums text-awc-muted">
           {screen.index + 1} / {questions.length}
@@ -257,7 +261,7 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
           onClick={() => (screen.index === 0 ? go({ kind: 'intro' }) : go({ kind: 'question', index: screen.index - 1, dir: 'back' }))}
           className="awc-btn awc-btn-ghost -ml-3 min-h-0 px-3 py-2 text-sm"
         >
-          <ArrowLeft size={16} aria-hidden /> Back
+          <ArrowLeft size={16} aria-hidden /> {t.back}
         </button>
         {selected && (
           <button
@@ -265,7 +269,7 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
             onClick={() => (screen.index === questions.length - 1 || returnToReview ? (setReturnToReview(false), go({ kind: 'review' })) : go({ kind: 'question', index: screen.index + 1, dir: 'next' }))}
             className="awc-btn awc-btn-ghost -mr-3 min-h-0 px-3 py-2 text-sm"
           >
-            {screen.index === questions.length - 1 || returnToReview ? 'Review' : 'Next'} <ArrowRight size={16} aria-hidden />
+            {screen.index === questions.length - 1 || returnToReview ? t.review : t.next} <ArrowRight size={16} aria-hidden />
           </button>
         )}
       </div>

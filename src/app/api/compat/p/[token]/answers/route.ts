@@ -6,9 +6,9 @@ import { json, readJson } from '@/lib/server/http';
 const schema = z.object({ answers: z.record(z.string(), z.string().max(40)), submit: z.boolean().optional() });
 
 /** Saves progress, or submits the final answers (which then lock). Only ever touches the caller's own answers. */
-export const PUT = compatRoute<{ token: string }>(async (req, { token }) => {
+export const PUT = compatRoute<{ token: string }>(async (req, { token }, locale) => {
   const body = schema.parse(await readJson(req, 16 * 1024));
-  const { ctx } = await requireParticipant(token);
+  const { ctx } = await requireParticipant(token, locale);
   if (body.submit) {
     const { bothDone } = await submitAnswers(ctx, body.answers);
     return json({ submitted: true, stage: bothDone ? 'results' : 'waiting' });

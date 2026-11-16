@@ -3,7 +3,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { PDFDocument, rgb, type PDFFont, type PDFPage, type RGB } from 'pdf-lib';
 import { fontkitAdapter } from '@/lib/server/pdf/fontkit';
-import { RELATION_LABELS, type Blueprint, type Insight } from '../report';
+import type { Locale } from '../i18n';
+import { horizonLabels, relationLabels, type Blueprint, type Insight } from '../report';
+import type { Horizon } from '../report-strings';
+import { sectionTitles } from '../sections';
+import { UI } from '../ui-strings';
 import type { Relation } from '../types';
 
 /**
@@ -77,6 +81,7 @@ class Writer {
     readonly pdf: PDFDocument,
     readonly f: Fonts,
     readonly running: string,
+    readonly locale: Locale,
   ) {}
 
   newPage() {
@@ -159,7 +164,7 @@ class Writer {
     if (est < H - 2 * M - 40) this.ensure(est + 8);
     this.text(i.title, { font: this.f.serif, size: 13, leading: 17 });
     if (i.relation) {
-      const label = (i.id.startsWith('blind-') && i.relation === 'shared' ? 'Shared blind spot' : RELATION_LABELS[i.relation]).toUpperCase();
+      const label = (i.id.startsWith('blind-') && i.relation === 'shared' ? UI[this.locale].blueprint.sharedBlindSpot : relationLabels(this.locale)[i.relation]).toUpperCase();
       this.text(label, { font: this.f.sansBold, size: 6.5, leading: 12, color: i.id.startsWith('blind-') ? C.amber : RELATION_COLOR[i.relation], spacing: 1 });
     } else this.gap(2);
     for (const p of body) {
@@ -171,7 +176,7 @@ class Writer {
       const h = lines.length * 13 + 14;
       this.ensure(h + 4);
       this.page.drawRectangle({ x: M, y: this.y - h, width: CW, height: h, color: C.blushSoft });
-      tracked(this.page, 'TRY', { x: M + 9, y: this.y - 16, size: 6.5, font: this.f.sansBold, color: C.wine, spacing: 1 });
+      tracked(this.page, UI[this.locale].blueprint.try.toUpperCase(), { x: M + 9, y: this.y - 16, size: 6.5, font: this.f.sansBold, color: C.wine, spacing: 1 });
       let ty = this.y - 16;
       for (const l of lines) {
         this.page.drawText(l, { x: M + 32, y: ty, size: 9, font: this.f.sans, color: C.ink });
@@ -227,7 +232,10 @@ async function loadFonts(pdf: PDFDocument): Promise<Fonts> {
   return { serif, serifItalic, serifLight, sans, sansBold };
 }
 
-export async function renderBlueprintPdf(bp: Blueprint, generated: string): Promise<Uint8Array> {
+export async function renderBlueprintPdf(bp: Blueprint, generated: string, locale: Locale = bp.locale): Promise<Uint8Array> {
+  const t = UI[locale].blueprint;
+  const titles = sectionTitles(bp, locale);
+  const relations = relationLabels(locale);
   const pdf = await PDFDocument.create();
   const { names, overview } = bp;
   pdf.setTitle(`The Relationship Blueprint — ${names.a} & ${names.b}`);
@@ -235,7 +243,7 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
   pdf.setSubject('A personalised relationship analysis, for reflection and entertainment.');
   pdf.setCreator('Are We Compatible?');
   const f = await loadFonts(pdf);
-  const w = new Writer(pdf, f, `The Relationship Blueprint · ${names.a} & ${names.b}`);
+  const w = new Writer(pdf, f, `The Relationship Blueprint · ${names.a} & ${names.b}`, locale);
 
   // Cover
   const cover = pdf.addPage([W, H]);
@@ -256,15 +264,15 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
   const score = String(overview.alignment);
   cover.drawText(score, { x: M, y: 210, size: 96, font: f.serifLight, color: C.white });
   cover.drawText('%', { x: M + f.serifLight.widthOfTextAtSize(score, 96) + 4, y: 270, size: 28, font: f.serifLight, color: C.blush });
-  tracked(cover, 'ALIGNED', { x: M, y: 190, size: 7.5, font: f.sansBold, color: C.blush, spacing: 2 });
+  tracked(cover, UI[locale].landing.preview.aligned.toUpperCase(), { x: M, y: 190, size: 7.5, font: f.sansBold, color: C.blush, spacing: 2 });
   cover.drawText(`${bp.context.label}  ·  ${generated}`, { x: M, y: 72, size: 9, font: f.sans, color: C.white, opacity: 0.7 });
   cover.drawText('Are We Compatible?', { x: W - M - f.serifItalic.widthOfTextAtSize('Are We Compatible?', 11), y: 72, size: 11, font: f.serifItalic, color: C.white });
 
   // 01 Overview
-  w.section(1, 'Relationship Overview');
+  w.section(1, titles.overview);
   w.text(overview.signature.description, { font: f.serif, size: 14, leading: 20 });
   w.gap(8);
-  w.text(`Same answer on ${overview.sameAnswers} of ${overview.total} questions · ${overview.similarity}% similarity · ${overview.counts.complementary} complementary · ${overview.counts.tension} worth discussing`, { size: 8.5, leading: 13, color: C.muted });
+  w.text(t.overviewStats({ same: overview.sameAnswers, total: overview.total, similarity: overview.similarity, complementary: overview.counts.complementary, tension: overview.counts.tension }), { size: 8.5, leading: 13, color: C.muted });
   w.gap(12);
   for (const p of overview.summary) {
     w.text(p, { size: 10.5, leading: 16, color: C.soft });
@@ -276,18 +284,18 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
   // 02–03 Profiles
   for (const role of ['a', 'b'] as const) {
     const p = bp.profiles[role];
-    w.section(role === 'a' ? 2 : 3, `Individual Profile — ${p.name}`);
+    w.section(role === 'a' ? 2 : 3, t.profileTitle(p.name));
     w.text(p.headline, { font: f.serifItalic, size: 18, leading: 24, color: role === 'a' ? C.wine : C.slate });
     w.gap(4);
     w.text(p.summary, { size: 10.5, leading: 16 });
     w.gap(10);
-    w.eyebrow('Feels most loved through', C.muted);
+    w.eyebrow(t.lovedThrough, C.muted);
     w.text(p.care.loved, { font: f.sansBold, size: 10, leading: 15 });
     w.gap(6);
-    w.eyebrow('Shows care through', C.muted);
+    w.eyebrow(t.showsThrough, C.muted);
     w.text(p.care.shows, { font: f.sansBold, size: 10, leading: 15 });
     w.gap(12);
-    w.eyebrow(`In ${p.name}’s own answers`, C.muted);
+    w.eyebrow(t.ownAnswers(p.name), C.muted);
     w.gap(2);
     for (const t of p.traits) {
       w.text(`·  ${t}`, { size: 9.5, leading: 15, color: C.soft });
@@ -295,7 +303,7 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
   }
 
   // 04 Breakdown
-  w.section(4, 'Compatibility Breakdown', ['Where each of you sits on six everyday spectrums, then every answer, dimension by dimension.']);
+  w.section(4, titles.breakdown, [t.breakdownIntro]);
   for (const a of bp.axes) {
     w.ensure(40);
     w.page.drawText(a.label, { x: M, y: w.y - 9, size: 9, font: f.sansBold, color: C.ink });
@@ -319,7 +327,7 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
     w.gap(6);
     for (const r of d.rows) {
       w.ensure(58);
-      w.text(`${r.topic}  ·  ${RELATION_LABELS[r.relation]}`, { font: f.sansBold, size: 9, leading: 13 });
+      w.text(`${r.topic}  ·  ${relations[r.relation]}`, { font: f.sansBold, size: 9, leading: 13 });
       w.person('a', names.a, r.a);
       w.person('b', names.b, r.b);
       w.gap(7);
@@ -327,13 +335,13 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
   }
 
   // 05–06 Together / Differ
-  w.section(5, 'What Brings You Together', ['Where your answers match, sit close together, or fit like two halves.']);
-  if (!bp.together.length) w.text('Your answers differ on every topic — which makes the next section the place to start.', { color: C.soft });
+  w.section(5, titles.together, [t.togetherIntro]);
+  if (!bp.together.length) w.text(t.togetherEmpty, { color: C.soft });
   // Topics covered by a deep dive (sections 07–10) get one line here; lifestyle topics get the full text.
   const covered = (i: Insight) => i.id === 'life-recharge' || (!!i.dimension && i.dimension !== 'lifestyle');
   for (const i of bp.together) w.insight(i, names, { showEvidence: false, showTip: false, compact: covered(i) });
-  w.section(6, 'Where You Differ', ['Both perspectives, fairly. A difference isn’t a problem — it’s simply something it helps to know about each other.']);
-  if (!bp.differ.length) w.text('You gave matching or neighbouring answers on every topic.', { color: C.soft });
+  w.section(6, titles.differ, [t.differIntro]);
+  if (!bp.differ.length) w.text(t.differEmpty, { color: C.soft });
   for (const i of bp.differ) w.insight(i, names, { showEvidence: false, showTip: !covered(i), compact: covered(i) });
 
   // 07–10 Deep dives
@@ -343,15 +351,15 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
   });
 
   // 11 Strengths
-  w.section(11, 'Relationship Strengths', ['What you can lean on — drawn from where your answers align or complement each other.']);
+  w.section(11, titles.strengths, [t.strengthsIntro]);
   for (const s of bp.strengths) w.insight({ ...s, relation: undefined, tip: undefined }, names, { showEvidence: false });
 
   // 12 Blind spots
-  w.section(12, 'Potential Blind Spots', ['Patterns that are easy to miss from the inside — including places where agreeing could hide a risk.']);
+  w.section(12, titles['blind-spots'], [t.blindIntro]);
   for (const b of bp.blindSpots) w.insight(b, names);
 
   // 13 Starters
-  w.section(13, 'Conversation Starters', ['Chosen from your answers, most revealing first. Take one at a time.']);
+  w.section(13, titles.starters, [t.startersIntro]);
   bp.starters.forEach((s, i) => {
     w.ensure(60);
     w.text(`${i + 1}.  ${s.prompt}`, { font: f.serif, size: 12.5, leading: 17 });
@@ -360,12 +368,13 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
   });
 
   // 14 Action plan
-  w.section(14, 'Practical Action Plan', ['Small, specific steps — each one tied to something you actually said.']);
-  for (const h of ['This week', 'This month', 'Ongoing'] as const) {
+  w.section(14, titles.actions, [t.actionsIntro]);
+  const horizonLabel = horizonLabels(locale);
+  for (const h of ['week', 'month', 'ongoing'] as Horizon[]) {
     const items = bp.actions.filter((a) => a.horizon === h);
     if (!items.length) continue;
     w.ensure(50);
-    w.eyebrow(h);
+    w.eyebrow(horizonLabel[h]);
     w.gap(4);
     for (const a of items) {
       w.ensure(50);
@@ -383,7 +392,7 @@ export async function renderBlueprintPdf(bp: Blueprint, generated: string): Prom
   w.gap(12);
   w.text(bp.disclaimer, { size: 8, leading: 12, color: C.muted });
   w.gap(4);
-  w.text(`Question set ${bp.questionSetVersion} · Scoring ${bp.scoringVersion}`, { size: 7.5, leading: 11, color: C.muted });
+  w.text(t.versions(bp.questionSetVersion, bp.scoringVersion), { size: 7.5, leading: 11, color: C.muted });
 
   return pdf.save();
 }

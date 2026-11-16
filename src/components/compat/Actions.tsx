@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Check, Copy, Download, Link2, Loader2, Share2, Trash2 } from 'lucide-react';
+import type { Locale } from '@/lib/compat/i18n';
 import { track, type CompatEvent } from '@/lib/compat/track';
+import { UI } from '@/lib/compat/ui-strings';
 
 function WhatsAppIcon({ size = 18 }: { size?: number }) {
   return (
@@ -36,7 +38,8 @@ function useCopy() {
   return { copied, copy };
 }
 
-function ShareButtons({ url, text, events }: { url: string; text: string; events: { copy: CompatEvent; whatsapp: CompatEvent; share: CompatEvent } }) {
+function ShareButtons({ url, text, events, locale }: { url: string; text: string; events: { copy: CompatEvent; whatsapp: CompatEvent; share: CompatEvent }; locale: Locale }) {
+  const t = UI[locale].invite;
   const { copied, copy } = useCopy();
   const canShare = useSyncExternalStore(
     noopSubscribe,
@@ -53,7 +56,7 @@ function ShareButtons({ url, text, events }: { url: string; text: string; events
         onClick={() => track(events.whatsapp)}
         className="awc-btn bg-[#1f8f4e] text-white hover:bg-[#187a42]"
       >
-        <WhatsAppIcon /> Send on WhatsApp
+        <WhatsAppIcon /> {t.whatsapp}
       </a>
       {canShare ? (
         <button
@@ -68,7 +71,7 @@ function ShareButtons({ url, text, events }: { url: string; text: string; events
             }
           }}
         >
-          <Share2 size={17} aria-hidden /> Share…
+          <Share2 size={17} aria-hidden /> {t.share}
         </button>
       ) : (
         <button
@@ -79,7 +82,7 @@ function ShareButtons({ url, text, events }: { url: string; text: string; events
             track(events.copy);
           }}
         >
-          {copied ? <Check size={17} aria-hidden /> : <Copy size={17} aria-hidden />} {copied ? 'Link copied' : 'Copy link'}
+          {copied ? <Check size={17} aria-hidden /> : <Copy size={17} aria-hidden />} {copied ? t.linkCopied : t.copyLink}
         </button>
       )}
     </div>
@@ -87,15 +90,16 @@ function ShareButtons({ url, text, events }: { url: string; text: string; events
 }
 
 /** The invitation: copy, WhatsApp or native share. */
-export function InviteCard({ inviteUrl, name }: { inviteUrl: string; name: string }) {
+export function InviteCard({ inviteUrl, name, locale }: { inviteUrl: string; name: string; locale: Locale }) {
+  const t = UI[locale].invite;
   const { copied, copy } = useCopy();
-  const text = `${name} invited you to “Are We Compatible?” — 20 quick questions about how we talk, love and plan. Answer privately, then we’ll both see our results:`;
+  const text = t.message(name);
   return (
     <div className="awc-card p-5 sm:p-6">
-      <p className="awc-eyebrow">Your private invitation</p>
+      <p className="awc-eyebrow">{t.eyebrow}</p>
       <div className="mt-3 flex items-center gap-2 rounded-xl border border-awc-line bg-awc-cream p-1.5 pl-3.5">
         <Link2 size={16} className="shrink-0 text-awc-muted" aria-hidden />
-        <input readOnly value={inviteUrl} aria-label="Invitation link" className="min-w-0 flex-1 truncate bg-transparent text-sm text-awc-ink-soft outline-none" onFocus={(e) => e.currentTarget.select()} />
+        <input readOnly value={inviteUrl} aria-label={t.linkLabel} className="min-w-0 flex-1 truncate bg-transparent text-sm text-awc-ink-soft outline-none" onFocus={(e) => e.currentTarget.select()} />
         <button
           type="button"
           onClick={() => {
@@ -104,13 +108,13 @@ export function InviteCard({ inviteUrl, name }: { inviteUrl: string; name: strin
           }}
           className="awc-btn awc-btn-primary min-h-0 shrink-0 px-4 py-2 text-sm"
         >
-          {copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />} {copied ? 'Copied' : 'Copy'}
+          {copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />} {copied ? t.copied : t.copy}
         </button>
       </div>
       <div className="mt-3">
-        <ShareButtons url={inviteUrl} text={text} events={{ copy: 'compat_invite_copy', whatsapp: 'compat_invite_whatsapp', share: 'compat_invite_share' }} />
+        <ShareButtons url={inviteUrl} text={text} locale={locale} events={{ copy: 'compat_invite_copy', whatsapp: 'compat_invite_whatsapp', share: 'compat_invite_share' }} />
       </div>
-      <p className="mt-4 text-[0.8125rem] leading-relaxed text-awc-muted">This link works once — for one person. They’ll answer the same 20 questions without seeing yours.</p>
+      <p className="mt-4 text-[0.8125rem] leading-relaxed text-awc-muted">{t.note}</p>
     </div>
   );
 }
@@ -160,20 +164,22 @@ export function StatusPoller({ token, snapshot }: { token: string; snapshot: str
 }
 
 /** "Your private link" — there's no account, so this is how you come back. */
-export function PrivateLink({ url }: { url: string }) {
+export function PrivateLink({ url, locale }: { url: string; locale: Locale }) {
+  const t = UI[locale].privateLink;
   const { copied, copy } = useCopy();
   return (
     <div className="rounded-2xl border border-dashed border-awc-line-strong p-4 sm:p-5">
-      <p className="text-sm font-semibold text-awc-ink">Your private link</p>
-      <p className="mt-1 text-[0.8125rem] leading-relaxed text-awc-muted">There’s no account — save this link to come back to your results on any device. Keep it to yourself: anyone with it can see your results.</p>
+      <p className="text-sm font-semibold text-awc-ink">{t.title}</p>
+      <p className="mt-1 text-[0.8125rem] leading-relaxed text-awc-muted">{t.body}</p>
       <button type="button" onClick={() => void copy(url)} className="awc-btn awc-btn-secondary mt-3 min-h-0 w-full px-4 py-2.5 text-sm sm:w-auto">
-        {copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />} {copied ? 'Copied — keep it safe' : 'Copy my private link'}
+        {copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />} {copied ? t.copied : t.copy}
       </button>
     </div>
   );
 }
 
-export function UnlockButton({ token, label, className = '', tone = 'primary' }: { token: string; label: string; className?: string; tone?: 'primary' | 'light' }) {
+export function UnlockButton({ token, label, locale, className = '', tone = 'primary' }: { token: string; label: string; locale: Locale; className?: string; tone?: 'primary' | 'light' }) {
+  const t = UI[locale].offer;
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -189,21 +195,21 @@ export function UnlockButton({ token, label, className = '', tone = 'primary' }:
           try {
             const res = await fetch(`/api/compat/p/${token}/checkout`, { method: 'POST' });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error ?? 'We couldn’t open checkout. Please try again.');
+            if (!res.ok) throw new Error(data.error ?? t.error);
             if (data.unlocked) {
               router.push(`/compatible/s/${token}/blueprint`);
               return;
             }
             window.location.href = data.url;
           } catch (e) {
-            setError(e instanceof Error ? e.message : 'We couldn’t open checkout. Please try again.');
+            setError(e instanceof Error ? e.message : t.error);
             setBusy(false);
           }
         }}
         className={`awc-btn ${tone === 'light' ? 'awc-btn-light' : 'awc-btn-primary'} w-full px-7 text-base sm:w-auto`}
       >
         {busy && <Loader2 size={18} className="animate-spin" aria-hidden />}
-        {busy ? 'Opening secure checkout…' : label}
+        {busy ? t.opening : label}
       </button>
       {error && <p className={`mt-3 text-sm ${tone === 'light' ? 'text-white' : 'text-[#a3302a]'}`} role="alert">{error}</p>}
     </div>
@@ -211,19 +217,20 @@ export function UnlockButton({ token, label, className = '', tone = 'primary' }:
 }
 
 /** Basic result sharing: the headline only — never answers or names of anyone but the sender’s choosing. */
-export function ShareResult({ text, url }: { text: string; url: string }) {
-  return <ShareButtons url={url} text={text} events={{ copy: 'compat_result_share', whatsapp: 'compat_result_share', share: 'compat_result_share' }} />;
+export function ShareResult({ text, url, locale }: { text: string; url: string; locale: Locale }) {
+  return <ShareButtons url={url} text={text} locale={locale} events={{ copy: 'compat_result_share', whatsapp: 'compat_result_share', share: 'compat_result_share' }} />;
 }
 
-export function PdfLink({ href }: { href: string }) {
+export function PdfLink({ href, label }: { href: string; label: string }) {
   return (
     <a href={href} onClick={() => track('compat_pdf_download')} className="awc-btn awc-btn-secondary min-h-0 px-4 py-2.5 text-sm">
-      <Download size={16} aria-hidden /> Download PDF
+      <Download size={16} aria-hidden /> {label}
     </a>
   );
 }
 
-export function DeleteData({ token, partnerName }: { token: string; partnerName: string | null }) {
+export function DeleteData({ token, partnerName, locale }: { token: string; partnerName: string | null; locale: Locale }) {
+  const t = UI[locale].del;
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -231,16 +238,14 @@ export function DeleteData({ token, partnerName }: { token: string; partnerName:
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)} className="inline-flex items-center gap-2 text-sm text-awc-muted underline-offset-4 hover:text-[#a3302a] hover:underline">
-        <Trash2 size={15} aria-hidden /> Delete our answers and results
+        <Trash2 size={15} aria-hidden /> {t.button}
       </button>
     );
   }
   return (
     <div className="rounded-2xl border border-[#e9c3bf] bg-[#fdf3f2] p-4 sm:p-5" role="alertdialog" aria-labelledby="awc-del-title">
-      <p id="awc-del-title" className="font-semibold text-awc-ink">Delete everything permanently?</p>
-      <p className="mt-1 text-sm leading-relaxed text-awc-ink-soft">
-        This removes both participants’ answers and the report{partnerName ? `, for you and ${partnerName}` : ''}. Private links will stop working. It can’t be undone.
-      </p>
+      <p id="awc-del-title" className="font-semibold text-awc-ink">{t.title}</p>
+      <p className="mt-1 text-sm leading-relaxed text-awc-ink-soft">{t.body(partnerName)}</p>
       {error && <p className="mt-2 text-sm text-[#a3302a]" role="alert">{error}</p>}
       <div className="mt-4 flex flex-wrap gap-2">
         <button
@@ -250,20 +255,20 @@ export function DeleteData({ token, partnerName }: { token: string; partnerName:
             setBusy(true);
             try {
               const res = await fetch(`/api/compat/p/${token}`, { method: 'DELETE' });
-              if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'Couldn’t delete. Please try again.');
+              if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? t.error);
               track('compat_delete');
               router.replace('/compatible?deleted=1');
             } catch (e) {
-              setError(e instanceof Error ? e.message : 'Couldn’t delete. Please try again.');
+              setError(e instanceof Error ? e.message : t.error);
               setBusy(false);
             }
           }}
           className="awc-btn min-h-0 bg-[#a3302a] px-4 py-2.5 text-sm text-white hover:bg-[#8a2721]"
         >
-          {busy ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <Trash2 size={15} aria-hidden />} Yes, delete everything
+          {busy ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <Trash2 size={15} aria-hidden />} {t.confirm}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="awc-btn awc-btn-ghost min-h-0 px-4 py-2.5 text-sm">
-          Cancel
+          {t.cancel}
         </button>
       </div>
     </div>

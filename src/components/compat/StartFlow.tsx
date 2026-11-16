@@ -4,9 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
 import type { ContextInfo } from '@/lib/compat/contexts';
+import type { Locale } from '@/lib/compat/i18n';
 import { track } from '@/lib/compat/track';
+import { UI } from '@/lib/compat/ui-strings';
 
-export function StartFlow({ contexts }: { contexts: Array<Pick<ContextInfo, 'id' | 'label' | 'hint'>> }) {
+export function StartFlow({ contexts, locale }: { contexts: Array<Pick<ContextInfo, 'id' | 'label' | 'hint'>>; locale: Locale }) {
+  const t = UI[locale].start;
   const router = useRouter();
   const [step, setStep] = useState<0 | 1>(0);
   const [context, setContext] = useState<string | null>(null);
@@ -22,11 +25,11 @@ export function StartFlow({ contexts }: { contexts: Array<Pick<ContextInfo, 'id'
     try {
       const res = await fetch('/api/compat/assessments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ context, name }) });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error ?? 'Something went wrong. Please try again.');
-      track('compat_start', { context });
+      if (!res.ok) throw new Error(data.error ?? t.error);
+      track('compat_start', { context, locale });
       router.push(data.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : t.error);
       setBusy(false);
     }
   }
@@ -41,10 +44,10 @@ export function StartFlow({ contexts }: { contexts: Array<Pick<ContextInfo, 'id'
 
       {step === 0 ? (
         <div key="ctx" className="awc-anim-next">
-          <p className="awc-eyebrow">Step 1 of 2</p>
-          <h1 className="awc-serif mt-3 text-[2.1rem] leading-tight sm:text-4xl">Where are you two right now?</h1>
-          <p className="mt-3 text-awc-ink-soft">This helps us frame your results for your stage. The questions are the same for everyone.</p>
-          <div className="mt-7 grid gap-2.5" role="radiogroup" aria-label="Relationship stage">
+          <p className="awc-eyebrow">{t.step(1)}</p>
+          <h1 className="awc-serif mt-3 text-[2.1rem] leading-tight sm:text-4xl">{t.ctxTitle}</h1>
+          <p className="mt-3 text-awc-ink-soft">{t.ctxLead}</p>
+          <div className="mt-7 grid gap-2.5" role="radiogroup" aria-label={t.ctxAria}>
             {contexts.map((c) => {
               const selected = context === c.id;
               return (
@@ -74,18 +77,18 @@ export function StartFlow({ contexts }: { contexts: Array<Pick<ContextInfo, 'id'
       ) : (
         <form key="name" onSubmit={submit} className="awc-anim-next">
           <button type="button" onClick={() => setStep(0)} className="awc-btn awc-btn-ghost -ml-3 mb-4 min-h-0 px-3 py-2 text-sm">
-            <ArrowLeft size={16} aria-hidden /> Back
+            <ArrowLeft size={16} aria-hidden /> {t.back}
           </button>
-          <p className="awc-eyebrow">Step 2 of 2</p>
-          <h1 className="awc-serif mt-3 text-[2.1rem] leading-tight sm:text-4xl">What should we call you?</h1>
-          <p className="mt-3 text-awc-ink-soft">Your first name is enough. The other person will see it on their invitation and in your results.</p>
-          <label htmlFor="awc-name" className="sr-only">Your name</label>
+          <p className="awc-eyebrow">{t.step(2)}</p>
+          <h1 className="awc-serif mt-3 text-[2.1rem] leading-tight sm:text-4xl">{t.nameTitle}</h1>
+          <p className="mt-3 text-awc-ink-soft">{t.nameLead}</p>
+          <label htmlFor="awc-name" className="sr-only">{t.nameLabel}</label>
           <input
             id="awc-name"
             className="awc-input mt-7"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Your first name"
+            placeholder={t.namePlaceholder}
             autoComplete="given-name"
             autoFocus
             maxLength={40}
@@ -94,10 +97,10 @@ export function StartFlow({ contexts }: { contexts: Array<Pick<ContextInfo, 'id'
           {error && <p className="mt-3 text-sm text-[#a3302a]" role="alert">{error}</p>}
           <button type="submit" disabled={!name.trim() || busy} className="awc-btn awc-btn-primary mt-6 w-full text-base">
             {busy ? <Loader2 size={18} className="animate-spin" aria-hidden /> : null}
-            {busy ? 'Setting up…' : 'Begin the questions'}
+            {busy ? t.busy : t.submit}
             {!busy && <ArrowRight size={18} aria-hidden />}
           </button>
-          <p className="mt-4 text-center text-[0.8125rem] leading-relaxed text-awc-muted">No account needed. We’ll give you a private link to come back to.</p>
+          <p className="mt-4 text-center text-[0.8125rem] leading-relaxed text-awc-muted">{t.note}</p>
         </form>
       )}
     </div>
