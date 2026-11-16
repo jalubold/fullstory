@@ -103,7 +103,11 @@ const emptyCounts = (): Record<Relation, number> => ({ shared: 0, close: 0, comp
 const pairMatch = (pairs: Question['complements'], a: string, b: string) => pairs?.find((p) => (p.a === a && p.b === b) || (p.a === b && p.b === a)) ?? null;
 
 export function compareQuestion(q: Question, a: string, b: string, version: string = SCORING_VERSION): QuestionComparison {
-  const params = scoringParams(version);
+  return compareWith(q, a, b, scoringParams(version));
+}
+
+/** compareQuestion with explicit parameters (used by the robustness check, which varies them). */
+export function compareWith(q: Question, a: string, b: string, params: ScoringParams): QuestionComparison {
   const weight = params.weights?.[q.id] ?? q.weight ?? 1;
   const ia = q.options.findIndex((o) => o.id === a);
   const ib = q.options.findIndex((o) => o.id === b);
@@ -167,11 +171,15 @@ export function pickSignature(r: Pick<ScoringResult, 'overall' | 'dimensions'>):
 
 export function score(set: QuestionSet, a: Answers, b: Answers, version: string = SCORING_VERSION): ScoringResult {
   const used = SCORING_PARAMS[version] ? version : SCORING_VERSION;
-  const params = scoringParams(used);
+  return scoreWith(set, a, b, scoringParams(used), used);
+}
+
+/** score() with explicit parameters; `used` is the version label recorded on the result. */
+export function scoreWith(set: QuestionSet, a: Answers, b: Answers, params: ScoringParams, used: string = SCORING_VERSION): ScoringResult {
   const qs = questionMap(set);
   const comparisons: QuestionComparison[] = set.questions.map((q) => {
     if (!a[q.id] || !b[q.id]) throw new Error(`Both participants must answer ${q.id}`);
-    return compareQuestion(qs.get(q.id)!, a[q.id], b[q.id], used);
+    return compareWith(qs.get(q.id)!, a[q.id], b[q.id], params);
   });
 
   const dimensions: DimensionScore[] = set.dimensions.map((dim) => {

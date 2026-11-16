@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { CompatFooter, CompatHeader } from '@/components/compat/Shell';
 import { RelationChip } from '@/components/compat/Visuals';
-import { isLocale, type Locale } from '@/lib/compat/i18n';
-import { citeShort, referenceList } from '@/lib/compat/research';
+import { isLocale, LOCALE_NAMES, type Locale } from '@/lib/compat/i18n';
+import { citeShort, FINDING_EVIDENCE, referenceList } from '@/lib/compat/research';
+import { robustness } from '@/lib/compat/robustness';
 import { RETENTION_DAYS } from '@/lib/compat/retention';
 import type { Relation } from '@/lib/compat/types';
 import { UI } from '@/lib/compat/ui-strings';
@@ -30,6 +31,8 @@ export const instant = false;
 export default async function HowItWorks({ params }: PageProps<'/compatible/[lang]/how-it-works'>) {
   const locale = localeOf((await params).lang);
   const t = UI[locale].how;
+  const intl = LOCALE_NAMES[locale].intl;
+  const rob = robustness();
   return (
     <>
       <CompatHeader
@@ -79,6 +82,17 @@ export default async function HowItWorks({ params }: PageProps<'/compatible/[lan
             </p>
           </section>
 
+          <section id="tested" className="mt-16 scroll-mt-24">
+            <h2 className="awc-serif text-3xl">{t.testedTitle}</h2>
+            <ul className="mt-5 space-y-4 leading-relaxed text-awc-ink-soft">
+              {t.tested({ couples: rob.couples.toLocaleString(intl), variations: rob.variations, spread: Math.round(rob.spread * 100), mean: rob.meanShift.toLocaleString(intl), p95: rob.p95Shift, same: rob.sameSignature }).map(([strong, rest]) => (
+                <li key={strong}>
+                  <strong className="text-awc-ink">{strong}</strong> {rest}
+                </li>
+              ))}
+            </ul>
+          </section>
+
           <section id="research" className="mt-16 scroll-mt-24">
             <h2 className="awc-serif text-3xl">{t.researchTitle}</h2>
             <p className="mt-4 leading-relaxed text-awc-ink-soft">{t.researchLead}</p>
@@ -93,7 +107,9 @@ export default async function HowItWorks({ params }: PageProps<'/compatible/[lan
                       <span className="awc-serif italic text-awc-wine">{UI[locale].science.use}: </span>
                       {use}
                     </p>
-                    <p className="mt-2 font-mono text-[0.75rem] text-awc-muted">{citeShort(i)}</p>
+                    <p className="mt-2 font-mono text-[0.75rem] text-awc-muted">
+                      {UI[locale].science.evidence[FINDING_EVIDENCE[i]]} · {citeShort(i)}
+                    </p>
                   </div>
                 </li>
               ))}

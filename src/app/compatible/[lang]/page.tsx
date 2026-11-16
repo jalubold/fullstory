@@ -14,10 +14,11 @@ import { initial } from '@/components/compat/initial';
 import { PersonDot, RelationChip } from '@/components/compat/Visuals';
 import { Reveal } from '@/components/motion/Reveal';
 import { getContexts } from '@/lib/compat/contexts';
-import { isLocale, type Locale } from '@/lib/compat/i18n';
+import { isLocale, LOCALE_NAMES, type Locale } from '@/lib/compat/i18n';
 import { dimensionSheets, firstSentence, RELATION_SCALE, scoreExamples, type PairExample } from '@/lib/compat/landing';
-import { horizonLabels, signatures } from '@/lib/compat/report';
-import { citeShort } from '@/lib/compat/research';
+import { buildPreview, horizonLabels, signatures } from '@/lib/compat/report';
+import { citeShort, FINDING_EVIDENCE, referenceList } from '@/lib/compat/research';
+import { robustness } from '@/lib/compat/robustness';
 import { RETENTION_DAYS } from '@/lib/compat/retention';
 import { sampleBlueprint } from '@/lib/compat/sample';
 import { tryQuestion } from '@/lib/compat/tryit';
@@ -44,6 +45,9 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
   const sample = sampleBlueprint(locale);
   const scores = scoreExamples(locale);
   const sci = UI[locale].science;
+  const intl = LOCALE_NAMES[locale].intl;
+  const rob = robustness();
+  const proof = sci.proof({ studies: referenceList().length, spread: Math.round(rob.spread * 100), runs: (rob.couples * rob.variations).toLocaleString(intl), mean: rob.meanShift.toLocaleString(intl) });
   return (
     <>
       <CompatHeader
@@ -72,18 +76,12 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
             <span className="awc-drift-a absolute -right-28 -top-24 h-[30rem] w-[30rem] rounded-full border border-awc-wine/15" />
             <span className="awc-drift-b absolute -top-10 right-24 h-[30rem] w-[30rem] rounded-full border border-awc-slate/15" />
           </div>
-          <div className="awc-container relative grid gap-x-14 gap-y-7 pb-16 pt-7 sm:gap-y-9 md:pb-24 md:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.94fr)] lg:gap-y-0 lg:pt-20">
-            <div className="awc-anim-in lg:col-start-1 lg:row-start-1 lg:self-end">
-              <div className="flex items-center justify-between gap-3">
-                <p className="inline-flex items-center gap-2 text-[0.7188rem] font-semibold uppercase tracking-[0.18em] text-awc-wine-dark">
-                  <VennMark size={13} />
-                  {t.eyebrow}
-                </p>
-                {/* Phones: the play card comes first, so keep a direct way to start within reach. */}
-                <Link href="/compatible/start" className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-awc-wine-dark sm:hidden">
-                  {UI[locale].shell.start} <ArrowRight size={15} aria-hidden />
-                </Link>
-              </div>
+          <div className="awc-container relative grid gap-x-14 gap-y-10 pb-16 pt-8 md:pb-24 md:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:items-center lg:pt-16">
+            <div className="awc-anim-in">
+              <p className="inline-flex items-center gap-2 text-[0.7188rem] font-semibold uppercase tracking-[0.18em] text-awc-wine-dark">
+                <VennMark size={13} />
+                {t.eyebrow}
+              </p>
               <h1 className="awc-serif mt-5 text-balance text-[2.6rem] leading-[1.06] tracking-[-0.022em] text-awc-ink sm:mt-6 sm:text-[3.8rem] lg:text-[4.35rem]">
                 {t.h1[0]}
                 <Marked kind="strike" delay={600}>
@@ -91,26 +89,22 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
                 </Marked>
                 {t.h1[2]}
               </h1>
-              <p className="mt-6 hidden max-w-[34rem] text-pretty text-lg leading-relaxed text-awc-ink-soft sm:block md:text-xl">{t.lead}</p>
-            </div>
-
-            {/* Play: answer one real question, then guess theirs */}
-            <div className="awc-anim-in relative mx-auto w-full max-w-[33rem] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:ml-auto lg:self-center" style={{ animationDelay: '140ms' }}>
-              <div aria-hidden className="absolute -top-12 left-6 hidden items-end gap-1 lg:flex">
-                <span className="awc-serif -rotate-3 text-[1.1rem] italic text-awc-wine">{t.tryNote}</span>
-                <HandArrow className="h-10 w-14 rotate-[18deg] text-awc-wine" delay={1700} />
-              </div>
-              <TryIt locale={locale} question={tryQuestion(locale)} />
-            </div>
-
-            <div className="awc-anim-in lg:col-start-1 lg:row-start-2 lg:self-start lg:pt-9" style={{ animationDelay: '80ms' }}>
-              <p className="mb-6 text-pretty text-lg leading-relaxed text-awc-ink-soft sm:hidden">{t.lead}</p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+              <p className="mt-6 max-w-[34rem] text-pretty text-lg leading-relaxed text-awc-ink-soft md:text-xl">{t.lead}</p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
                 <Link id="hero-cta" href="/compatible/start" className="awc-btn awc-btn-primary awc-cta-glow min-h-14 px-8 text-[1.0625rem]">
                   {t.cta} <ArrowRight size={19} aria-hidden />
                 </Link>
                 <p className="text-center text-[0.875rem] leading-snug text-awc-muted sm:max-w-[13rem] sm:text-left">{t.ctaNote}</p>
               </div>
+            </div>
+
+            {/* What you get: a real result, from the sample couple */}
+            <div className="awc-anim-in relative mx-auto w-full max-w-[30rem] lg:mx-0 lg:ml-auto" style={{ animationDelay: '140ms' }}>
+              <p className="mb-2 flex items-end gap-1.5 pl-2">
+                <span className="awc-serif -rotate-2 text-[1.1rem] italic leading-tight text-awc-wine">{t.heroNote(sample.names.a, sample.names.b)}</span>
+                <HandArrow className="h-9 w-12 shrink-0 translate-y-2 rotate-[24deg] text-awc-wine" delay={1500} />
+              </p>
+              <HeroResult locale={locale} />
             </div>
           </div>
         </section>
@@ -197,6 +191,26 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
           </div>
         </section>
 
+        {/* ───────── Try one question: answer, guess theirs, see how it's read ───────── */}
+        <section className="overflow-x-clip">
+          <div className="awc-container grid items-center gap-10 pb-4 pt-20 md:pt-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:gap-16">
+            <Reveal>
+              <p className="awc-eyebrow">
+                {t.tryIt.eyebrow} · {t.tryIt.time}
+              </p>
+              <h2 className="awc-serif mt-3 text-balance text-4xl leading-[1.08] md:text-[3.4rem]">{t.tryTitle}</h2>
+              <p className="mt-5 max-w-md text-pretty text-lg leading-relaxed text-awc-ink-soft">{t.tryLead}</p>
+              <p aria-hidden className="mt-8 hidden items-center gap-2 lg:flex">
+                <span className="awc-serif -rotate-2 text-[1.15rem] italic text-awc-wine">{t.tryNote}</span>
+                <HandArrow className="h-10 w-16 -rotate-[38deg] text-awc-wine" delay={500} />
+              </p>
+            </Reveal>
+            <Reveal delay={120} className="mx-auto w-full max-w-[33rem] lg:mx-0 lg:ml-auto">
+              <TryIt locale={locale} question={tryQuestion(locale)} />
+            </Reveal>
+          </div>
+        </section>
+
         {/* ───────── Five dimensions: a questionnaire filled in by two pens ───────── */}
         <section className="overflow-x-clip">
           <div className="awc-container py-20 md:py-28">
@@ -244,7 +258,7 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
         {/* ───────── The science: the findings the scoring is built on ───────── */}
         <section className="awc-graph border-b border-awc-line">
           <div className="awc-container grid gap-12 py-20 md:py-28 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-16">
-            <Reveal className="lg:sticky lg:top-28 lg:self-start">
+            <Reveal>
               <p className="awc-eyebrow">{sci.eyebrow}</p>
               <h2 className="awc-serif mt-3 text-balance text-4xl leading-[1.08] md:text-[3.4rem]">
                 {sci.title[0]}
@@ -254,20 +268,40 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
                 {sci.title[2]}
               </h2>
               <p className="mt-5 max-w-md text-pretty text-lg leading-relaxed text-awc-ink-soft">{sci.lead}</p>
-              <ZodiacNo className="mt-8 h-36 w-36 -rotate-6 md:h-44 md:w-44" />
-              <p className="mt-8 max-w-md border-l-2 border-awc-wine pl-4 text-[0.9375rem] leading-relaxed text-awc-ink-soft">
-                <strong className="text-awc-ink">{sci.caveatStrong}</strong> {sci.caveat}
-              </p>
-              <Link href="/compatible/how-it-works#research" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-awc-wine-dark hover:text-awc-wine">
+              <div className="mt-9 max-w-md rounded-[0.5rem] bg-white/85 p-5 shadow-[var(--shadow-awc-card)] sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <p className="font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-awc-muted">{sci.proofTitle}</p>
+                  <ZodiacNo className="-mr-1 -mt-3 h-16 w-16 shrink-0 rotate-6" />
+                </div>
+                <ul className="-mt-1 space-y-4">
+                  {proof.map(([title, body], i) => (
+                    <li key={title} className="flex gap-3">
+                      <span className="relative mt-0.5 h-6 w-6 shrink-0">
+                        <Box className="absolute inset-0" />
+                        <Tick role={i % 2 ? 'b' : 'a'} delay={300 + i * 260} className="absolute -right-1 -top-1.5 h-7 w-7" />
+                      </span>
+                      <p className="text-[0.9375rem] leading-relaxed text-awc-ink-soft">
+                        <strong className="block text-awc-ink">{title}</strong>
+                        {body}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <p className="mt-5 max-w-md text-[0.8125rem] leading-relaxed text-awc-muted">{sci.limit}</p>
+              <Link href="/compatible/how-it-works#research" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-awc-wine-dark hover:text-awc-wine">
                 {sci.more} <ArrowRight size={15} aria-hidden />
               </Link>
             </Reveal>
             <ol className="grid gap-x-10 sm:grid-cols-2">
               {sci.findings.slice(0, 4).map(([title, finding, use], i) => (
                 <Reveal as="li" key={title} delay={i * 80} className="border-t border-awc-ink/15 py-7 first:border-t-0 sm:[&:nth-child(2)]:border-t-0">
-                  <p className="flex items-baseline justify-between gap-4">
+                  <p className="flex items-start justify-between gap-4">
                     <span className="awc-numeral text-[2.2rem]">{String(i + 1).padStart(2, '0')}</span>
-                    <span className="text-right font-mono text-[0.625rem] uppercase leading-snug tracking-[0.12em] text-awc-muted">{citeShort(i)}</span>
+                    <span className="text-right">
+                      <span className="inline-block rounded-full border border-awc-ink/20 bg-white/80 px-2.5 py-0.5 text-[0.625rem] font-semibold uppercase tracking-[0.1em] text-awc-ink-soft">{sci.evidence[FINDING_EVIDENCE[i]]}</span>
+                      <span className="mt-1.5 block font-mono text-[0.625rem] uppercase leading-snug tracking-[0.12em] text-awc-muted">{citeShort(i)}</span>
+                    </span>
                   </p>
                   <h3 className="awc-serif mt-3 text-[1.3rem] leading-snug text-awc-ink">{title}</h3>
                   <p className="mt-2 text-[0.9375rem] leading-relaxed text-awc-ink-soft">{finding}</p>
@@ -494,6 +528,93 @@ function MiniVenn({ kind }: { kind: number }) {
       <circle cx={22 + d / 2} cy="14" r="11" fill={kind === 0 || kind === 4 ? 'rgb(232 198 204 / 0.35)' : 'none'} stroke={kind === 4 ? 'var(--color-awc-amber-soft)' : stroke} strokeWidth="1.5" strokeDasharray={kind === 3 ? '3 3' : undefined} />
       {kind === 4 && <text x="22" y="18" textAnchor="middle" fontSize="11" fill="var(--color-awc-amber-soft)">!</text>}
     </svg>
+  );
+}
+
+/**
+ * The hero's picture of what you get: the sample couple's actual result, from
+ * the same engine and in the same shape as the real results page.
+ */
+function HeroResult({ locale }: { locale: Locale }) {
+  const t = UI[locale].landing;
+  const bp = sampleBlueprint(locale);
+  const { overview, names, dimensions, together } = buildPreview(bp);
+  const blind = bp.blindSpots.find((b) => b.id !== 'none');
+  const hook = t.heroHook(overview.sameAnswers, overview.total, overview.alignment);
+  const aligned = UI[locale].results.posterAligned;
+  return (
+    <div className="relative">
+      <section aria-label={`${t.heroSample}: ${names.a} & ${names.b}`} className="relative overflow-hidden rounded-[2rem] bg-awc-wine-deep px-6 pb-12 pt-6 text-white shadow-[0_40px_80px_-30px_rgb(94_37_54/0.65)] sm:px-8 sm:pb-14 sm:pt-7">
+        <svg aria-hidden viewBox="0 0 600 400" className="pointer-events-none absolute -right-48 -top-40 w-[520px] opacity-[0.07]">
+          <circle cx="230" cy="200" r="170" fill="none" stroke="#fff" strokeWidth="2" />
+          <circle cx="370" cy="200" r="170" fill="none" stroke="#fff" strokeWidth="2" />
+        </svg>
+        <div className="relative flex items-center justify-between gap-3">
+          <p className="rounded-full bg-white/10 px-3 py-1 text-[0.625rem] font-bold uppercase tracking-[0.16em] text-white/85">{t.heroSample}</p>
+          <p className="flex items-center gap-2 text-[0.8125rem] font-semibold text-white/85">
+            <span className="flex -space-x-1.5">
+              <PersonDot role="a" name={names.a} size="sm" />
+              <PersonDot role="b" name={names.b} size="sm" />
+            </span>
+            {names.a} & {names.b}
+          </p>
+        </div>
+
+        <div className="relative mt-4 flex items-center gap-3 sm:gap-5">
+          <Venn names={names} overlap={overview.similarity} size={168} tone="dark" label={`${overview.similarity}% ${UI[locale].results.similarity}`} className="-ml-3 shrink-0" />
+          <p>
+            <span className="awc-serif block text-[4.4rem] leading-[0.85] tabular-nums sm:text-[5rem]">
+              {overview.alignment}
+              <span className="align-top text-[0.42em] text-awc-blush">%</span>
+            </span>
+            <span className="mt-2 block text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-white/60">{aligned}</span>
+          </p>
+        </div>
+
+        <p className="relative mt-4 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-white/55">{t.heroType}</p>
+        <p className="awc-serif relative mt-1 text-[2rem] italic leading-tight text-awc-blush sm:text-[2.3rem]">{overview.signature.title}</p>
+        <p className="relative mt-1 text-[0.9375rem] text-white/75">{overview.signature.tagline}</p>
+
+        <p className="relative mt-5 rounded-xl bg-white/[0.07] px-4 py-3 text-[0.9375rem] leading-snug text-white/85 ring-1 ring-white/10">
+          {hook[0]}
+          <strong className="font-semibold text-white">{hook[1]}</strong>
+          {hook[2]}
+          <strong className="font-semibold text-awc-blush">{hook[3]}</strong>
+          {hook[4]}
+        </p>
+
+        <ul className="relative mt-5 space-y-2.5">
+          {dimensions.map((d, i) => (
+            <li key={d.id} className="grid grid-cols-[minmax(0,1fr)_3.5rem_2.4rem] items-center gap-2.5 sm:grid-cols-[minmax(0,1fr)_8rem_2.4rem] sm:gap-3">
+              <span className="text-[0.8125rem] leading-tight text-white/80">{d.label}</span>
+              <span className="h-1.5 overflow-hidden rounded-full bg-white/10" role="img" aria-label={`${d.label}: ${d.alignment}% ${aligned}`}>
+                <span className="awc-bar-fill block h-full rounded-full bg-awc-blush" style={{ width: `${d.alignment}%`, animationDelay: `${700 + i * 110}ms` }} />
+              </span>
+              <span className="awc-serif text-right text-[0.9375rem] tabular-nums">{d.alignment}%</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Two notes from the same result, pinned over the card's edge */}
+      <div className="relative z-10 -mt-8 grid grid-cols-2 items-start gap-3 px-2 text-awc-ink sm:-mx-5 sm:gap-5 sm:px-0">
+        {together && (
+          <article className="relative -rotate-2 rounded-[0.3rem] bg-[#fffefa] px-4 pb-4 pt-5 shadow-[var(--shadow-awc-lift)]">
+            <Tape className="absolute -top-3 left-1/2 !w-16 -translate-x-1/2 -rotate-3" />
+            <p className="font-mono text-[0.5938rem] font-semibold uppercase tracking-[0.14em] text-awc-wine-dark">{t.heroClick}</p>
+            <p className="awc-serif mt-1.5 text-[1.05rem] leading-tight">{together.title}</p>
+            <p className="mt-1.5 text-[0.75rem] leading-snug text-awc-ink-soft sm:text-[0.8125rem]">{together.body[0]}</p>
+          </article>
+        )}
+        {blind && (
+          <article className="relative mt-3 rotate-[2.5deg] bg-[#f7e9c0] px-4 pb-4 pt-4 shadow-[0_22px_32px_-20px_rgb(52_37_42/0.5)]">
+            <p className="font-mono text-[0.5938rem] font-semibold uppercase tracking-[0.14em] text-awc-amber">{t.heroBlind}</p>
+            <p className="awc-serif mt-1.5 text-[1.05rem] leading-tight">{blind.title}</p>
+            <p className="mt-1.5 text-[0.75rem] leading-snug text-awc-ink-soft sm:text-[0.8125rem]">{blind.body[0]}</p>
+          </article>
+        )}
+      </div>
+    </div>
   );
 }
 

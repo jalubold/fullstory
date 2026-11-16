@@ -82,6 +82,10 @@ export const FINDING_REFS: ReferenceId[][] = [
   ['laurenceau1998', 'fraley2000'],
 ];
 
+/** The kind of evidence behind each finding, in the same order (labels: ui-strings science.evidence). */
+export type EvidenceKind = 'meta' | 'longitudinal' | 'pooled' | 'review' | 'theory' | 'diary';
+export const FINDING_EVIDENCE: EvidenceKind[] = ['meta', 'longitudinal', 'pooled', 'review', 'theory', 'longitudinal', 'diary'];
+
 /** "A, Year · B, Year" for a finding. */
 export const citeShort = (i: number) => FINDING_REFS[i].map((id) => REFERENCES[id].short).join(' · ');
 
