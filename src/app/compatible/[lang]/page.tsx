@@ -136,11 +136,13 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
             </div>
             <p className="text-pretty text-lg leading-relaxed text-awc-ink-soft">{t.types.lead}</p>
           </Reveal>
-          <div className="awc-snap mt-12 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0">
+          {/* One fade for the whole row: per-card entrance animations would fire
+              one by one as cards slide into view sideways on a phone. */}
+          <Reveal variant="fade" className="awc-snap mt-9 py-3 lg:mx-0 lg:mt-12 lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible lg:px-0 lg:py-0">
             {SIGNATURE_ORDER.map((id, i) => {
               const sig = signatures(locale)[id];
               return (
-                <Reveal key={id} delay={i * 60} className="w-[62%] sm:w-[36%] lg:w-auto">
+                <div key={id} className="w-[62%] sm:w-[36%] lg:w-auto">
                   <article className="awc-type-card flex h-full flex-col rounded-[1.5rem] border border-awc-line bg-white p-4 shadow-[var(--shadow-awc-card)]" style={{ '--tilt': `${TILTS[i]}deg` } as React.CSSProperties}>
                     <div className="flex aspect-[10/7] items-center justify-center rounded-[1.1rem] bg-awc-cream-2/70">
                       <SignatureGlyph id={id} />
@@ -149,10 +151,10 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
                     <h3 className="awc-serif mt-1 text-[1.3rem] leading-tight">{sig.title}</h3>
                     <p className="mt-1.5 text-[0.875rem] leading-snug text-awc-muted">{sig.tagline}</p>
                   </article>
-                </Reveal>
+                </div>
               );
             })}
-            <Reveal delay={7 * 60} className="w-[62%] sm:w-[36%] lg:w-auto">
+            <div className="w-[62%] sm:w-[36%] lg:w-auto">
               <Link href="/compatible/start" className="awc-type-card group flex h-full flex-col rounded-[1.5rem] bg-awc-wine-deep p-4 text-white shadow-[var(--shadow-awc-card)]" style={{ '--tilt': `${TILTS[7]}deg` } as React.CSSProperties}>
                 <div className="flex aspect-[10/7] items-center justify-center rounded-[1.1rem] bg-white/[0.06]">
                   <Venn names={{ a: null, b: null }} overlap={46} pending="both" size={132} tone="dark" />
@@ -163,8 +165,8 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
                   {t.types.mysteryCta} <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" aria-hidden />
                 </span>
               </Link>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </section>
 
         {/* ───────── How it works ───────── */}

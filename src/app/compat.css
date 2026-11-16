@@ -341,6 +341,10 @@
   display: flex;
   gap: 0.875rem;
   overflow-x: auto;
+  overflow-y: hidden;
+  /* Keep a sideways swipe inside the row: no page bounce or browser back gesture at its ends. */
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 1.25rem;
   padding-inline: 1.25rem;
@@ -420,8 +424,9 @@
 .awc-cta-glow {
   animation: awc-glow 2.8s ease-out infinite;
 }
-/* Signature cards sit slightly askew, like cards dealt on a table, and straighten when picked up. */
-@media (min-width: 1024px) {
+/* Signature cards sit slightly askew, like cards dealt on a table, and straighten when picked up.
+   Only with a real pointer: on touch screens :hover sticks after a tap. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
   .awc-type-card {
     transform: rotate(var(--tilt, 0deg));
     transition: transform 0.45s var(--ease-soft), box-shadow 0.3s;
