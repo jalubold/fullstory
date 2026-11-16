@@ -453,7 +453,7 @@ const EN = {
   science: {
     eyebrow: 'The science bit',
     /** Title in three parts; the middle is underlined by hand. Follows on from the hero's "Stop trusting horoscopes." */
-    title: ['It’s not your star signs. It’s how you ', 'fight', '.'] as string[],
+    title: ['What makes it ', 'last', ' isn’t your star sign.'] as string[],
     lead: 'Our scoring leans on peer-reviewed relationship research — not birthdays. Here are the findings it’s built on, and exactly how we use each one.',
     use: 'How we use it',
     caveatStrong: 'Research-informed, not validated.',
@@ -923,7 +923,7 @@ const ID: UIStrings = {
   },
   science: {
     eyebrow: 'Dasar ilmiahnya',
-    title: ['Yang bikin langgeng bukan zodiak. Tapi cara kalian ', 'berantem', '.'],
+    title: ['Yang bikin ', 'langgeng', ' bukan zodiak.'],
     lead: 'Penilaian kami bersandar pada riset hubungan yang sudah ditinjau sejawat — bukan tanggal lahir. Ini temuan-temuan yang kami pakai, dan persis bagaimana kami memakainya.',
     use: 'Cara kami memakainya',
     caveatStrong: 'Berbasis riset, belum tervalidasi.',
