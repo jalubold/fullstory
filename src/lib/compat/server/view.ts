@@ -65,6 +65,7 @@ export async function loadBlueprint(ctx: ParticipantContext, locale: Locale = 'e
     names: { a: both.a.name, b: both.b.name },
     answers: { a: both.a.answers, b: both.b.answers },
     locale,
+    scoringVersion: ctx.assessment.scoring_version,
   });
 }
 

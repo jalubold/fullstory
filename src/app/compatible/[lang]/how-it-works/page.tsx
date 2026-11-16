@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { CompatFooter, CompatHeader } from '@/components/compat/Shell';
 import { RelationChip } from '@/components/compat/Visuals';
 import { isLocale, type Locale } from '@/lib/compat/i18n';
+import { citeShort, referenceList } from '@/lib/compat/research';
 import { RETENTION_DAYS } from '@/lib/compat/retention';
 import type { Relation } from '@/lib/compat/types';
 import { UI } from '@/lib/compat/ui-strings';
@@ -19,7 +20,7 @@ const RELATION_VALUES: Array<[Relation, string]> = [
   ['shared', '100'],
   ['close', '≈ 75–85'],
   ['complementary', '80'],
-  ['different', '45–60'],
+  ['different', '45–70'],
   ['tension', '15'],
 ];
 
@@ -76,6 +77,33 @@ export default async function HowItWorks({ params }: PageProps<'/compatible/[lan
             <p className="mt-6 rounded-2xl bg-awc-cream-2 p-5 text-[0.9375rem] leading-relaxed text-awc-ink-soft">
               <strong className="text-awc-ink">{t.caveatStrong}</strong> {t.caveat}
             </p>
+          </section>
+
+          <section id="research" className="mt-16 scroll-mt-24">
+            <h2 className="awc-serif text-3xl">{t.researchTitle}</h2>
+            <p className="mt-4 leading-relaxed text-awc-ink-soft">{t.researchLead}</p>
+            <ol className="mt-8 space-y-8">
+              {UI[locale].science.findings.map(([title, finding, use], i) => (
+                <li key={title} className="grid gap-3 sm:grid-cols-[3rem_minmax(0,1fr)]">
+                  <span className="awc-numeral text-3xl">{String(i + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3 className="awc-serif text-[1.35rem] leading-snug">{title}</h3>
+                    <p className="mt-2 leading-relaxed text-awc-ink-soft">{finding}</p>
+                    <p className="mt-2 leading-relaxed text-awc-ink">
+                      <span className="awc-serif italic text-awc-wine">{UI[locale].science.use}: </span>
+                      {use}
+                    </p>
+                    <p className="mt-2 font-mono text-[0.75rem] text-awc-muted">{citeShort(i)}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <h3 className="awc-serif mt-12 text-2xl">{t.referencesTitle}</h3>
+            <ol className="mt-4 list-decimal space-y-2.5 pl-5 text-[0.875rem] leading-relaxed text-awc-ink-soft marker:text-awc-muted">
+              {referenceList().map((r) => (
+                <li key={r.full}>{r.full}</li>
+              ))}
+            </ol>
           </section>
 
           <section id="privacy" className="mt-16 scroll-mt-24">

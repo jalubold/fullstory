@@ -454,3 +454,60 @@
     display: none;
   }
 }
+
+/* ── Landing v4: paper and two pens ─────────────────────────────────────── */
+/* Strokes that draw themselves in. Inside a Reveal, they wait until it's on screen. */
+.awc-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: awc-draw 0.85s cubic-bezier(0.55, 0.1, 0.2, 1) forwards;
+  animation-delay: var(--d, 0ms);
+}
+[data-reveal][data-shown="false"] .awc-draw {
+  animation: none;
+}
+@keyframes awc-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@layer components {
+  /* Ruled writing paper. */
+  .awc-paper {
+    background-color: #fff;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 33px, rgb(47 111 159 / 0.075) 33px 34px);
+    background-position: 0 14px;
+  }
+  /* Graph paper, for the science notes. */
+  .awc-graph {
+    background-color: var(--color-awc-cream);
+    background-image: linear-gradient(rgb(47 111 159 / 0.07) 1px, transparent 1px), linear-gradient(90deg, rgb(47 111 159 / 0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  /* A strip of masking tape with torn ends. */
+  .awc-tape {
+    display: block;
+    width: 6.5rem;
+    height: 1.6rem;
+    background: rgb(232 198 204 / 0.62);
+    box-shadow: 0 1px 2px rgb(52 37 42 / 0.08);
+    clip-path: polygon(2% 8%, 8% 0, 14% 10%, 22% 2%, 30% 9%, 40% 1%, 50% 8%, 60% 0, 70% 9%, 80% 2%, 90% 10%, 98% 1%, 100% 50%, 97% 92%, 90% 100%, 82% 90%, 72% 99%, 62% 91%, 52% 100%, 42% 92%, 32% 100%, 22% 91%, 12% 99%, 4% 92%, 0 50%);
+  }
+  .awc-receipt-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .awc-receipt-row > .awc-leader {
+    flex: 1 1 1.5rem;
+    min-width: 1.5rem;
+    border-bottom: 1.5px dotted var(--color-awc-line-strong);
+    transform: translateY(-0.3em);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .awc-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

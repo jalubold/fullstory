@@ -510,9 +510,11 @@ export interface BuildInput {
   names: Record<Role, string>;
   answers: Record<Role, Answers>;
   locale?: Locale;
+  /** The scoring version the assessment was taken with; the current one when absent. */
+  scoringVersion?: string;
 }
 
-export function buildBlueprint(input: BuildInput, result: ScoringResult = score(input.set, input.answers.a, input.answers.b)): Blueprint {
+export function buildBlueprint(input: BuildInput, result: ScoringResult = score(input.set, input.answers.a, input.answers.b, input.scoringVersion)): Blueprint {
   const locale = input.locale ?? DEFAULT_LOCALE;
   const ctx = new Ctx(input.set, result, input.names, locale);
   const S = ctx.s;
