@@ -75,16 +75,12 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
                   {UI[locale].shell.start} <ArrowRight size={15} aria-hidden />
                 </Link>
               </div>
-              <h1 className="awc-serif mt-5 text-balance text-[2.55rem] leading-[1.08] tracking-[-0.022em] text-awc-ink sm:mt-6 sm:text-[3.5rem] lg:text-[4.15rem]">
+              <h1 className="awc-serif mt-5 text-balance text-[2.6rem] leading-[1.06] tracking-[-0.022em] text-awc-ink sm:mt-6 sm:text-[3.8rem] lg:text-[4.35rem]">
                 {t.h1[0]}
-                <Marked kind="underline" delay={450}>
-                  {t.h1[1]}
+                <Marked kind="strike" delay={600}>
+                  <em className="text-awc-ink-soft">{t.h1[1]}</em>
                 </Marked>
                 {t.h1[2]}
-                <Marked kind="circle" delay={1050}>
-                  <em>{t.h1[3]}</em>
-                </Marked>
-                {t.h1[4]}
               </h1>
               <p className="mt-6 hidden max-w-[34rem] text-pretty text-lg leading-relaxed text-awc-ink-soft sm:block md:text-xl">{t.lead}</p>
             </div>
@@ -243,7 +239,7 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
               <p className="awc-eyebrow">{sci.eyebrow}</p>
               <h2 className="awc-serif mt-3 text-balance text-4xl leading-[1.08] md:text-[3.4rem]">
                 {sci.title[0]}
-                <Marked kind="strike" delay={350}>
+                <Marked kind="underline" delay={350}>
                   {sci.title[1]}
                 </Marked>
                 {sci.title[2]}

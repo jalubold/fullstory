@@ -38,9 +38,9 @@ const EN = {
   },
   landing: {
     eyebrow: 'A compatibility test for two',
-    /** Headline in five parts: the second is underlined by pen A, the fourth circled by pen B. */
-    h1: ['', 'Same', ' questions, ', 'different', ' perspectives.'] as string[],
-    lead: 'You each answer 20 questions on your own. Then you see where you click — and where you don’t.',
+    /** Headline in three parts; the middle is struck through by hand. */
+    h1: ['Stop trusting ', 'horoscopes', '.'] as string[],
+    lead: 'Answer the same 20 questions, separately. See where you click — scored with relationship research, not birthdays.',
     cta: 'Start your test — it’s free',
     ctaNote: 'About 6 minutes each · no account needed',
     tryNote: 'Go on — try one',
@@ -452,8 +452,8 @@ const EN = {
   },
   science: {
     eyebrow: 'The science bit',
-    /** Title in three parts; the middle is struck through by hand. */
-    title: ['Stop trusting ', 'horoscopes', '.'] as string[],
+    /** Title in three parts; the middle is underlined by hand. Follows on from the hero's "Stop trusting horoscopes." */
+    title: ['We use ', 'research', ' instead.'] as string[],
     lead: 'Our scoring leans on peer-reviewed relationship research — not birthdays. Here are the findings it’s built on, and exactly how we use each one.',
     use: 'How we use it',
     caveatStrong: 'Research-informed, not validated.',
@@ -512,8 +512,8 @@ const ID: UIStrings = {
   },
   landing: {
     eyebrow: 'Tes kecocokan untuk berdua',
-    h1: ['Pertanyaan yang ', 'sama', ', sudut pandang ', 'berbeda', '.'],
-    lead: 'Kalian jawab 20 pertanyaan sendiri-sendiri. Lalu lihat di mana kalian nyambung — dan di mana nggak.',
+    h1: ['Stop percaya ', 'ramalan zodiak', '.'],
+    lead: 'Jawab 20 pertanyaan yang sama, sendiri-sendiri. Lihat di mana kalian nyambung — dinilai pakai riset hubungan, bukan tanggal lahir.',
     cta: 'Mulai tes — gratis',
     ctaNote: 'Sekitar 6 menit per orang · nggak perlu akun',
     tryNote: 'Coba satu dulu, yuk',
@@ -923,7 +923,7 @@ const ID: UIStrings = {
   },
   science: {
     eyebrow: 'Dasar ilmiahnya',
-    title: ['Stop percaya ', 'ramalan zodiak', '.'],
+    title: ['Gantinya, kami pakai ', 'riset', '.'],
     lead: 'Penilaian kami bersandar pada riset hubungan yang sudah ditinjau sejawat — bukan tanggal lahir. Ini temuan-temuan yang kami pakai, dan persis bagaimana kami memakainya.',
     use: 'Cara kami memakainya',
     caveatStrong: 'Berbasis riset, belum tervalidasi.',
