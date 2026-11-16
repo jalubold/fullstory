@@ -257,7 +257,7 @@ export function DeleteData({ token, partnerName, locale }: { token: string; part
               const res = await fetch(`/api/compat/p/${token}`, { method: 'DELETE' });
               if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? t.error);
               track('compat_delete');
-              router.replace('/compatible?deleted=1');
+              router.replace('/?deleted=1');
             } catch (e) {
               setError(e instanceof Error ? e.message : t.error);
               setBusy(false);

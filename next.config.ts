@@ -10,15 +10,22 @@ const nextConfig: NextConfig = {
     "/api/**/*": ["./src/assets/fonts/**/*"],
   },
   images: { unoptimized: true },
-  // Retired pages. Query strings (e.g. ?category=wedding) are passed through.
+  // Retired pages. fullstory.pro is now Are We Compatible?: the photo album's
+  // marketing and sales pages point to it. Existing customers' albums, orders,
+  // downloads and share links are untouched. Temporary (307) so this can be
+  // undone without browsers having cached it.
   async redirects() {
+    const toCompat = (source: string, destination = "/") => ({ source, destination, permanent: false });
     return [
-      { source: "/create/template", destination: "/templates", permanent: false },
-      { source: "/pricing", destination: "/", permanent: true },
-      // The sales page moved to an address per design (and per blank-book orientation).
-      { source: "/create/new", has: [{ type: "query", key: "template", value: "(?<template>[a-z0-9-]+)" }], destination: "/templates/:template/start", permanent: false },
-      { source: "/create/new", has: [{ type: "query", key: "orientation", value: "(?<orientation>square|landscape|portrait)" }], destination: "/create/blank/:orientation", permanent: false },
-      { source: "/create/new", destination: "/create", permanent: false },
+      toCompat("/how-it-works", "/compatible/how-it-works"),
+      toCompat("/about"),
+      toCompat("/faq"),
+      toCompat("/explore"),
+      toCompat("/pricing"),
+      toCompat("/templates"),
+      toCompat("/templates/:path*"),
+      toCompat("/create"),
+      toCompat("/create/:path*"),
     ];
   },
   turbopack: {

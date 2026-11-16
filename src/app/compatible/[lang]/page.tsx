@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { ArrowRight, Check, Plus } from 'lucide-react';
@@ -6,6 +7,7 @@ import { CompatFooter, CompatHeader } from '@/components/compat/Shell';
 import { ContinueBanner, PriceTag } from '@/components/compat/LandingDynamic';
 import { StickyCta } from '@/components/compat/StickyCta';
 import { TryIt } from '@/components/compat/TryIt';
+import { DeletedNotice } from '@/components/compat/DeletedNotice';
 import { DimensionSheets } from '@/components/compat/DimensionSheets';
 import { Barcode, Box, Envelopes, HandArrow, Marked, StageCircles, Stamp, Tape, Tick, ZigzagEdge, ZodiacNo } from '@/components/compat/Doodles';
 import { initial } from '@/components/compat/initial';
@@ -24,6 +26,12 @@ import { UI } from '@/lib/compat/ui-strings';
 
 /** One prerendered version per language (generateStaticParams in the layout); opt out of unknown-param validation. */
 export const instant = false;
+
+/** The landing page is served at the site root, under its own full title. */
+export async function generateMetadata({ params }: PageProps<'/compatible/[lang]'>): Promise<Metadata> {
+  const { lang } = await params;
+  return { title: { absolute: UI[isLocale(lang) ? lang : 'en'].meta.title }, alternates: { canonical: '/' } };
+}
 
 const SIGNATURE_ORDER: SignatureId[] = ['mirror', 'puzzle', 'anchors', 'bridge', 'explorers', 'conversation', 'balanced'];
 /** Each card rests at a slightly different angle. */
@@ -55,6 +63,7 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
         <Suspense fallback={null}>
           <ContinueBanner locale={locale} />
         </Suspense>
+        <DeletedNotice message={t.deleted} />
 
         {/* ───────── Hero ───────── */}
         <section className="relative">

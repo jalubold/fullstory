@@ -14,12 +14,15 @@ export const instant = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  const t = UI[isLocale(lang) ? lang : 'en'].meta;
+  const locale = isLocale(lang) ? lang : 'en';
+  const t = UI[locale].meta;
+  const image = { url: `/og/awc-${locale}.png`, width: 1200, height: 630, alt: 'Are We Compatible?' };
   return {
     title: { default: t.title, template: '%s · Are We Compatible?' },
     description: t.description,
-    openGraph: { type: 'website', siteName: 'Are We Compatible?', title: 'Are We Compatible?', description: t.ogDescription, locale: LOCALE_NAMES[isLocale(lang) ? lang : 'en'].intl.replace('-', '_') },
-    twitter: { card: 'summary_large_image', title: 'Are We Compatible?', description: t.twitter },
+    icons: { icon: '/awc-icon.svg', apple: '/awc-apple-icon.png' },
+    openGraph: { type: 'website', siteName: 'Are We Compatible?', title: 'Are We Compatible?', description: t.ogDescription, locale: LOCALE_NAMES[locale].intl.replace('-', '_'), images: [image] },
+    twitter: { card: 'summary_large_image', title: 'Are We Compatible?', description: t.twitter, images: [image.url] },
   };
 }
 

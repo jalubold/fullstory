@@ -38,7 +38,7 @@ async function Return({ orderId, searchParams, locale }: { orderId: string; sear
   const sp = await searchParams;
   const t = UI[locale].checkout;
   let order = await getCompatOrder(orderId);
-  if (!order) redirect('/compatible');
+  if (!order) redirect('/');
   if (!sp.cancelled) order = await syncCompatOrder(order);
 
   let token: string | null = null;
@@ -79,7 +79,7 @@ function Message({ title, body, cta }: { title: string; body: string; cta: strin
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <h1 className="awc-serif text-4xl">{title}</h1>
         <p className="mx-auto mt-4 max-w-sm leading-relaxed text-awc-ink-soft">{body}</p>
-        <Link href="/compatible" className="awc-btn awc-btn-secondary mt-8">
+        <Link href="/" className="awc-btn awc-btn-secondary mt-8">
           {cta}
         </Link>
       </div>

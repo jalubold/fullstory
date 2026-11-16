@@ -7,7 +7,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 
 export function Wordmark({ className = '', tone = 'dark', locale }: { className?: string; tone?: 'dark' | 'light'; locale: Locale }) {
   return (
-    <Link href="/compatible" className={`group inline-flex items-center gap-2 ${tone === 'light' ? 'text-white' : 'text-awc-ink'} ${className}`} aria-label={UI[locale].shell.home}>
+    <Link href="/" className={`group inline-flex items-center gap-2 ${tone === 'light' ? 'text-white' : 'text-awc-ink'} ${className}`} aria-label={UI[locale].shell.home}>
       <VennMark size={18} className="shrink-0 transition-transform duration-500 group-hover:scale-110" />
       <span className="inline-flex items-baseline gap-[0.12em]">
         <span lang="en" className="awc-serif text-[1.1rem] italic leading-none tracking-tight md:text-[1.25rem]">Are We Compatible</span>
