@@ -2,11 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Coffee, Gem, House, Loader2, Sparkles, Users } from 'lucide-react';
 import type { ContextInfo } from '@/lib/compat/contexts';
 import type { Locale } from '@/lib/compat/i18n';
 import { track } from '@/lib/compat/track';
 import { UI } from '@/lib/compat/ui-strings';
+
+const CONTEXT_ICONS: Record<string, typeof Coffee> = { talking: Sparkles, dating: Coffee, long_term: House, married: Gem, other: Users };
 
 export function StartFlow({ contexts, locale }: { contexts: Array<Pick<ContextInfo, 'id' | 'label' | 'hint'>>; locale: Locale }) {
   const t = UI[locale].start;
@@ -62,7 +64,13 @@ export function StartFlow({ contexts, locale }: { contexts: Array<Pick<ContextIn
                   }}
                   className={`flex min-h-[4.25rem] items-center justify-between gap-4 rounded-2xl border bg-white px-5 py-4 text-left transition-all duration-200 ${selected ? 'border-awc-wine shadow-[0_0_0_3px_rgb(169_77_101/0.12)]' : 'border-awc-line hover:border-awc-line-strong hover:shadow-[var(--shadow-awc-card)]'}`}
                 >
-                  <span>
+                  <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors ${selected ? 'bg-awc-wine text-white' : 'bg-awc-blush-soft text-awc-wine'}`}>
+                    {(() => {
+                      const I = CONTEXT_ICONS[c.id] ?? Users;
+                      return <I size={19} aria-hidden />;
+                    })()}
+                  </span>
+                  <span className="min-w-0 flex-1">
                     <span className="block text-[1.0625rem] font-semibold text-awc-ink">{c.label}</span>
                     <span className="mt-0.5 block text-sm text-awc-muted">{c.hint}</span>
                   </span>

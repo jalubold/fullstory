@@ -271,3 +271,114 @@
     animation: none !important;
   }
 }
+
+/* ───────────── v2: brand motion ───────────── */
+
+@keyframes awc-venn-in {
+  from {
+    transform: translateX(var(--awc-venn-shift));
+    opacity: 0;
+  }
+}
+@keyframes awc-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes awc-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes awc-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@keyframes awc-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.awc-venn-a,
+.awc-venn-b {
+  animation: awc-venn-in 1.2s var(--ease-soft) both 0.15s;
+}
+.awc-venn-mid {
+  animation: awc-fade 0.8s ease both 1.1s;
+}
+.awc-breathe {
+  animation: awc-breathe 2.4s ease-in-out infinite;
+}
+.awc-float {
+  animation: awc-float 6s ease-in-out infinite;
+}
+.awc-float-slow {
+  animation: awc-float 8s ease-in-out infinite 1s;
+}
+.awc-marquee {
+  display: flex;
+  width: max-content;
+  animation: awc-marquee 48s linear infinite;
+}
+.awc-marquee-wrap:hover .awc-marquee {
+  animation-play-state: paused;
+}
+.awc-marquee-wrap {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+@layer components {
+/* Horizontal swipe rows on phones; grids from the given breakpoint up. */
+.awc-snap {
+  display: flex;
+  gap: 0.875rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.25rem;
+  padding-inline: 1.25rem;
+  margin-inline: -1.25rem;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none;
+}
+.awc-snap::-webkit-scrollbar {
+  display: none;
+}
+.awc-snap > * {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+.awc-faq summary {
+  list-style: none;
+  cursor: pointer;
+}
+.awc-faq summary::-webkit-details-marker {
+  display: none;
+}
+.awc-faq[open] .awc-faq-icon {
+  transform: rotate(45deg);
+}
+.awc-grain {
+  background-image: radial-gradient(rgb(52 37 42 / 0.035) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awc-venn-a,
+  .awc-venn-b,
+  .awc-venn-mid,
+  .awc-breathe,
+  .awc-float,
+  .awc-float-slow,
+  .awc-marquee {
+    animation: none !important;
+  }
+}

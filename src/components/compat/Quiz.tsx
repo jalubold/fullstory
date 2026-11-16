@@ -29,6 +29,15 @@ type Screen = { kind: 'intro' } | { kind: 'question'; index: number; dir: 'next'
 
 const LETTERS = 'ABCDE';
 
+/** A very light haptic tick on phones that support it. */
+function tapFeedback() {
+  try {
+    navigator.vibrate?.(8);
+  } catch {
+    // Unsupported: no feedback.
+  }
+}
+
 export function Quiz({ token, name, partnerName, role, questions, dimensions, initialAnswers, locale }: Props) {
   const t = UI[locale].quiz;
   const router = useRouter();
@@ -72,6 +81,7 @@ export function Quiz({ token, name, partnerName, role, questions, dimensions, in
   const choose = useCallback(
     (qIndex: number, optionId: string) => {
       const q = questions[qIndex];
+      tapFeedback();
       const next = { ...latest.current, [q.id]: optionId };
       latest.current = next;
       setAnswers(next);

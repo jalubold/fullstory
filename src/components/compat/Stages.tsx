@@ -5,8 +5,9 @@ import type { BlueprintPreview } from '@/lib/compat/report';
 import type { ParticipantView } from '@/lib/compat/server/view';
 import { UI } from '@/lib/compat/ui-strings';
 import { DeleteData, InviteCard, PrivateLink, ShareResult, StatusPoller, TrackView, UnlockButton } from './Actions';
+import { Venn } from './Brand';
 import { FlowScreen } from './Shell';
-import { DimensionBars, InsightCard, PeopleLegend, PersonDot, ScoreRing } from './Visuals';
+import { DimensionBars, InsightCard, PeopleLegend, PersonDot } from './Visuals';
 
 const snapshot = (v: ParticipantView) => `${v.stage}:${v.partnerJoined}:${v.partnerSubmitted}:${v.unlocked}`;
 
@@ -16,10 +17,16 @@ export function WaitingStage({ view, privateUrl, locale }: { view: ParticipantVi
   return (
     <div className="awc-anim-in">
       <StatusPoller token={view.token} snapshot={snapshot(view)} />
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-awc-wine text-white">
-        <Check size={24} strokeWidth={2.5} className="awc-anim-pop" aria-hidden />
+      <div className="-ml-2 flex">
+        <Venn
+          names={view.role === 'a' ? { a: view.name, b: partner } : { a: partner, b: view.name }}
+          overlap={40}
+          size={200}
+          pending={view.role === 'a' ? 'b' : 'a'}
+          label={`${view.name}: ${t.finished} · ${partner ?? t.otherPerson}: ${view.partnerJoined ? t.answering : t.notOpened}`}
+        />
       </div>
-      <p className="awc-eyebrow mt-6">{t.eyebrow(view.name)}</p>
+      <p className="awc-eyebrow mt-4">{t.eyebrow(view.name)}</p>
       {!view.partnerJoined ? (
         <>
           <h1 className="awc-serif mt-3 text-[2.2rem] leading-[1.1] sm:text-5xl">
@@ -83,23 +90,41 @@ export function ResultsStage({ view, preview, price, privateUrl, siteUrl, notice
   return (
     <div>
       <TrackView event="compat_results_view" props={{ unlocked: view.unlocked, locale }} />
-      {/* Headline */}
-      <section className="awc-anim-in text-center">
-        <p className="awc-eyebrow">
+      {/* Headline: a poster made to be screenshotted and shared */}
+      <section className="awc-anim-in relative mx-auto max-w-3xl overflow-hidden rounded-[2rem] bg-awc-wine-deep px-5 pb-9 pt-9 text-center text-white shadow-[0_40px_80px_-30px_rgb(94_37_54/0.6)] sm:px-12 sm:pb-11">
+        <svg aria-hidden viewBox="0 0 600 400" className="pointer-events-none absolute -left-40 -top-32 w-[560px] opacity-[0.06]">
+          <circle cx="230" cy="200" r="170" fill="none" stroke="#fff" strokeWidth="2" />
+          <circle cx="370" cy="200" r="170" fill="none" stroke="#fff" strokeWidth="2" />
+        </svg>
+        <p className="awc-eyebrow relative !text-awc-blush">
           {names.a} & {names.b} · {preview.context.label}
         </p>
-        <h1 className="awc-serif mx-auto mt-4 max-w-2xl text-[2.6rem] leading-[1.05] sm:text-6xl">{sig.title}</h1>
-        <p className="awc-serif mx-auto mt-3 max-w-xl text-xl italic text-awc-wine">{sig.tagline}</p>
-        <div className="mt-9 flex justify-center">
-          <ScoreRing value={overview.alignment} label={UI[locale].landing.preview.aligned} />
+        <div className="relative mt-3 flex justify-center">
+          <Venn names={names} overlap={overview.similarity} size={300} tone="dark" label={`${overview.similarity}% ${t.similarity}`} />
         </div>
-        <p className="mx-auto mt-6 max-w-md text-[0.9375rem] leading-relaxed text-awc-ink-soft">
+        <h1 className="awc-serif relative mx-auto mt-1 max-w-2xl text-balance text-[2.5rem] leading-[1.05] sm:text-[3.6rem]">{sig.title}</h1>
+        <p className="awc-serif relative mx-auto mt-3 max-w-xl text-balance text-lg italic text-awc-blush sm:text-xl">{sig.tagline}</p>
+        <dl className="relative mx-auto mt-8 grid max-w-lg grid-cols-3 border-t border-white/12 pt-6">
+          {[
+            [`${overview.alignment}%`, t.posterAligned],
+            [`${overview.sameAnswers}/${overview.total}`, t.sameShort],
+            [`${overview.similarity}%`, t.similarity],
+          ].map(([v, l], i) => (
+            <div key={l} className={i ? 'border-l border-white/12' : ''}>
+              <dd className="awc-serif text-[2rem] leading-none tabular-nums sm:text-[2.6rem]">{v}</dd>
+              <dt className="mt-2 text-[0.625rem] font-semibold uppercase tracking-[0.16em] text-white/60 sm:text-[0.6875rem]">{l}</dt>
+            </div>
+          ))}
+        </dl>
+      </section>
+      <section className="text-center">
+        <p className="sr-only">
           {s1}
-          <strong className="text-awc-ink">{s2}</strong>
+          {s2}
           {s3}
-          <strong className="text-awc-ink">{overview.similarity}%</strong> {t.similarity}
+          {overview.similarity}% {t.similarity}
         </p>
-        <p className="mx-auto mt-2 max-w-md text-[0.8125rem] leading-relaxed text-awc-muted">
+        <p className="mx-auto mt-6 max-w-md text-[0.8125rem] leading-relaxed text-awc-muted">
           {t.explain}{' '}
           <Link href="/compatible/how-it-works#scoring" className="underline underline-offset-2 hover:text-awc-wine">
             {t.howWeScore}

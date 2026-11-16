@@ -2,13 +2,17 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { Locale } from '@/lib/compat/i18n';
 import { UI } from '@/lib/compat/ui-strings';
+import { VennMark } from './Brand';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 export function Wordmark({ className = '', tone = 'dark', locale }: { className?: string; tone?: 'dark' | 'light'; locale: Locale }) {
   return (
-    <Link href="/compatible" className={`group inline-flex items-baseline gap-[0.12em] ${tone === 'light' ? 'text-white' : 'text-awc-ink'} ${className}`} aria-label={UI[locale].shell.home}>
-      <span lang="en" className="awc-serif text-[1.15rem] italic leading-none tracking-tight md:text-[1.3rem]">Are We Compatible</span>
-      <span className={`awc-serif text-[1.15rem] leading-none md:text-[1.3rem] ${tone === 'light' ? 'text-awc-blush' : 'text-awc-wine'}`}>?</span>
+    <Link href="/compatible" className={`group inline-flex items-center gap-2 ${tone === 'light' ? 'text-white' : 'text-awc-ink'} ${className}`} aria-label={UI[locale].shell.home}>
+      <VennMark size={18} className="shrink-0 transition-transform duration-500 group-hover:scale-110" />
+      <span className="inline-flex items-baseline gap-[0.12em]">
+        <span lang="en" className="awc-serif text-[1.1rem] italic leading-none tracking-tight md:text-[1.25rem]">Are We Compatible</span>
+        <span className={`awc-serif text-[1.1rem] leading-none md:text-[1.25rem] ${tone === 'light' ? 'text-awc-blush' : 'text-awc-wine'}`}>?</span>
+      </span>
     </Link>
   );
 }

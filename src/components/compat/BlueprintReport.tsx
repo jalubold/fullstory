@@ -7,6 +7,7 @@ import type { Horizon } from '@/lib/compat/report-strings';
 import { SECTION_IDS, sectionTitles, type SectionId } from '@/lib/compat/sections';
 import { UI } from '@/lib/compat/ui-strings';
 import { PdfLink, TrackView } from './Actions';
+import { Venn } from './Brand';
 import { AxisSpectrum, DimensionBars, InsightCard, PeopleLegend, PersonDot, RelationChip, ScoreRing } from './Visuals';
 
 const num = (id: string) => String(SECTION_IDS.indexOf(id as SectionId) + 1).padStart(2, '0');
@@ -115,8 +116,13 @@ export function BlueprintReport({ bp, token, generated, locale }: { bp: Blueprin
     <div>
       <TrackView event="compat_blueprint_view" props={{ locale }} />
       {/* Cover */}
-      <header className="bg-awc-wine-deep text-white">
-        <div className="awc-container py-12 md:py-20">
+      <header className="relative overflow-hidden bg-awc-wine-deep text-white">
+        <svg aria-hidden viewBox="0 0 600 400" className="pointer-events-none absolute -bottom-40 -left-40 w-[640px] opacity-[0.05]">
+          <circle cx="230" cy="200" r="170" fill="none" stroke="#fff" strokeWidth="2" />
+          <circle cx="370" cy="200" r="170" fill="none" stroke="#fff" strokeWidth="2" />
+        </svg>
+        <div className="awc-container relative grid items-center gap-8 py-12 md:py-20 lg:grid-cols-[1fr_auto]">
+          <div>
           <Link href={`/compatible/s/${token}`} className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white">
             <ArrowLeft size={15} aria-hidden /> {t.back}
           </Link>
@@ -129,6 +135,10 @@ export function BlueprintReport({ bp, token, generated, locale }: { bp: Blueprin
             <span>{bp.context.label}</span>
             <span>{generated}</span>
             <span>{t.aligned(overview.alignment)}</span>
+          </div>
+          </div>
+          <div className="hidden justify-center sm:flex lg:justify-end">
+            <Venn names={names} overlap={overview.similarity} size={320} tone="dark" label={UI[locale].blueprint.overviewStats({ same: overview.sameAnswers, total: overview.total, similarity: overview.similarity, complementary: overview.counts.complementary, tension: overview.counts.tension })} />
           </div>
         </div>
       </header>
