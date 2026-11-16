@@ -40,6 +40,7 @@ export function Venn({
   size = 280,
   tone = 'light',
   pending = null,
+  initialSize = 22,
   className = '',
 }: {
   names: { a: string | null; b: string | null };
@@ -49,6 +50,8 @@ export function Venn({
   tone?: 'light' | 'dark';
   /** Who hasn't answered yet: their circle is dashed and breathing, and nothing overlaps. */
   pending?: 'a' | 'b' | 'both' | null;
+  /** Size of the initials, in the figure's own units (320 wide) — raise it when the figure is drawn small. */
+  initialSize?: number;
   className?: string;
 }) {
   const id = useSvgId();
@@ -70,7 +73,7 @@ export function Venn({
     return (
       <g key={role} className={`awc-venn-${role} ${waiting ? 'awc-breathe' : ''}`} style={{ '--awc-venn-shift': `${role === 'a' ? -d / 2 - 20 : d / 2 + 20}px` } as CSSProperties}>
         <circle cx={cx} cy={cy} r={r} fill={fill} stroke={stroke} strokeWidth="2" strokeDasharray={waiting ? '6 7' : undefined} />
-        <text x={cx + (role === 'a' ? -1 : 1) * r * 0.42} y={cy + 6} textAnchor="middle" fontFamily="var(--font-awc-serif)" fontSize="22" fill={ink} opacity={waiting ? 0.65 : 1}>
+        <text x={cx + (role === 'a' ? -1 : 1) * r * 0.42} y={cy + initialSize * 0.3} textAnchor="middle" fontFamily="var(--font-awc-serif)" fontSize={initialSize} fill={ink} opacity={waiting ? 0.65 : 1}>
           {name ? initial(name) : '?'}
         </text>
       </g>
