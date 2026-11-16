@@ -123,7 +123,7 @@ export const QUESTION_SET_V1_ID: QuestionSetTranslation = {
       topic: 'Dukungan saat sedih',
       options: {
         listen: {
-          label: 'Dengarkan aku, biarkan aku menumpahkan semuanya',
+          label: 'Dengarkan aku, biarkan aku curhat sepuasnya',
           trait: 'paling butuh didengarkan saat sedang sedih',
           plural: 'paling butuh didengarkan saat sedang sedih',
         },
@@ -233,7 +233,7 @@ export const QUESTION_SET_V1_ID: QuestionSetTranslation = {
     },
 
     'emo-show': {
-      prompt: 'Bagaimana caramu yang paling alami untuk menunjukkan bahwa kamu sayang pada seseorang?',
+      prompt: 'Apa caramu yang paling alami untuk menunjukkan rasa sayang ke seseorang?',
       topic: 'Menunjukkan rasa sayang',
       options: {
         words: {
@@ -325,7 +325,7 @@ export const QUESTION_SET_V1_ID: QuestionSetTranslation = {
           plural: 'membuka diri pelan-pelan, seiring waktu',
         },
         rarely: {
-          label: 'Jarang — aku biasanya mengurai semuanya sendiri',
+          label: 'Jarang — biasanya aku pendam dan urai sendiri',
           trait: 'cenderung memproses perasaannya sendiri',
           plural: 'cenderung memproses perasaan sendiri-sendiri',
         },
@@ -470,7 +470,7 @@ export const QUESTION_SET_V1_ID: QuestionSetTranslation = {
           plural: 'lebih suka tahu rencana dari awal, tapi tetap bisa menyesuaikan diri',
         },
         stressed: {
-          label: 'Itu benar-benar membuatku goyah — aku suka rencana yang tidak berubah',
+          label: 'Bikin aku nggak tenang — aku suka rencana yang pasti',
           trait: 'merasa stres dengan perubahan mendadak dan suka rencana yang tetap berjalan',
           plural: 'merasa stres dengan perubahan mendadak dan suka rencana yang tetap berjalan',
         },

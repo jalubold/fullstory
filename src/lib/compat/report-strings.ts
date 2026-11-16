@@ -222,7 +222,7 @@ const ID: ReportStrings = {
   },
   care: {
     words: { noun: 'kata-kata', action: (n) => `ucapkan satu hal spesifik yang kamu hargai dari ${n}, secara langsung, setiap hari minggu ini` },
-    time: { noun: 'waktu yang utuh', action: (n) => `rencanakan satu jam tanpa ponsel bersama ${n} minggu ini, hanya berdua` },
+    time: { noun: 'waktu yang utuh', action: (n) => `rencanakan satu jam tanpa HP bersama ${n} minggu ini, cuma berdua` },
     help: { noun: 'bantuan nyata', action: (n) => `ambil alih satu tugas ${n} minggu ini tanpa diminta` },
     touch: { noun: 'kedekatan fisik', action: (n) => `berikan ${n} lebih banyak sentuhan sehari-hari — tangan di punggung, pelukan yang lebih lama` },
     thought: { noun: 'kejutan kecil yang penuh perhatian', action: (n) => `tinggalkan untuk ${n} satu tanda kecil tak terduga bahwa kamu sedang memikirkannya` },
@@ -248,7 +248,7 @@ const ID: ReportStrings = {
     title: 'Risiko kejar-dan-mundur',
     body: (p, w) => [
       `Jawaban ${p} cenderung ingin langsung membahas masalah, sementara ${w} biasanya butuh waktu dan ketenangan lebih dulu.`,
-      `Saat tertekan, ini bisa menjadi lingkaran: makin ${p} mendesak, makin ${w} menarik diri — dan makin ${w} menarik diri, makin ${p} mendesak. Tidak ada yang salah; kalian masing-masing sedang menjaga hubungan dengan cara sendiri.`,
+      `Saat sedang tegang, ini bisa jadi lingkaran: makin ${p} mendesak, makin ${w} menarik diri — dan makin ${w} menarik diri, makin ${p} mendesak. Tidak ada yang salah; kalian masing-masing sedang menjaga hubungan dengan cara sendiri.`,
     ],
     tip: (w, p) => `${w}: saat butuh jeda, sebutkan kapan kamu akan kembali. ${p}: percayai waktu itu, dan berikan ruangnya sepenuhnya.`,
   },
@@ -259,7 +259,7 @@ const ID: ReportStrings = {
   },
   depleted: {
     title: 'Saat kalian sama-sama lelah',
-    body: (x, y) => [`Saat ${x} sedang sedih, ${x} mencari kedekatan — sementara ${y} mengisi ulang tenaga dengan waktu sendiri.`, 'Di minggu yang berat, kalian bisa sama-sama terkuras dan membutuhkan hal yang berlawanan, sehingga keduanya merasa tidak terpenuhi.'],
+    body: (x, y) => [`Saat ${x} sedang sedih, ${x} mencari kedekatan — sementara ${y} mengisi ulang tenaga dengan waktu sendiri.`, 'Di minggu yang berat, kalian bisa sama-sama terkuras dan butuh hal yang berlawanan — sampai akhirnya dua-duanya merasa kurang diperhatikan.'],
     tip: 'Sepakati rencana “sama-sama lelah” dari awal: pelukan panjang dulu, lalu satu jam terpisah, lalu makan malam bersama.',
   },
   dimensionIntro: ({ label, alignment, matched, total, tension }) => {
@@ -267,7 +267,7 @@ const ID: ReportStrings = {
     const rest = total - matched;
     const parts = [`Dalam hal ${label.toLowerCase()}, kalian ${alignment}% selaras: ${band}.`];
     parts.push(matched === total ? `Keempat jawaban kalian di sini sejalan atau saling melengkapi.` : matched === 0 ? `Tidak satu pun dari ${total} jawaban kalian di sini yang berdekatan.` : `${matched} dari ${total} jawaban kalian di sini sejalan atau saling melengkapi, dan ${rest} menunjukkan sudut pandang berbeda.`);
-    if (tension) parts.push(tension === 1 ? 'Ada satu topik yang bisa memicu salah paham jika tidak dibicarakan.' : `Ada ${tension} topik yang bisa memicu salah paham jika tidak dibicarakan.`);
+    if (tension) parts.push(tension === 1 ? 'Ada satu topik yang bisa memicu salah paham kalau tidak dibicarakan.' : `Ada ${tension} topik yang bisa memicu salah paham kalau tidak dibicarakan.`);
     return parts.join(' ');
   },
   deepDives: { emotional: 'Kebutuhan Emosional', communication: 'Dinamika Komunikasi', conflict: 'Konflik & Saling Memahami', future: 'Harapan Masa Depan' },
@@ -285,7 +285,7 @@ const ID: ReportStrings = {
     noneTitle: 'Tidak ada titik buta besar yang menonjol',
     noneBody: [
       'Tidak ada kombinasi jawaban kalian yang cocok dengan pola yang kami cari — menghindar bersama, kejar-dan-mundur, atau kebutuhan yang diam-diam saling meniadakan.',
-      'Satu catatan lembut: di bagian yang jawabannya sama, mudah sekali mengira kalian memaksudkan hal yang sama. Gunakan satu-dua pembuka obrolan untuk topik yang kalian sepakati juga.',
+      'Satu catatan lembut: di bagian yang jawabannya sama, mudah sekali mengira kalian memaksudkan hal yang sama. Pakai satu-dua bahan obrolan untuk topik yang kalian sepakati juga.',
     ],
   },
   starters: {
@@ -299,14 +299,14 @@ const ID: ReportStrings = {
     loveBody: (g, action) => `${g}: ${action}.`,
     loveBecause: (r, ln, g, sn) => `Karena ${r} paling merasa dicintai lewat ${ln}, sementara ${g} biasa menunjukkan perhatian lewat ${sn}.`,
     loveBecauseShort: (r, ln) => `Karena ${r} paling merasa dicintai lewat ${ln}.`,
-    keepDoing: { title: 'Teruskan yang sudah berhasil', body: 'Cara kalian menunjukkan perhatian sudah sampai satu sama lain. Minggu ini, sebutkan satu hal yang dilakukan pasanganmu yang membuatmu merasa dicintai — secara langsung dan spesifik.', because: 'Karena cara kalian masing-masing menunjukkan perhatian cocok dengan cara yang lain merasa paling dicintai.' },
+    keepDoing: { title: 'Teruskan yang sudah berhasil', body: 'Cara kalian menunjukkan perhatian sudah sampai satu sama lain. Minggu ini, saling sampaikan satu hal yang dilakukan yang lain dan membuat kalian merasa dicintai — secara langsung dan spesifik.', because: 'Karena cara kalian masing-masing menunjukkan perhatian cocok dengan cara yang lain merasa paling dicintai.' },
   },
   summary: {
-    p1Even: (a, b, same, total, al) => `${a} dan ${b}, kalian memberi jawaban yang sama pada ${same} dari ${total} pertanyaan, dengan keselarasan keseluruhan ${al}% yang sangat merata di kelima area.`,
-    p1: (x) => `${x.a} dan ${x.b}, kalian memberi jawaban yang sama pada ${x.same} dari ${x.total} pertanyaan, dengan keselarasan keseluruhan ${x.alignment}%. Titik temu terkuat kalian ada pada ${x.top.toLowerCase()} (${x.topScore}%), dan area yang paling banyak untuk dijelajahi adalah ${x.low.toLowerCase()} (${x.lowScore}%).`,
-    noDifferences: 'Kalian tidak berbeda di satu topik pun — langka dan layak dirayakan, meski tetap baik untuk memastikan kata yang sama memang bermakna sama bagi kalian berdua.',
-    differences: (n, c) => `Dari ${n} topik yang jawabannya berbeda, ${c ? `${c} tampak saling melengkapi — saling mengisi, bukan saling menarik` : 'tidak ada yang jelas saling melengkapi, tetapi sebagian besar hanyalah sudut pandang yang berbeda'}.`,
-    tension: (n) => (n === 1 ? 'Satu di antaranya bisa memicu salah paham jika tidak dibicarakan, dan Blueprint ini menunjukkan persis di mana.' : `${n} di antaranya bisa memicu salah paham jika tidak dibicarakan, dan Blueprint ini menunjukkan persis di mana.`),
+    p1Even: (a, b, same, total, al) => `${a} dan ${b}, jawaban kalian sama di ${same} dari ${total} pertanyaan, dengan keselarasan keseluruhan ${al}% yang merata di kelima area.`,
+    p1: (x) => `${x.a} dan ${x.b}, jawaban kalian sama di ${x.same} dari ${x.total} pertanyaan, dengan keselarasan keseluruhan ${x.alignment}%. Titik temu terkuat kalian ada di ${x.top.toLowerCase()} (${x.topScore}%), sementara area yang paling seru untuk digali adalah ${x.low.toLowerCase()} (${x.lowScore}%).`,
+    noDifferences: 'Kalian tidak berbeda di satu topik pun — langka, dan layak dirayakan! Tetap baik untuk memastikan kata yang sama memang berarti sama buat kalian berdua.',
+    differences: (n, c) => `Dari ${n} topik yang jawabannya berbeda, ${c ? `${c} justru saling melengkapi — saling mengisi, bukan saling tarik` : 'tidak ada yang jelas saling melengkapi, tapi sebagian besar hanyalah sudut pandang yang berbeda'}.`,
+    tension: (n) => (n === 1 ? 'Satu di antaranya bisa memicu salah paham kalau tidak dibicarakan — dan Blueprint ini menunjukkan persis di mana.' : `${n} di antaranya bisa memicu salah paham kalau tidak dibicarakan — dan Blueprint ini menunjukkan persis di mana.`),
   },
   horizons: { week: 'Minggu ini', month: 'Bulan ini', ongoing: 'Seterusnya' },
 };

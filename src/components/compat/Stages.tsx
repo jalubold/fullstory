@@ -46,7 +46,7 @@ export function WaitingStage({ view, privateUrl, locale }: { view: ParticipantVi
       )}
 
       <div className="mt-8 space-y-5">
-        {view.inviteUrl && !view.partnerJoined && <InviteCard inviteUrl={view.inviteUrl} name={view.name} locale={locale} />}
+        {view.inviteUrl && !view.partnerJoined && <InviteCard inviteUrl={view.inviteUrl} locale={locale} />}
         <div className="awc-card divide-y divide-awc-line">
           <StatusRow done label={view.name} detail={t.finished} role={view.role} name={view.name} locale={locale} />
           <StatusRow

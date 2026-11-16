@@ -90,10 +90,10 @@ function ShareButtons({ url, text, events, locale }: { url: string; text: string
 }
 
 /** The invitation: copy, WhatsApp or native share. */
-export function InviteCard({ inviteUrl, name, locale }: { inviteUrl: string; name: string; locale: Locale }) {
+export function InviteCard({ inviteUrl, locale }: { inviteUrl: string; locale: Locale }) {
   const t = UI[locale].invite;
   const { copied, copy } = useCopy();
-  const text = t.message(name);
+  const text = t.message;
   return (
     <div className="awc-card p-5 sm:p-6">
       <p className="awc-eyebrow">{t.eyebrow}</p>
