@@ -6,7 +6,8 @@ import { Quiz } from '@/components/compat/Quiz';
 import { CompatHeader, FlowScreen, ShellPlaceholder } from '@/components/compat/Shell';
 import { InvalidLink, ResultsStage, WaitingStage } from '@/components/compat/Stages';
 import { countryFromHeaders } from '@/lib/commerce/region';
-import { isLocale, type Locale } from '@/lib/compat/i18n';
+import { isLocale, LOCALE_NAMES, type Locale } from '@/lib/compat/i18n';
+import { formatUsdCharge } from '@/lib/compat/pricing';
 import { getQuestionSet } from '@/lib/compat/questions';
 import { buildPreview } from '@/lib/compat/report';
 import { parseRevealed, REVEAL_COOKIE } from '@/lib/compat/reveal';
@@ -71,7 +72,8 @@ async function Hub({ token, searchParams, locale }: { token: string; searchParam
 
   const blueprint = await loadBlueprint(ctx, locale);
   if (!blueprint) return <InvalidLink locale={locale} />;
-  const price = blueprintPrice(countryFromHeaders(await headers())).label;
+  const quote = blueprintPrice(countryFromHeaders(await headers()));
+  const priceNote = quote.chargedAs ? UI[locale].offer.chargedIn(formatUsdCharge(quote.chargedAs.amount, LOCALE_NAMES[locale].intl), quote.label) : undefined;
   // The reveal plays the first time this browser opens these results.
   const revealKey = revealKeyFor(token);
   const revealed = parseRevealed((await cookies()).get(REVEAL_COOKIE)?.value).includes(revealKey);
@@ -81,7 +83,8 @@ async function Hub({ token, searchParams, locale }: { token: string; searchParam
         <ResultsStage
           view={view}
           preview={buildPreview(blueprint)}
-          price={price}
+          price={quote.label}
+          priceNote={priceNote}
           privateUrl={privateUrl}
           siteUrl={`${appUrl()}/compatible`}
           locale={locale}

@@ -369,7 +369,7 @@ export default async function CompatLanding({ params }: PageProps<'/compatible/[
                   <span className="rounded-full bg-awc-blush px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-awc-wine-deep">{t.premium.badge}</span>
                 </div>
                 <div className="mt-4 flex flex-wrap items-baseline gap-x-3">
-                  <Suspense fallback={<span className="awc-serif text-5xl">{locale === 'id' ? 'Rp39.000' : '$9.99'}</span>}>
+                  <Suspense fallback={<span className="awc-serif text-5xl">{locale === 'id' ? 'Rp49.000' : '$9.99'}</span>}>
                     <PriceTag className="awc-serif text-5xl" />
                   </Suspense>
                   <span className="text-white/65">{t.perCouple}</span>

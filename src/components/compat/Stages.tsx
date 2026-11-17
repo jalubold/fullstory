@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Check, Clock, FileText, Lock, Sparkles } from 'lucide-react';
+import { ArrowRight, ChartNoAxesColumn, Check, Clock, FileText, Lock } from 'lucide-react';
 import type { Locale } from '@/lib/compat/i18n';
 import type { BlueprintPreview } from '@/lib/compat/report';
 import type { ParticipantView } from '@/lib/compat/server/view';
@@ -86,6 +86,7 @@ export function ResultsStage({
   view,
   preview,
   price,
+  priceNote,
   privateUrl,
   siteUrl,
   notice,
@@ -95,6 +96,8 @@ export function ResultsStage({
   view: ParticipantView;
   preview: BlueprintPreview;
   price: string;
+  /** Says what is actually charged, when that differs from the price shown (rupiah shown, dollars charged). */
+  priceNote?: string;
   privateUrl: string;
   siteUrl: string;
   notice?: string;
@@ -198,7 +201,7 @@ export function ResultsStage({
               {notice}
             </p>
           )}
-          <BlueprintOffer token={view.token} preview={preview} price={price} locale={locale} />
+          <BlueprintOffer token={view.token} preview={preview} price={price} priceNote={priceNote} locale={locale} />
         </>
       )}
 
@@ -219,7 +222,7 @@ export function ResultsStage({
   );
 }
 
-function BlueprintOffer({ token, preview, price, locale }: { token: string; preview: BlueprintPreview; price: string; locale: Locale }) {
+function BlueprintOffer({ token, preview, price, priceNote, locale }: { token: string; preview: BlueprintPreview; price: string; priceNote?: string; locale: Locale }) {
   const t = UI[locale].offer;
   const { names, counts } = preview;
   const [l0, l1, l2, l3, l4, l5, l6] = t.lead({ ...counts, a: names.a, b: names.b });
@@ -227,7 +230,7 @@ function BlueprintOffer({ token, preview, price, locale }: { token: string; prev
     <section className="mx-auto mt-14 max-w-2xl overflow-hidden rounded-[1.75rem] border border-awc-line bg-white shadow-[var(--shadow-awc-lift)]">
       <div className="bg-awc-wine-deep px-6 pb-8 pt-9 text-white sm:px-10">
         <p className="awc-eyebrow !text-awc-blush">
-          <Sparkles size={13} className="mr-1.5 inline -translate-y-px" aria-hidden />
+          <ChartNoAxesColumn size={14} className="mr-1.5 inline -translate-y-px" aria-hidden />
           {t.eyebrow}
         </p>
         <h2 className="awc-serif mt-3 text-[2rem] leading-tight sm:text-4xl">{t.title}</h2>
@@ -254,10 +257,10 @@ function BlueprintOffer({ token, preview, price, locale }: { token: string; prev
           <div>
             <p className="awc-serif text-3xl">{price}</p>
             <p className="text-sm text-awc-muted">{t.once}</p>
+            {priceNote && <p className="mt-1 text-[0.75rem] leading-relaxed text-awc-muted">{priceNote}</p>}
           </div>
-          <UnlockButton token={token} label={t.unlock} locale={locale} />
+          <UnlockButton token={token} label={t.unlock} locale={locale} className="shrink-0" />
         </div>
-        <p className="mt-4 text-[0.75rem] leading-relaxed text-awc-muted">{t.fine}</p>
       </div>
     </section>
   );

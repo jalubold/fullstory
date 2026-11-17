@@ -4,7 +4,7 @@ import { sql, sqlOne, transaction } from '@/lib/server/db';
 import { appUrl } from '@/lib/server/env';
 import { HttpError } from '@/lib/server/http';
 import { getPaymentProvider, type CheckoutOrder, type PaymentEvent, type PaymentProvider } from '@/lib/server/payments';
-import { BLUEPRINT_PRICES, BLUEPRINT_PRODUCT, blueprintCurrency, formatPrice, type CompatCurrency } from '../pricing';
+import { BLUEPRINT_PRICES, BLUEPRINT_PRODUCT, blueprintQuote, type BlueprintQuote, type CompatCurrency } from '../pricing';
 import type { Locale } from '../i18n';
 import { UI } from '../ui-strings';
 import type { ParticipantView } from './view';
@@ -34,22 +34,27 @@ export interface CompatOrderRow {
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const orderNumber = () => 'AWC-' + Array.from(crypto.randomBytes(7), (b) => ALPHABET[b % ALPHABET.length]).join('');
 
+/**
+ * The provider keeps one product per key and currency, priced when it is first
+ * made. A price other than the standard one for its currency (Indonesia's
+ * dollar price) gets its own product, so a product's price always equals what
+ * is charged.
+ */
+const productKey = (o: CompatOrderRow) => (BLUEPRINT_PRICES[o.currency as CompatCurrency] === o.amount_total ? BLUEPRINT_PRODUCT.key : `${BLUEPRINT_PRODUCT.key}-${o.amount_total}`);
+
 export function asCheckoutOrder(o: CompatOrderRow): CheckoutOrder {
   return {
     ...o,
     amount_shipping: 0,
     lines: [{ label: BLUEPRINT_PRODUCT.name, detail: 'One payment · unlocked for both of you', quantity: 1, unitAmount: o.amount_total }],
     items: [{ kind: 'compat_blueprint' }],
-    product: BLUEPRINT_PRODUCT,
+    product: { ...BLUEPRINT_PRODUCT, key: productKey(o) },
   };
 }
 
-/** The price this visitor would pay (for display). */
-export function blueprintPrice(country: string | null): { amount: number; currency: CompatCurrency; label: string } {
-  const provider = getPaymentProvider();
-  const currency = blueprintCurrency(country, provider?.currencies ?? null);
-  const amount = BLUEPRINT_PRICES[currency];
-  return { amount, currency, label: formatPrice(amount, currency) };
+/** The price this visitor would pay: what to show, and what is actually charged. */
+export function blueprintPrice(country: string | null): BlueprintQuote {
+  return blueprintQuote(country, getPaymentProvider()?.currencies ?? null);
 }
 
 export async function getCompatOrder(id: string): Promise<CompatOrderRow | null> {
@@ -62,10 +67,11 @@ export async function startCheckout(view: ParticipantView, country: string | nul
   if (view.stage !== 'results') throw new HttpError(409, UI[locale].errors.notFinished);
   const provider = getPaymentProvider();
   if (!provider) throw new HttpError(503, UI[locale].errors.paymentsUnavailable);
-  const currency = blueprintCurrency(country, provider.currencies);
+  // Charged exactly as quoted on the results page (same country, same provider).
+  const quote = blueprintQuote(country, provider.currencies);
   const [order] = await sql<CompatOrderRow>(
     `insert into compat_orders (id, number, assessment_id, buyer_role, currency, amount_total, provider) values ($1, $2, $3, $4, $5, $6, $7) returning *`,
-    [crypto.randomUUID(), orderNumber(), view.assessmentId, view.role, currency, BLUEPRINT_PRICES[currency], provider.id],
+    [crypto.randomUUID(), orderNumber(), view.assessmentId, view.role, quote.currency, quote.amount, provider.id],
   );
   const base = appUrl();
   // The return page finds the buyer's private link from this browser's cookie,

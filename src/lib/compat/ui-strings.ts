@@ -301,7 +301,7 @@ const EN = {
     paymentCancelled: 'Checkout cancelled — you haven’t been charged.',
   },
   offer: {
-    eyebrow: 'The full story',
+    eyebrow: 'The full analysis',
     title: 'The Relationship Blueprint',
     lead: (x: { differences: number; blindSpots: number; strengths: number; starters: number; actions: number; a: string; b: string }) =>
       [
@@ -315,9 +315,10 @@ const EN = {
       ] as string[],
     locked: ['Individual profiles for you both', 'Every answer, compared side by side', 'Emotional needs & how you each show care', 'Communication and conflict dynamics', 'Future expectations', 'Strengths & potential blind spots', 'Personal conversation starters', 'A practical action plan', 'A PDF to keep'],
     once: 'One payment · unlocks it for you both',
+    /** Shown when the price is displayed in rupiah but the provider charges in US dollars. */
+    chargedIn: (usd: string, shown: string) => `Charged in US dollars: ${usd} (about ${shown}, depending on your card’s exchange rate).`,
     unlock: 'Unlock the Blueprint',
     opening: 'Opening secure checkout…',
-    fine: 'One-time payment, no subscription. For reflection and fun — not a psychological diagnosis.',
     error: 'We couldn’t open checkout just now. Please try again in a moment.',
   },
   del: {
@@ -797,7 +798,7 @@ const ID: UIStrings = {
     paymentCancelled: 'Pembayaran dibatalkan — kamu belum ditagih apa pun.',
   },
   offer: {
-    eyebrow: 'Cerita lengkapnya',
+    eyebrow: 'Analisis lengkap',
     title: 'The Relationship Blueprint',
     lead: (x: { differences: number; blindSpots: number; strengths: number; starters: number; actions: number; a: string; b: string }) =>
       [
@@ -811,9 +812,9 @@ const ID: UIStrings = {
       ] as string[],
     locked: ['Profil pribadi kalian berdua', 'Semua jawaban, dibandingkan berdampingan', 'Kebutuhan emosional & cara kalian menunjukkan sayang', 'Dinamika komunikasi dan konflik', 'Harapan masa depan', 'Kekuatan & potensi titik buta', 'Bahan obrolan yang personal', 'Rencana aksi praktis', 'PDF untuk disimpan'],
     once: 'Sekali bayar · terbuka untuk kalian berdua',
+    chargedIn: (usd: string, shown: string) => `Ditagih dalam dolar AS: ${usd} (sekitar ${shown}, tergantung kurs kartumu).`,
     unlock: 'Buka Blueprint',
     opening: 'Membuka halaman pembayaran yang aman…',
-    fine: 'Sekali bayar, bukan langganan. Untuk refleksi dan hiburan — bukan diagnosis psikologis.',
     error: 'Halaman pembayaran belum bisa dibuka. Coba lagi sebentar lagi, ya.',
   },
   del: {

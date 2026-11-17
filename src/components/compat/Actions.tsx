@@ -206,7 +206,7 @@ export function UnlockButton({ token, label, locale, className = '', tone = 'pri
             setBusy(false);
           }
         }}
-        className={`awc-btn ${tone === 'light' ? 'awc-btn-light' : 'awc-btn-primary'} w-full px-7 text-base sm:w-auto`}
+        className={`awc-btn ${tone === 'light' ? 'awc-btn-light' : 'awc-btn-primary'} w-full whitespace-nowrap px-7 text-base sm:w-auto`}
       >
         {busy && <Loader2 size={18} className="animate-spin" aria-hidden />}
         {busy ? t.opening : label}
